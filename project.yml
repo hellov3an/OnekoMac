@@ -1,0 +1,46 @@
+name: OnekoMac
+options:
+  bundleIdPrefix: com.onekomac
+  deploymentTarget:
+    macOS: "13.0"
+  xcodeVersion: "15"
+  createIntermediateGroups: true
+
+settings:
+  base:
+    SWIFT_VERSION: 5.9
+    MACOSX_DEPLOYMENT_TARGET: "13.0"
+    ENABLE_HARDENED_RUNTIME: YES
+    CODE_SIGN_STYLE: Automatic
+    PRODUCT_BUNDLE_IDENTIFIER: com.onekomac.OnekoMac
+    INFOPLIST_FILE: Info.plist
+    SWIFT_OPTIMIZATION_LEVEL: "-O"
+    MTL_ENABLE_DEBUG_INFO: INCLUDE_SOURCE
+    MTL_FAST_MATH: YES
+
+targets:
+  OnekoMac:
+    type: application
+    platform: macOS
+    sources:
+      - path: App
+        type: group
+      - path: Engine
+        type: group
+      - path: Skins
+        type: group
+      - path: Utils
+        type: group
+      # Include Resources/Sprites as a folder reference so GIFs are copied as-is.
+      - path: Resources/Sprites
+        type: folder
+        buildPhase: resources
+    settings:
+      base:
+        PRODUCT_NAME: OnekoMac
+        LD_RUNPATH_SEARCH_PATHS: "$(inherited) @executable_path/../Frameworks"
+        COMBINE_HIDPI_IMAGES: YES
+    entitlements:
+      path: OnekoMac.entitlements
+      properties:
+        com.apple.security.automation.apple-events: true

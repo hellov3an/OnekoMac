@@ -1,0 +1,18 @@
+{
+  "frameSize": [32, 32],
+  "fps": 8,
+  "anchor": [16, 16],
+  "animations": {
+    "idle":   [0],
+    "walkE":  [1, 2],
+    "walkW":  [3, 4],
+    "walkN":  [5, 6],
+    "walkS":  [7, 8],
+    "walkNE": [1, 2],
+    "walkNW": [3, 4],
+    "walkSE": [1, 2],
+    "walkSW": [3, 4],
+    "sleep":  [9, 10],
+    "alert":  [11]
+  }
+}

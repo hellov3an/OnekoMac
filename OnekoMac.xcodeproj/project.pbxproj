@@ -1,0 +1,430 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		35DF060430ACED74D15DFAA5 /* MenuBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4488C3D373F06F90ED53DC79 /* MenuBarController.swift */; };
+		52883267724F5E13DD532938 /* MouseTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4DAB10CD2B55CFD42A30689 /* MouseTracker.swift */; };
+		60BBC5513B3EFFFB7F955563 /* MetalRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0F9A515A928932CC0E4336F /* MetalRenderer.swift */; };
+		765A2D8BE2AEF296A5EAEC2D /* SkinManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6DA81A3304E1D396304D6C4 /* SkinManager.swift */; };
+		7CB502EF797BEDD3C4FF8E05 /* Math.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6CA30A79FFBAA296F4B8492 /* Math.swift */; };
+		86C58FC806AD5C983FC671BF /* Logging.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDA4DF9FC881CA143F741D29 /* Logging.swift */; };
+		8E6F73E1F61A8E923292BA84 /* Shader.metal in Sources */ = {isa = PBXBuildFile; fileRef = 1823D932B8D825DAC0CCD969 /* Shader.metal */; };
+		9393DA9621011263628DDF1D /* Sprites in Resources */ = {isa = PBXBuildFile; fileRef = E3ACC486413860AE3AA7FDB2 /* Sprites */; };
+		93EC4705B43537BBE68AC3DB /* OverlayWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = E518A06A04AFBBF4857FA9C8 /* OverlayWindow.swift */; };
+		9BBCC73B2DE11F4B4604A8A2 /* ControlPanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBA6491D8DA3E4ABC507299E /* ControlPanel.swift */; };
+		D4D932688504CF3E4E081A3B /* CVDisplayLinkManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 384D36D95EDBA845A8846AFB /* CVDisplayLinkManager.swift */; };
+		DD363471E3969A90B2399E21 /* NekoCat.swift in Sources */ = {isa = PBXBuildFile; fileRef = B966ED127313678D1BDFFD1C /* NekoCat.swift */; };
+		EEC8D007F251901DC49C0EE7 /* RenderPipeline.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55B3B81C5011267F6DAF0B3C /* RenderPipeline.swift */; };
+		F0EF73B65AB2BFD3F3C67F39 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 094894EA086E148C24332877 /* AppDelegate.swift */; };
+		F342058606EFCE4E9A05D948 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64E78100FB2CCE4D913C064E /* main.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		094894EA086E148C24332877 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		1823D932B8D825DAC0CCD969 /* Shader.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = Shader.metal; sourceTree = "<group>"; };
+		384D36D95EDBA845A8846AFB /* CVDisplayLinkManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CVDisplayLinkManager.swift; sourceTree = "<group>"; };
+		4488C3D373F06F90ED53DC79 /* MenuBarController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarController.swift; sourceTree = "<group>"; };
+		4B40224A8720D15FFBCC7AAC /* OnekoMac.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = OnekoMac.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		55B3B81C5011267F6DAF0B3C /* RenderPipeline.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RenderPipeline.swift; sourceTree = "<group>"; };
+		64E78100FB2CCE4D913C064E /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
+		B4DAB10CD2B55CFD42A30689 /* MouseTracker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MouseTracker.swift; sourceTree = "<group>"; };
+		B6DA81A3304E1D396304D6C4 /* SkinManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SkinManager.swift; sourceTree = "<group>"; };
+		B966ED127313678D1BDFFD1C /* NekoCat.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NekoCat.swift; sourceTree = "<group>"; };
+		BDA4DF9FC881CA143F741D29 /* Logging.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Logging.swift; sourceTree = "<group>"; };
+		E3ACC486413860AE3AA7FDB2 /* Sprites */ = {isa = PBXFileReference; lastKnownFileType = folder; name = Sprites; path = Resources/Sprites; sourceTree = SOURCE_ROOT; };
+		E518A06A04AFBBF4857FA9C8 /* OverlayWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverlayWindow.swift; sourceTree = "<group>"; };
+		F0F9A515A928932CC0E4336F /* MetalRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetalRenderer.swift; sourceTree = "<group>"; };
+		F6CA30A79FFBAA296F4B8492 /* Math.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Math.swift; sourceTree = "<group>"; };
+		FBA6491D8DA3E4ABC507299E /* ControlPanel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ControlPanel.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		09F46D1D275298DC9AA4012F /* Skins */ = {
+			isa = PBXGroup;
+			children = (
+				B6DA81A3304E1D396304D6C4 /* SkinManager.swift */,
+			);
+			path = Skins;
+			sourceTree = "<group>";
+		};
+		142E796154F60C6C4675389C /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				4B40224A8720D15FFBCC7AAC /* OnekoMac.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		1886A61FC3FBC7B73B590565 /* SettingsPanel */ = {
+			isa = PBXGroup;
+			children = (
+				FBA6491D8DA3E4ABC507299E /* ControlPanel.swift */,
+			);
+			path = SettingsPanel;
+			sourceTree = "<group>";
+		};
+		5231F765AFFC4DBC13808B18 /* Input */ = {
+			isa = PBXGroup;
+			children = (
+				B4DAB10CD2B55CFD42A30689 /* MouseTracker.swift */,
+			);
+			path = Input;
+			sourceTree = "<group>";
+		};
+		54DDDB2D64580B988CB19223 /* Simulation */ = {
+			isa = PBXGroup;
+			children = (
+				B966ED127313678D1BDFFD1C /* NekoCat.swift */,
+			);
+			path = Simulation;
+			sourceTree = "<group>";
+		};
+		6B75C5036D082237082827A2 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				094894EA086E148C24332877 /* AppDelegate.swift */,
+				64E78100FB2CCE4D913C064E /* main.swift */,
+				E518A06A04AFBBF4857FA9C8 /* OverlayWindow.swift */,
+				F319C750148C65D2D751E10A /* MenuBar */,
+				1886A61FC3FBC7B73B590565 /* SettingsPanel */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		814AE4ED9F9DE540AD222DE4 /* Engine */ = {
+			isa = PBXGroup;
+			children = (
+				5231F765AFFC4DBC13808B18 /* Input */,
+				E4E00488D8950730F9997AC6 /* Render */,
+				54DDDB2D64580B988CB19223 /* Simulation */,
+				E6FA5A4DF59A7E38250C9E51 /* Timing */,
+			);
+			path = Engine;
+			sourceTree = "<group>";
+		};
+		9573F1E7BED390227A4780F4 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				E3ACC486413860AE3AA7FDB2 /* Sprites */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		E059C9103FB4DAAB01D2C0EE = {
+			isa = PBXGroup;
+			children = (
+				6B75C5036D082237082827A2 /* App */,
+				814AE4ED9F9DE540AD222DE4 /* Engine */,
+				9573F1E7BED390227A4780F4 /* Resources */,
+				09F46D1D275298DC9AA4012F /* Skins */,
+				FFFB3AA5BFE4DA935DD2F75E /* Utils */,
+				142E796154F60C6C4675389C /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		E4E00488D8950730F9997AC6 /* Render */ = {
+			isa = PBXGroup;
+			children = (
+				F0F9A515A928932CC0E4336F /* MetalRenderer.swift */,
+				55B3B81C5011267F6DAF0B3C /* RenderPipeline.swift */,
+				1823D932B8D825DAC0CCD969 /* Shader.metal */,
+			);
+			path = Render;
+			sourceTree = "<group>";
+		};
+		E6FA5A4DF59A7E38250C9E51 /* Timing */ = {
+			isa = PBXGroup;
+			children = (
+				384D36D95EDBA845A8846AFB /* CVDisplayLinkManager.swift */,
+			);
+			path = Timing;
+			sourceTree = "<group>";
+		};
+		F319C750148C65D2D751E10A /* MenuBar */ = {
+			isa = PBXGroup;
+			children = (
+				4488C3D373F06F90ED53DC79 /* MenuBarController.swift */,
+			);
+			path = MenuBar;
+			sourceTree = "<group>";
+		};
+		FFFB3AA5BFE4DA935DD2F75E /* Utils */ = {
+			isa = PBXGroup;
+			children = (
+				BDA4DF9FC881CA143F741D29 /* Logging.swift */,
+				F6CA30A79FFBAA296F4B8492 /* Math.swift */,
+			);
+			path = Utils;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		15D7500D382F16756260CED1 /* OnekoMac */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = B452EABCF76D4970AE00E6BA /* Build configuration list for PBXNativeTarget "OnekoMac" */;
+			buildPhases = (
+				68900A0BB8E8CD519C197465 /* Sources */,
+				6ECEE688B114872BD484C62F /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = OnekoMac;
+			packageProductDependencies = (
+			);
+			productName = OnekoMac;
+			productReference = 4B40224A8720D15FFBCC7AAC /* OnekoMac.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		E666F8E2200E82FA594D7D1F /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1500;
+				TargetAttributes = {
+					15D7500D382F16756260CED1 = {
+						ProvisioningStyle = Automatic;
+					};
+				};
+			};
+			buildConfigurationList = DA90BC41C3E4249580104942 /* Build configuration list for PBXProject "OnekoMac" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = E059C9103FB4DAAB01D2C0EE;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 142E796154F60C6C4675389C /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				15D7500D382F16756260CED1 /* OnekoMac */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		6ECEE688B114872BD484C62F /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9393DA9621011263628DDF1D /* Sprites in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		68900A0BB8E8CD519C197465 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F0EF73B65AB2BFD3F3C67F39 /* AppDelegate.swift in Sources */,
+				D4D932688504CF3E4E081A3B /* CVDisplayLinkManager.swift in Sources */,
+				9BBCC73B2DE11F4B4604A8A2 /* ControlPanel.swift in Sources */,
+				86C58FC806AD5C983FC671BF /* Logging.swift in Sources */,
+				7CB502EF797BEDD3C4FF8E05 /* Math.swift in Sources */,
+				35DF060430ACED74D15DFAA5 /* MenuBarController.swift in Sources */,
+				60BBC5513B3EFFFB7F955563 /* MetalRenderer.swift in Sources */,
+				52883267724F5E13DD532938 /* MouseTracker.swift in Sources */,
+				DD363471E3969A90B2399E21 /* NekoCat.swift in Sources */,
+				93EC4705B43537BBE68AC3DB /* OverlayWindow.swift in Sources */,
+				EEC8D007F251901DC49C0EE7 /* RenderPipeline.swift in Sources */,
+				8E6F73E1F61A8E923292BA84 /* Shader.metal in Sources */,
+				765A2D8BE2AEF296A5EAEC2D /* SkinManager.swift in Sources */,
+				F342058606EFCE4E9A05D948 /* main.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		00DA3F423A5D12E80210C1D9 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				INFOPLIST_FILE = Info.plist;
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.onekomac.OnekoMac;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.9;
+			};
+			name = Release;
+		};
+		01EBDABA30784493C59A95A8 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = OnekoMac.entitlements;
+				COMBINE_HIDPI_IMAGES = YES;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				PRODUCT_NAME = OnekoMac;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		23ECC9C357EA353FE7FFF8B2 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				INFOPLIST_FILE = Info.plist;
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.onekomac.OnekoMac;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.9;
+			};
+			name = Debug;
+		};
+		76B0FE50ED72B38C01C682BF /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = OnekoMac.entitlements;
+				COMBINE_HIDPI_IMAGES = YES;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				PRODUCT_NAME = OnekoMac;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		B452EABCF76D4970AE00E6BA /* Build configuration list for PBXNativeTarget "OnekoMac" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				01EBDABA30784493C59A95A8 /* Debug */,
+				76B0FE50ED72B38C01C682BF /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		DA90BC41C3E4249580104942 /* Build configuration list for PBXProject "OnekoMac" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				23ECC9C357EA353FE7FFF8B2 /* Debug */,
+				00DA3F423A5D12E80210C1D9 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = E666F8E2200E82FA594D7D1F /* Project object */;
+}

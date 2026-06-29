@@ -1,0 +1,8 @@
+.DS_Store
+*.xcuserdata
+*.xcworkspace/xcuserdata
+build/
+DerivedData/
+.build/
+*.o
+*.d
