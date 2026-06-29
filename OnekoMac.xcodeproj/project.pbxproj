@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		23901793282A4AD82C8883EC /* Updater.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3194057963488DEC257525E7 /* Updater.swift */; };
 		35DF060430ACED74D15DFAA5 /* MenuBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4488C3D373F06F90ED53DC79 /* MenuBarController.swift */; };
 		52883267724F5E13DD532938 /* MouseTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4DAB10CD2B55CFD42A30689 /* MouseTracker.swift */; };
 		60BBC5513B3EFFFB7F955563 /* MetalRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0F9A515A928932CC0E4336F /* MetalRenderer.swift */; };
@@ -16,8 +17,9 @@
 		8E6F73E1F61A8E923292BA84 /* Shader.metal in Sources */ = {isa = PBXBuildFile; fileRef = 1823D932B8D825DAC0CCD969 /* Shader.metal */; };
 		9393DA9621011263628DDF1D /* Sprites in Resources */ = {isa = PBXBuildFile; fileRef = E3ACC486413860AE3AA7FDB2 /* Sprites */; };
 		93EC4705B43537BBE68AC3DB /* OverlayWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = E518A06A04AFBBF4857FA9C8 /* OverlayWindow.swift */; };
-		9BBCC73B2DE11F4B4604A8A2 /* ControlPanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBA6491D8DA3E4ABC507299E /* ControlPanel.swift */; };
+		B6B0D98D06592ED53CEA2E2B /* SettingsWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F1061172FA02617D56856A5 /* SettingsWindow.swift */; };
 		D4D932688504CF3E4E081A3B /* CVDisplayLinkManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 384D36D95EDBA845A8846AFB /* CVDisplayLinkManager.swift */; };
+		DC4A045ACCF987D2BA57F4F3 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66132A6ABAD5BCAA7DA83E8C /* SettingsView.swift */; };
 		DD363471E3969A90B2399E21 /* NekoCat.swift in Sources */ = {isa = PBXBuildFile; fileRef = B966ED127313678D1BDFFD1C /* NekoCat.swift */; };
 		EEC8D007F251901DC49C0EE7 /* RenderPipeline.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55B3B81C5011267F6DAF0B3C /* RenderPipeline.swift */; };
 		F0EF73B65AB2BFD3F3C67F39 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 094894EA086E148C24332877 /* AppDelegate.swift */; };
@@ -27,11 +29,14 @@
 /* Begin PBXFileReference section */
 		094894EA086E148C24332877 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		1823D932B8D825DAC0CCD969 /* Shader.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = Shader.metal; sourceTree = "<group>"; };
+		3194057963488DEC257525E7 /* Updater.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Updater.swift; sourceTree = "<group>"; };
 		384D36D95EDBA845A8846AFB /* CVDisplayLinkManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CVDisplayLinkManager.swift; sourceTree = "<group>"; };
 		4488C3D373F06F90ED53DC79 /* MenuBarController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarController.swift; sourceTree = "<group>"; };
 		4B40224A8720D15FFBCC7AAC /* OnekoMac.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = OnekoMac.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		55B3B81C5011267F6DAF0B3C /* RenderPipeline.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RenderPipeline.swift; sourceTree = "<group>"; };
 		64E78100FB2CCE4D913C064E /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
+		66132A6ABAD5BCAA7DA83E8C /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		6F1061172FA02617D56856A5 /* SettingsWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsWindow.swift; sourceTree = "<group>"; };
 		B4DAB10CD2B55CFD42A30689 /* MouseTracker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MouseTracker.swift; sourceTree = "<group>"; };
 		B6DA81A3304E1D396304D6C4 /* SkinManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SkinManager.swift; sourceTree = "<group>"; };
 		B966ED127313678D1BDFFD1C /* NekoCat.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NekoCat.swift; sourceTree = "<group>"; };
@@ -40,7 +45,6 @@
 		E518A06A04AFBBF4857FA9C8 /* OverlayWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverlayWindow.swift; sourceTree = "<group>"; };
 		F0F9A515A928932CC0E4336F /* MetalRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetalRenderer.swift; sourceTree = "<group>"; };
 		F6CA30A79FFBAA296F4B8492 /* Math.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Math.swift; sourceTree = "<group>"; };
-		FBA6491D8DA3E4ABC507299E /* ControlPanel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ControlPanel.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
@@ -63,7 +67,8 @@
 		1886A61FC3FBC7B73B590565 /* SettingsPanel */ = {
 			isa = PBXGroup;
 			children = (
-				FBA6491D8DA3E4ABC507299E /* ControlPanel.swift */,
+				66132A6ABAD5BCAA7DA83E8C /* SettingsView.swift */,
+				6F1061172FA02617D56856A5 /* SettingsWindow.swift */,
 			);
 			path = SettingsPanel;
 			sourceTree = "<group>";
@@ -90,6 +95,7 @@
 				094894EA086E148C24332877 /* AppDelegate.swift */,
 				64E78100FB2CCE4D913C064E /* main.swift */,
 				E518A06A04AFBBF4857FA9C8 /* OverlayWindow.swift */,
+				3194057963488DEC257525E7 /* Updater.swift */,
 				F319C750148C65D2D751E10A /* MenuBar */,
 				1886A61FC3FBC7B73B590565 /* SettingsPanel */,
 			);
@@ -234,7 +240,6 @@
 			files = (
 				F0EF73B65AB2BFD3F3C67F39 /* AppDelegate.swift in Sources */,
 				D4D932688504CF3E4E081A3B /* CVDisplayLinkManager.swift in Sources */,
-				9BBCC73B2DE11F4B4604A8A2 /* ControlPanel.swift in Sources */,
 				86C58FC806AD5C983FC671BF /* Logging.swift in Sources */,
 				7CB502EF797BEDD3C4FF8E05 /* Math.swift in Sources */,
 				35DF060430ACED74D15DFAA5 /* MenuBarController.swift in Sources */,
@@ -243,8 +248,11 @@
 				DD363471E3969A90B2399E21 /* NekoCat.swift in Sources */,
 				93EC4705B43537BBE68AC3DB /* OverlayWindow.swift in Sources */,
 				EEC8D007F251901DC49C0EE7 /* RenderPipeline.swift in Sources */,
+				DC4A045ACCF987D2BA57F4F3 /* SettingsView.swift in Sources */,
+				B6B0D98D06592ED53CEA2E2B /* SettingsWindow.swift in Sources */,
 				8E6F73E1F61A8E923292BA84 /* Shader.metal in Sources */,
 				765A2D8BE2AEF296A5EAEC2D /* SkinManager.swift in Sources */,
+				23901793282A4AD82C8883EC /* Updater.swift in Sources */,
 				F342058606EFCE4E9A05D948 /* main.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

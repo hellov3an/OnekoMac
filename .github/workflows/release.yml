@@ -1,0 +1,49 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    runs-on: macos-15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install xcodegen
+        run: brew install xcodegen
+
+      - name: Generate Xcode project
+        run: xcodegen generate
+
+      - name: Build Release archive
+        run: |
+          xcodebuild \
+            -project OnekoMac.xcodeproj \
+            -scheme OnekoMac \
+            -configuration Release \
+            -archivePath "$RUNNER_TEMP/OnekoMac.xcarchive" \
+            archive \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO
+
+      - name: Package .app into zip
+        run: |
+          APP_PATH="$RUNNER_TEMP/OnekoMac.xcarchive/Products/Applications/OnekoMac.app"
+          cd "$RUNNER_TEMP/OnekoMac.xcarchive/Products/Applications"
+          zip -r "$RUNNER_TEMP/OnekoMac-${{ github.ref_name }}.zip" OnekoMac.app
+          echo "ZIP_PATH=$RUNNER_TEMP/OnekoMac-${{ github.ref_name }}.zip" >> $GITHUB_ENV
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ${{ env.ZIP_PATH }}
+          generate_release_notes: true
+          name: "OnekoMac ${{ github.ref_name }}"

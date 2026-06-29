@@ -1,14 +1,12 @@
 import AppKit
-import SwiftUI
 
 @MainActor
 final class MenuBarController {
     private var statusItem: NSStatusItem!
-    private let renderer: MetalRenderer
-    private var popover: NSPopover?
+    private var windowController: SettingsWindowController!
 
     init(renderer: MetalRenderer) {
-        self.renderer = renderer
+        windowController = SettingsWindowController(renderer: renderer)
         setupStatusItem()
     }
 
@@ -18,22 +16,13 @@ final class MenuBarController {
         btn.image = NSImage(systemSymbolName: "pawprint.fill",
                             accessibilityDescription: "OnekoMac")
         btn.imageScaling = .scaleProportionallyDown
-        btn.action = #selector(toggle)
+        btn.action = #selector(toggle(_:))
         btn.target = self
+        btn.sendAction(on: [.leftMouseUp, .rightMouseUp])
     }
 
-    @objc private func toggle() {
-        if let pop = popover, pop.isShown { pop.performClose(nil); return }
-        let pop = NSPopover()
-        pop.contentSize   = CGSize(width: 260, height: 280)
-        pop.behavior      = .transient
-        pop.animates      = true
-        pop.contentViewController = NSHostingController(
-            rootView: ControlPanel(renderer: renderer)
-        )
-        pop.show(relativeTo: statusItem.button!.bounds,
-                 of: statusItem.button!,
-                 preferredEdge: .minY)
-        self.popover = pop
+    @objc private func toggle(_ sender: NSStatusBarButton) {
+        windowController.toggle(relativeTo: sender)
     }
+
 }
