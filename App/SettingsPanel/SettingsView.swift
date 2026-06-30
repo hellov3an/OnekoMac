@@ -2,6 +2,51 @@ import SwiftUI
 import AppKit
 import ServiceManagement
 
+// MARK: – NSColorWell wrapper (ColorPicker fails in non-activating panels)
+
+struct ColorWellView: NSViewRepresentable {
+    var color: NSColor
+    var onChange: (NSColor) -> Void
+
+    func makeNSView(context: Context) -> NSColorWell {
+        let well = NSColorWell()
+        well.color = color
+        well.target = context.coordinator
+        well.action = #selector(Coordinator.picked(_:))
+        context.coordinator.well = well
+        return well
+    }
+
+    func updateNSView(_ well: NSColorWell, context: Context) {
+        if !well.isActive { well.color = color }
+        context.coordinator.onChange = onChange
+    }
+
+    func makeCoordinator() -> Coordinator { Coordinator(onChange: onChange) }
+
+    final class Coordinator: NSObject {
+        weak var well: NSColorWell?
+        var onChange: (NSColor) -> Void
+        private var obs: NSObjectProtocol?
+
+        init(onChange: @escaping (NSColor) -> Void) {
+            self.onChange = onChange
+            super.init()
+            obs = NotificationCenter.default.addObserver(
+                forName: NSColorPanel.colorDidChangeNotification,
+                object: nil, queue: .main
+            ) { [weak self] _ in
+                guard let self, self.well?.isActive == true else { return }
+                self.onChange(NSColorPanel.shared.color)
+            }
+        }
+
+        deinit { obs.map { NotificationCenter.default.removeObserver($0) } }
+
+        @objc func picked(_ sender: NSColorWell) { onChange(sender.color) }
+    }
+}
+
 // MARK: – Skin preview image (idle frame cropped from the GIF atlas)
 
 struct SkinPreview: View {
@@ -182,16 +227,21 @@ struct SettingsView: View {
             }
             .buttonStyle(.plain)
 
-            HStack {
-                ColorPicker(lang["settings.tint"], selection: Binding(
-                    get: { Color(renderer.tintColor) },
-                    set: { renderer.setTintColor(NSColor($0)) }
-                ))
-                .font(.caption)
+            HStack(spacing: 8) {
+                Image(systemName: "paintpalette.fill")
+                    .foregroundStyle(.orange)
+                    .font(.caption)
+                Text(lang["settings.tint"])
+                    .font(.callout)
                 Spacer()
-                Button(lang["settings.tint_reset"]) { renderer.setTintColor(.white) }
-                    .buttonStyle(.bordered)
-                    .controlSize(.mini)
+                ColorWellView(color: renderer.tintColor) { renderer.setTintColor($0) }
+                    .frame(width: 44, height: 24)
+                if renderer.tintColor != .white {
+                    Button(lang["settings.tint_reset"]) { renderer.setTintColor(.white) }
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .buttonStyle(.plain)
+                }
             }
         }
     }
