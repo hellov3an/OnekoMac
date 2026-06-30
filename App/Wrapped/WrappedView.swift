@@ -35,6 +35,7 @@ struct WrappedView: View {
     let skinID: String
     let onClose: () -> Void
 
+    @AppStorage("pet_name") private var petName: String = ""
     @StateObject private var counter = CountUpController()
     @State private var slide = 0
     @State private var catPulse = false
@@ -142,7 +143,7 @@ struct WrappedView: View {
                 .font(.system(size: 17, weight: .medium, design: .rounded))
                 .foregroundStyle(.white.opacity(0.65))
 
-            Text(skinID.capitalized)
+            Text(petName.trimmingCharacters(in: .whitespaces).isEmpty ? skinID.capitalized : petName)
                 .font(.system(size: 46, weight: .black, design: .rounded))
                 .foregroundStyle(.white)
 

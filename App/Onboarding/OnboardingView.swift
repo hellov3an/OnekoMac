@@ -1,19 +1,20 @@
 import SwiftUI
 import AppKit
 
-// MARK: – Onboarding host (4-step sliding wizard)
+// MARK: – Onboarding host (5-step sliding wizard)
 
 struct OnboardingView: View {
     @EnvironmentObject var lang: LanguageManager
     let renderer: MetalRenderer
     let onFinish: () -> Void
 
+    @AppStorage("pet_name") private var petName: String = ""
     @State private var step = 0
     @State private var selectedSkin: String
     @State private var catPulse = false
 
     private let windowW: CGFloat = 520
-    private let stepCount = 4
+    private let stepCount = 5
 
     init(renderer: MetalRenderer, onFinish: @escaping () -> Void) {
         self.renderer = renderer
@@ -31,6 +32,12 @@ struct OnboardingView: View {
             }
         }
         .frame(width: windowW, height: 480)
+        .onChange(of: step, perform: { newStep in
+            // Auto-fill name with skin choice if left blank when reaching welcome
+            if newStep == 4 && petName.trimmingCharacters(in: .whitespaces).isEmpty {
+                petName = selectedSkin.capitalized
+            }
+        })
     }
 
     // MARK: – Step container (offset-based horizontal slide)
@@ -40,7 +47,8 @@ struct OnboardingView: View {
             conceptStep .offset(x: CGFloat(0 - step) * windowW)
             languageStep.offset(x: CGFloat(1 - step) * windowW)
             catStep     .offset(x: CGFloat(2 - step) * windowW)
-            welcomeStep .offset(x: CGFloat(3 - step) * windowW)
+            nameStep    .offset(x: CGFloat(3 - step) * windowW)
+            welcomeStep .offset(x: CGFloat(4 - step) * windowW)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .clipped()
@@ -172,7 +180,6 @@ struct OnboardingView: View {
 
             Spacer().frame(height: 20)
 
-            // Large preview of currently selected cat
             ZStack {
                 Circle()
                     .fill(Color.orange.opacity(0.1))
@@ -189,7 +196,6 @@ struct OnboardingView: View {
 
             Spacer().frame(height: 20)
 
-            // Skin tiles
             HStack(spacing: 10) {
                 ForEach(SkinManager.skinIDs, id: \.self) { id in catTile(id) }
             }
@@ -241,7 +247,59 @@ struct OnboardingView: View {
         .animation(.easeInOut(duration: 0.15), value: selectedSkin)
     }
 
-    // MARK: – Step 3 · Welcome
+    // MARK: – Step 3 · Name
+
+    private var nameStep: some View {
+        VStack(spacing: 0) {
+            Spacer()
+
+            ZStack {
+                Circle()
+                    .fill(Color.orange.opacity(0.1))
+                    .frame(width: 104, height: 104)
+
+                if let img = loadSprite(skinID: selectedSkin, size: 72) {
+                    Image(nsImage: img)
+                        .interpolation(.none)
+                        .frame(width: 72, height: 72)
+                        .id(selectedSkin)
+                }
+            }
+
+            Spacer().frame(height: 26)
+
+            Text(lang["ob.name.title"])
+                .font(.system(size: 26, weight: .bold, design: .rounded))
+                .foregroundStyle(.white)
+
+            Spacer().frame(height: 22)
+
+            TextField(selectedSkin.capitalized, text: $petName)
+                .textFieldStyle(.plain)
+                .font(.system(size: 30, weight: .bold, design: .rounded))
+                .multilineTextAlignment(.center)
+                .foregroundStyle(.white)
+                .padding(.horizontal, 24)
+                .padding(.vertical, 14)
+                .background(Color.white.opacity(0.08), in: RoundedRectangle(cornerRadius: 16))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 16)
+                        .strokeBorder(.white.opacity(0.15), lineWidth: 1)
+                )
+                .frame(maxWidth: 280)
+
+            Spacer().frame(height: 14)
+
+            Text(lang["ob.name.subtitle"])
+                .font(.caption)
+                .foregroundStyle(.white.opacity(0.35))
+
+            Spacer()
+        }
+        .frame(width: windowW)
+    }
+
+    // MARK: – Step 4 · Welcome
 
     private var welcomeStep: some View {
         VStack(spacing: 0) {
@@ -264,7 +322,7 @@ struct OnboardingView: View {
 
             Spacer().frame(height: 30)
 
-            Text(lang["ob.welcome.title"])
+            Text(welcomeGreeting)
                 .font(.system(size: 28, weight: .bold, design: .rounded))
                 .foregroundStyle(.white)
                 .multilineTextAlignment(.center)
@@ -280,11 +338,23 @@ struct OnboardingView: View {
         .frame(width: windowW)
     }
 
+    private var welcomeGreeting: String {
+        let name = petName.trimmingCharacters(in: .whitespaces).isEmpty
+            ? selectedSkin.capitalized
+            : petName.trimmingCharacters(in: .whitespaces)
+        switch lang.language {
+        case .japanese: return "\(name)へようこそ ✦"
+        case .french:   return "Bienvenue, \(name) ✦"
+        case .german:   return "Willkommen, \(name) ✦"
+        case .spanish:  return "Bienvenido, \(name) ✦"
+        case .english:  return "Welcome, \(name) ✦"
+        }
+    }
+
     // MARK: – Navigation bar
 
     private var navBar: some View {
         HStack(spacing: 0) {
-            // Back button
             Group {
                 if step > 0 {
                     Button(lang["btn.back"]) {
@@ -301,7 +371,6 @@ struct OnboardingView: View {
 
             Spacer()
 
-            // Progress pills
             HStack(spacing: 6) {
                 ForEach(0..<stepCount, id: \.self) { i in
                     Capsule()
@@ -313,7 +382,6 @@ struct OnboardingView: View {
 
             Spacer()
 
-            // Next / Start
             Group {
                 if step < stepCount - 1 {
                     Button {

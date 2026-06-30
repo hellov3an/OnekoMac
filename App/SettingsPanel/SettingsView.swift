@@ -53,9 +53,13 @@ struct SkinPreview: View {
 struct SettingsView: View {
     @ObservedObject var renderer: MetalRenderer
     @ObservedObject var updater: Updater
-    @ObservedObject var stats: CatStats
     @EnvironmentObject var lang: LanguageManager
     let onShowWrapped: () -> Void
+
+    @AppStorage("pet_name") private var petName: String = "Neko"
+
+    @State private var eggTaps = 0
+    @State private var showEgg = false
 
     var body: some View {
         VStack(spacing: 0) {
@@ -65,7 +69,7 @@ struct SettingsView: View {
                 VStack(alignment: .leading, spacing: 20) {
                     skinSection
                     Divider()
-                    wrappedSection
+                    wrappedButton
                     Divider()
                     updatesSection
                     Divider()
@@ -86,14 +90,22 @@ struct SettingsView: View {
             Image(systemName: "pawprint.fill")
                 .font(.title2)
                 .foregroundStyle(.orange)
+                .onTapGesture { handleEggTap() }
+                .popover(isPresented: $showEgg, arrowEdge: .trailing) {
+                    eggPopover
+                }
+
             VStack(alignment: .leading, spacing: 1) {
-                Text("OnekoMac")
+                TextField("Neko", text: $petName)
+                    .textFieldStyle(.plain)
                     .font(.headline)
                 Text("v\(updater.currentVersion)")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
+
             Spacer()
+
             Text(String(format: "%.0f fps", renderer.stats.fps))
                 .font(.caption.monospacedDigit())
                 .padding(.horizontal, 7)
@@ -103,6 +115,34 @@ struct SettingsView: View {
         .padding(.horizontal, 20)
         .padding(.top, 16)
         .padding(.bottom, 12)
+    }
+
+    // MARK: – Easter egg
+
+    private func handleEggTap() {
+        eggTaps += 1
+        if eggTaps >= 5 {
+            eggTaps = 0
+            showEgg = true
+        }
+    }
+
+    private var eggPopover: some View {
+        VStack(spacing: 10) {
+            Image(systemName: "pawprint.fill")
+                .font(.title)
+                .foregroundStyle(.orange)
+            Text("OnekoMac")
+                .font(.headline)
+            Divider()
+            Text("Made with ❤️ by")
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+            Link("@hellov3an", destination: URL(string: "https://github.com/hellov3an")!)
+                .font(.subheadline.weight(.semibold))
+        }
+        .padding(20)
+        .frame(minWidth: 180)
     }
 
     // MARK: – Skin section
@@ -122,92 +162,27 @@ struct SettingsView: View {
         }
     }
 
-    // MARK: – Wrapped stats
+    // MARK: – Wrapped CTA
 
-    var wrappedSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            // Wrapped CTA button
-            Button { onShowWrapped() } label: {
-                HStack(spacing: 10) {
-                    Image(systemName: "sparkles")
-                    Text(lang["wrapped.btn"])
-                    Spacer()
-                    Image(systemName: "chevron.right").font(.caption.weight(.semibold))
-                }
-                .font(.callout.weight(.semibold))
-                .foregroundStyle(.white)
-                .padding(.horizontal, 14)
-                .padding(.vertical, 11)
-                .background(
-                    LinearGradient(colors: [.orange, .pink],
-                                   startPoint: .leading, endPoint: .trailing),
-                    in: RoundedRectangle(cornerRadius: 12)
-                )
-            }
-            .buttonStyle(.plain)
-
-            HStack {
-                Label(lang["settings.stats"], systemImage: "trophy.fill")
-                    .font(.subheadline).bold()
+    var wrappedButton: some View {
+        Button { onShowWrapped() } label: {
+            HStack(spacing: 10) {
+                Image(systemName: "sparkles")
+                Text(lang["wrapped.btn"])
                 Spacer()
-                Button(lang["settings.reset"]) { stats.reset() }
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                    .buttonStyle(.plain)
+                Image(systemName: "chevron.right").font(.caption.weight(.semibold))
             }
-
-            LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 8) {
-                statCard(
-                    value: formattedDistance,
-                    label: lang["stats.walked"],
-                    icon: "figure.walk",
-                    color: .orange
-                )
-                statCard(
-                    value: "\(stats.naps)",
-                    label: stats.naps == 1 ? lang["stats.nap"] : lang["stats.naps"],
-                    icon: "moon.fill",
-                    color: .indigo
-                )
-                statCard(
-                    value: "\(stats.scratches)",
-                    label: stats.scratches == 1 ? lang["stats.scratch"] : lang["stats.scratches"],
-                    icon: "hand.point.right.fill",
-                    color: .pink
-                )
-                statCard(
-                    value: "\(stats.daysTogether)j",
-                    label: lang["stats.together"],
-                    icon: "calendar.heart.fill",
-                    color: .green
-                )
-            }
+            .font(.callout.weight(.semibold))
+            .foregroundStyle(.white)
+            .padding(.horizontal, 14)
+            .padding(.vertical, 11)
+            .background(
+                LinearGradient(colors: [.orange, .pink],
+                               startPoint: .leading, endPoint: .trailing),
+                in: RoundedRectangle(cornerRadius: 12)
+            )
         }
-    }
-
-    private var formattedDistance: String {
-        let m = stats.distanceMeters
-        if m >= 1000 { return String(format: "%.1f km", m / 1000) }
-        return String(format: "%.0f m", m)
-    }
-
-    private func statCard(value: String, label: String, icon: String, color: Color) -> some View {
-        HStack(spacing: 8) {
-            Image(systemName: icon)
-                .font(.title3)
-                .foregroundStyle(color)
-                .frame(width: 24)
-            VStack(alignment: .leading, spacing: 1) {
-                Text(value)
-                    .font(.system(.callout, design: .rounded).weight(.bold))
-                Text(label)
-                    .font(.caption2)
-                    .foregroundStyle(.secondary)
-            }
-            Spacer()
-        }
-        .padding(10)
-        .background(color.opacity(0.08), in: RoundedRectangle(cornerRadius: 10))
+        .buttonStyle(.plain)
     }
 
     // MARK: – Updates section

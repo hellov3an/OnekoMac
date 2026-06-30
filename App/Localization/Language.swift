@@ -149,6 +149,22 @@ enum Strings {
             .spanish:  "Tu gato está listo.",
         ],
 
+        // ── Onboarding – Name ─────────────────────────────────────────────────
+        "ob.name.title": [
+            .english:  "What's your cat's name?",
+            .french:   "Comment s'appelle-t-il ?",
+            .japanese: "猫の名前は何ですか？",
+            .german:   "Wie heißt deine Katze?",
+            .spanish:  "¿Cómo se llama tu gato?",
+        ],
+        "ob.name.subtitle": [
+            .english:  "You can change it anytime in settings.",
+            .french:   "Modifiable à tout moment dans les réglages.",
+            .japanese: "設定でいつでも変更できます。",
+            .german:   "In den Einstellungen jederzeit änderbar.",
+            .spanish:  "Puedes cambiarlo en cualquier momento.",
+        ],
+
         // ── Navigation buttons ────────────────────────────────────────────────
         "btn.next": [
             .english:  "Next",

@@ -57,7 +57,6 @@ final class SettingsWindowController {
         let view = SettingsView(
             renderer: renderer,
             updater:  updater,
-            stats:    renderer.catStats,
             onShowWrapped: { wrapped.show() }
         )
         .environmentObject(langManager)
