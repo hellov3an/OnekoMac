@@ -8,6 +8,17 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var langManager = LanguageManager()
     private var onboardingController: OnboardingWindowController?
 
+    func applicationWillFinishLaunching(_ notification: Notification) {
+        let running = NSRunningApplication.runningApplications(
+            withBundleIdentifier: Bundle.main.bundleIdentifier ?? ""
+        )
+        if running.count > 1 {
+            // Another instance is already running — bring it forward and exit.
+            running.first(where: { $0 != NSRunningApplication.current })?.activate(options: .activateIgnoringOtherApps)
+            NSApp.terminate(nil)
+        }
+    }
+
     func applicationDidFinishLaunching(_ notification: Notification) {
         NSApp.setActivationPolicy(.accessory)
 
