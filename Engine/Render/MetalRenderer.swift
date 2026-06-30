@@ -37,6 +37,7 @@ final class MetalRenderer: ObservableObject {
     private let mouseTracker = MouseTracker()
     let neko = NekoCat()
     let skinManager = SkinManager()
+    let catStats = CatStats()
 
     private let frameSemaphore = DispatchSemaphore(value: 3)
     private var fpsAccum: Double = 0
@@ -88,6 +89,11 @@ final class MetalRenderer: ObservableObject {
 
         skinManager.setDevice(dev)
 
+        // Wire stat callbacks.
+        neko.onStep    = { [weak self] pts in self?.catStats.addDistance(pts) }
+        neko.onNap     = { [weak self] in self?.catStats.recordNap() }
+        neko.onScratch = { [weak self] in self?.catStats.recordScratch() }
+
         try buildPipeline()
         buildSampler()
 
@@ -115,15 +121,12 @@ final class MetalRenderer: ObservableObject {
     }
 
     private func tick(dt: Double) {
-        // Update screen size from main screen (safe to read from any thread).
-        if let screen = NSScreen.main {
-            neko.screenWidth  = Float(screen.frame.width)
-            neko.screenHeight = Float(screen.frame.height)
-            let s = screen.backingScaleFactor
-            metalLayer.drawableSize = CGSize(
-                width:  screen.frame.width  * s,
-                height: screen.frame.height * s)
-        }
+        // Use the union of all screens so the cat can cross between displays.
+        let union = NSScreen.screens.reduce(NSRect.null) { $0.union($1.frame) }
+        neko.screenWidth  = Float(union.width)
+        neko.screenHeight = Float(union.height)
+        let s = NSScreen.main?.backingScaleFactor ?? 1.0
+        metalLayer.drawableSize = CGSize(width: union.width * s, height: union.height * s)
 
         let mouse = mouseTracker.position
         neko.update(dt: Float(dt), mouseX: mouse.x, mouseY: mouse.y)
@@ -139,9 +142,9 @@ final class MetalRenderer: ObservableObject {
         guard let cmdBuf   = commandQueue.makeCommandBuffer() else { frameSemaphore.signal(); return }
         cmdBuf.addCompletedHandler { [weak self] _ in self?.frameSemaphore.signal() }
 
-        let screen = NSScreen.main
-        let screenW = Float(screen?.frame.width  ?? 1440)
-        let screenH = Float(screen?.frame.height ?? 900)
+        let union = NSScreen.screens.reduce(NSRect.null) { $0.union($1.frame) }
+        let screenW = Float(union.width  > 0 ? union.width  : 1440)
+        let screenH = Float(union.height > 0 ? union.height : 900)
 
         // Upload instance for the single cat.
         let buf = instanceBuffers[bufferIndex]

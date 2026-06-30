@@ -38,12 +38,17 @@ func spriteUV(_ anim: Anim, frame: Int) -> SIMD4<Float> {
 }
 
 /// Oneko simulation — direct port of oneko.js `frame()` logic.
-/// Coordinates: screen points, TOP-LEFT origin (matching CGEventTap).
+/// Coordinates: simulation space — top-left of the union of all screens, Y down.
 final class NekoCat {
     // Current rendered state (read by render thread after logic tick).
     private(set) var posX: Float = 100
     private(set) var posY: Float = 100
     private(set) var currentUV = spriteUV(.idle, frame: 0)
+
+    // Stat callbacks — fired from the render thread.
+    var onStep:    ((Float) -> Void)?   // distance moved this tick (pts)
+    var onNap:     (() -> Void)?
+    var onScratch: (() -> Void)?
 
     // Logic state (written only from simulation, which runs on CVLink thread).
     private var frameCount = 0
@@ -107,6 +112,7 @@ final class NekoCat {
         posY -= (diffY / distance) * nekoSpeed
         posX = min(max(32, posX), screenWidth  - 32)
         posY = min(max(32, posY), screenHeight - 32)
+        onStep?(nekoSpeed)
     }
 
     // MARK: – JS idle() port
@@ -116,11 +122,12 @@ final class NekoCat {
 
         if idleTime > 10, idleAnimation == nil, Int.random(in: 0..<200) == 0 {
             var pool: [Anim] = [.sleeping, .scratchSelf]
-            if posX < 32              { pool.append(.scratchWallW) }
-            if posY < 32              { pool.append(.scratchWallN) }
+            if posX < 32                { pool.append(.scratchWallW) }
+            if posY < 32                { pool.append(.scratchWallN) }
             if posX > screenWidth  - 32 { pool.append(.scratchWallE) }
             if posY > screenHeight - 32 { pool.append(.scratchWallS) }
             idleAnimation = pool.randomElement()
+            if idleAnimation == .sleeping { onNap?() } else { onScratch?() }
         }
 
         switch idleAnimation {

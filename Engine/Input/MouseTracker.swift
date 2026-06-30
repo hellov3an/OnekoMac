@@ -2,8 +2,7 @@ import AppKit
 import os.lock
 
 /// Thread-safe global mouse position tracker.
-/// Coordinates: screen POINTS, TOP-LEFT origin.
-/// Uses NSEvent global monitor — no Accessibility permission needed.
+/// Coordinates: simulation space — top-left of the union of all screens, Y down.
 final class MouseTracker {
     private var _x: Float = 0
     private var _y: Float = 0
@@ -17,11 +16,8 @@ final class MouseTracker {
     }
 
     init() {
-        // Seed with current position so the cat doesn't rush from (0,0) on start.
-        sampleMouseLocation()
+        sampleMouseLocation()   // seed so cat doesn't rush from (0,0) at startup
 
-        // Fires for events destined to other apps (no special permission needed).
-        // Our overlay ignores mouse events so all cursor activity reaches this monitor.
         NSEvent.addGlobalMonitorForEvents(
             matching: [.mouseMoved, .leftMouseDragged, .rightMouseDragged, .otherMouseDragged]
         ) { [weak self] _ in
@@ -30,12 +26,12 @@ final class MouseTracker {
     }
 
     private func sampleMouseLocation() {
-        let p = NSEvent.mouseLocation          // AppKit: bottom-left origin
-        guard let screen = NSScreen.main else { return }
-        let h = Float(screen.frame.height)
+        let p     = NSEvent.mouseLocation              // AppKit: bottom-left of primary, Y up
+        let union = NSScreen.screens.reduce(NSRect.null) { $0.union($1.frame) }
         os_unfair_lock_lock(&_lock)
-        _x = Float(p.x)
-        _y = h - Float(p.y)                   // flip to top-left origin
+        // Convert to simulation space: top-left of the union rect, Y down.
+        _x = Float(p.x - union.minX)
+        _y = Float(union.maxY - p.y)
         os_unfair_lock_unlock(&_lock)
     }
 }

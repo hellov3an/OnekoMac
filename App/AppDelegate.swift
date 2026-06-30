@@ -12,10 +12,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         do { renderer = try MetalRenderer() }
         catch { fatalError("Metal init failed: \(error)") }
 
-        guard let screen = NSScreen.main else { return }
-
-        overlayWindow = OverlayWindow(screen: screen)
-        renderer.view.frame = screen.frame
+        overlayWindow = OverlayWindow()
+        let union = OverlayWindow.unionFrame()
+        renderer.view.frame = NSRect(origin: .zero, size: union.size)
         renderer.view.autoresizingMask = [.width, .height]
         let vc = NSViewController()
         vc.view = renderer.view

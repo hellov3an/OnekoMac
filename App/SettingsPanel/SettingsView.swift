@@ -32,7 +32,6 @@ struct SkinPreview: View {
         }
     }
 
-    // Crop the idle frame (col=3, row=3 in the 8×8 grid) from the GIF.
     private func idleImage(for id: String) -> NSImage? {
         guard let url = Bundle.main.url(forResource: "oneko-\(id)",
                                          withExtension: "gif",
@@ -41,12 +40,9 @@ struct SkinPreview: View {
               let src  = CGImageSourceCreateWithData(data as CFData, nil),
               let full = CGImageSourceCreateImageAtIndex(src, 0, nil) else { return nil }
 
-        // Idle sprite: col=3, row=3 — top-left origin, each cell is 32×32 px.
         let col = 3, row = 3, cellSize = 32
         let rect = CGRect(x: col * cellSize, y: row * cellSize, width: cellSize, height: cellSize)
         guard let cropped = full.cropping(to: rect) else { return nil }
-
-        // Scale 32px → 48pt for the preview tile (pixel art scaling).
         let img = NSImage(cgImage: cropped, size: NSSize(width: 48, height: 48))
         img.cacheMode = .never
         return img
@@ -58,6 +54,7 @@ struct SkinPreview: View {
 struct SettingsView: View {
     @ObservedObject var renderer: MetalRenderer
     @ObservedObject var updater: Updater
+    @ObservedObject var stats: CatStats
 
     var body: some View {
         VStack(spacing: 0) {
@@ -66,6 +63,8 @@ struct SettingsView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 20) {
                     skinSection
+                    Divider()
+                    wrappedSection
                     Divider()
                     updatesSection
                     Divider()
@@ -122,6 +121,74 @@ struct SettingsView: View {
         }
     }
 
+    // MARK: – Wrapped stats
+
+    var wrappedSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Label("Statistiques", systemImage: "trophy.fill")
+                    .font(.subheadline).bold()
+                Spacer()
+                Button("Réinitialiser") { stats.reset() }
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .buttonStyle(.plain)
+            }
+
+            LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 8) {
+                statCard(
+                    value: formattedDistance,
+                    label: "parcourus",
+                    icon: "figure.walk",
+                    color: .orange
+                )
+                statCard(
+                    value: "\(stats.naps)",
+                    label: stats.naps == 1 ? "sieste" : "siestes",
+                    icon: "moon.fill",
+                    color: .indigo
+                )
+                statCard(
+                    value: "\(stats.scratches)",
+                    label: stats.scratches == 1 ? "grattage" : "grattages",
+                    icon: "hand.point.right.fill",
+                    color: .pink
+                )
+                statCard(
+                    value: "\(stats.daysTogether)j",
+                    label: "ensemble",
+                    icon: "calendar.heart.fill",
+                    color: .green
+                )
+            }
+        }
+    }
+
+    private var formattedDistance: String {
+        let m = stats.distanceMeters
+        if m >= 1000 { return String(format: "%.1f km", m / 1000) }
+        return String(format: "%.0f m", m)
+    }
+
+    private func statCard(value: String, label: String, icon: String, color: Color) -> some View {
+        HStack(spacing: 8) {
+            Image(systemName: icon)
+                .font(.title3)
+                .foregroundStyle(color)
+                .frame(width: 24)
+            VStack(alignment: .leading, spacing: 1) {
+                Text(value)
+                    .font(.system(.callout, design: .rounded).weight(.bold))
+                Text(label)
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+            }
+            Spacer()
+        }
+        .padding(10)
+        .background(color.opacity(0.08), in: RoundedRectangle(cornerRadius: 10))
+    }
+
     // MARK: – Updates section
 
     var updatesSection: some View {
@@ -159,13 +226,9 @@ struct SettingsView: View {
     var updateStatusView: some View {
         switch updater.state {
         case .idle:
-            Text("Jamais vérifié")
-                .foregroundStyle(.secondary)
+            Text("Jamais vérifié").foregroundStyle(.secondary)
         case .checking:
-            HStack(spacing: 6) {
-                ProgressView().scaleEffect(0.7)
-                Text("Vérification…")
-            }
+            HStack(spacing: 6) { ProgressView().scaleEffect(0.7); Text("Vérification…") }
         case .upToDate:
             HStack(spacing: 6) {
                 Image(systemName: "checkmark.circle.fill").foregroundStyle(.green)
@@ -213,12 +276,10 @@ struct SettingsView: View {
                 .font(.caption)
                 .foregroundStyle(.secondary)
             Spacer()
-            Button("Quitter OnekoMac") {
-                NSApplication.shared.terminate(nil)
-            }
-            .buttonStyle(.bordered)
-            .controlSize(.small)
-            .tint(.red)
+            Button("Quitter OnekoMac") { NSApplication.shared.terminate(nil) }
+                .buttonStyle(.bordered)
+                .controlSize(.small)
+                .tint(.red)
         }
         .padding(.horizontal, 20)
         .padding(.vertical, 10)

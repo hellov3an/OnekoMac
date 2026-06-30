@@ -51,7 +51,7 @@ final class SettingsWindowController {
     private let updater = Updater()
 
     init(renderer: MetalRenderer) {
-        let view = SettingsView(renderer: renderer, updater: updater)
+        let view = SettingsView(renderer: renderer, updater: updater, stats: renderer.catStats)
         window.contentView = NSHostingView(rootView: view)
     }
 
