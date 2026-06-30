@@ -55,6 +55,7 @@ struct SettingsView: View {
     @ObservedObject var updater: Updater
     @ObservedObject var stats: CatStats
     @EnvironmentObject var lang: LanguageManager
+    let onShowWrapped: () -> Void
 
     var body: some View {
         VStack(spacing: 0) {
@@ -125,6 +126,26 @@ struct SettingsView: View {
 
     var wrappedSection: some View {
         VStack(alignment: .leading, spacing: 12) {
+            // Wrapped CTA button
+            Button { onShowWrapped() } label: {
+                HStack(spacing: 10) {
+                    Image(systemName: "sparkles")
+                    Text(lang["wrapped.btn"])
+                    Spacer()
+                    Image(systemName: "chevron.right").font(.caption.weight(.semibold))
+                }
+                .font(.callout.weight(.semibold))
+                .foregroundStyle(.white)
+                .padding(.horizontal, 14)
+                .padding(.vertical, 11)
+                .background(
+                    LinearGradient(colors: [.orange, .pink],
+                                   startPoint: .leading, endPoint: .trailing),
+                    in: RoundedRectangle(cornerRadius: 12)
+                )
+            }
+            .buttonStyle(.plain)
+
             HStack {
                 Label(lang["settings.stats"], systemImage: "trophy.fill")
                     .font(.subheadline).bold()

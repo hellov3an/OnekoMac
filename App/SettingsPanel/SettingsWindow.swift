@@ -48,10 +48,19 @@ final class SettingsWindow: NSPanel {
 final class SettingsWindowController {
     private let window = SettingsWindow()
     private let updater = Updater()
+    private var wrappedController: WrappedWindowController?
 
     init(renderer: MetalRenderer, langManager: LanguageManager) {
-        let view = SettingsView(renderer: renderer, updater: updater, stats: renderer.catStats)
-            .environmentObject(langManager)
+        let wrapped = WrappedWindowController(renderer: renderer, langManager: langManager)
+        self.wrappedController = wrapped
+
+        let view = SettingsView(
+            renderer: renderer,
+            updater:  updater,
+            stats:    renderer.catStats,
+            onShowWrapped: { wrapped.show() }
+        )
+        .environmentObject(langManager)
         window.contentView = NSHostingView(rootView: view)
     }
 

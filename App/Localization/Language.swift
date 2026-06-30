@@ -310,5 +310,220 @@ enum Strings {
             .german:   "Konnte nicht auf Updates prüfen",
             .spanish:  "No se pudo verificar actualizaciones",
         ],
+
+        // ── Wrapped ───────────────────────────────────────────────────────────
+        "wrapped.btn": [
+            .english:  "✦ Your Year in Numbers",
+            .french:   "✦ Ton année en chiffres",
+            .japanese: "✦ あなたの年間まとめ",
+            .german:   "✦ Dein Jahr in Zahlen",
+            .spanish:  "✦ Tu año en cifras",
+        ],
+        "wrapped.intro.eyebrow": [
+            .english:  "YOUR YEAR IN NUMBERS",
+            .french:   "TON ANNÉE EN CHIFFRES",
+            .japanese: "今年を数字で振り返る",
+            .german:   "DEIN JAHR IN ZAHLEN",
+            .spanish:  "TU AÑO EN CIFRAS",
+        ],
+        "wrapped.intro.title": [
+            .english:  "A year with",
+            .french:   "Une année avec",
+            .japanese: "と過ごした一年",
+            .german:   "Ein Jahr mit",
+            .spanish:  "Un año con",
+        ],
+        "wrapped.tap_hint": [
+            .english:  "Tap anywhere to continue",
+            .french:   "Touche n'importe où pour continuer",
+            .japanese: "タップして続ける",
+            .german:   "Tippe irgendwo um fortzufahren",
+            .spanish:  "Toca en cualquier lugar para continuar",
+        ],
+
+        // Distance
+        "wrapped.distance.label": [
+            .english:  "YOU WALKED",
+            .french:   "TU AS PARCOURU",
+            .japanese: "一緒に歩いた距離",
+            .german:   "IHR SEID GELAUFEN",
+            .spanish:  "RECORRISTE",
+        ],
+        "wrapped.distance.phrase.0": [
+            .english:  "Just a few pixels walked. Every journey starts somewhere!",
+            .french:   "À peine quelques pixels parcourus. Tout commence quelque part !",
+            .japanese: "ほんの数ピクセル。すべての旅はここから始まる！",
+            .german:   "Nur ein paar Pixel gelaufen. Jede Reise beginnt irgendwo!",
+            .spanish:  "Solo unos píxeles. ¡Todo viaje empieza en algún lugar!",
+        ],
+        "wrapped.distance.phrase.1": [
+            .english:  "Look at you, actually walking this little cat!",
+            .french:   "Dit donc, tu l'as fait marcher ce petit chat !",
+            .japanese: "この小さな猫を歩かせたね！やるじゃないか！",
+            .german:   "Schau an, du hast diese kleine Katze tatsächlich laufen lassen!",
+            .spanish:  "¡Mira tú, haciendo caminar a este pequeño gato!",
+        ],
+        "wrapped.distance.phrase.2": [
+            .english:  "Kilometers together. That's a real partnership.",
+            .french:   "Des kilomètres ensemble. C'est une vraie équipe.",
+            .japanese: "一緒にキロメートルを歩いた。本当のチームだ。",
+            .german:   "Kilometer zusammen. Das ist echte Partnerschaft.",
+            .spanish:  "Kilómetros juntos. Eso es una verdadera asociación.",
+        ],
+        "wrapped.distance.phrase.3": [
+            .english:  "Honestly? Impressive. This cat has earned its stripes.",
+            .french:   "Franchement ? C'est impressionnant. Ce chat a bien gagné ses galons.",
+            .japanese: "正直なところ？すごい。この猫は本当に頑張った。",
+            .german:   "Ehrlich gesagt? Beeindruckend. Diese Katze hat ihre Sporen verdient.",
+            .spanish:  "¿Honestamente? Impresionante. Este gato se ha ganado sus galones.",
+        ],
+        "wrapped.distance.phrase.4": [
+            .english:  "Legendary. Absolutely legendary. What else is there to say.",
+            .french:   "Légendaire. Absolument légendaire. Que dire de plus.",
+            .japanese: "伝説的。絶対に伝説的。もう何も言うことはない。",
+            .german:   "Legendär. Absolut legendär. Was soll man da noch sagen.",
+            .spanish:  "Legendario. Absolutamente legendario. Qué más se puede decir.",
+        ],
+
+        // Naps
+        "wrapped.naps.label": [
+            .english:  "NAPS TAKEN",
+            .french:   "SIESTES EFFECTUÉES",
+            .japanese: "昼寝の回数",
+            .german:   "NICKERCHEN GEMACHT",
+            .spanish:  "SIESTAS REALIZADAS",
+        ],
+        "wrapped.naps.phrase.0": [
+            .english:  "Not even five naps. A truly dedicated cat.",
+            .french:   "Même pas cinq siestes. Un chat de compétition.",
+            .japanese: "5回も昼寝しなかった。本当に頑張り屋の猫だ。",
+            .german:   "Nicht mal fünf Nickerchen. Eine wirklich engagierte Katze.",
+            .spanish:  "Ni siquiera cinco siestas. Un gato verdaderamente dedicado.",
+        ],
+        "wrapped.naps.phrase.1": [
+            .english:  "A well-rested cat is a happy cat.",
+            .french:   "Un chat bien reposé est un chat heureux.",
+            .japanese: "よく休んだ猫は幸せな猫。",
+            .german:   "Eine gut ausgeruhte Katze ist eine glückliche Katze.",
+            .spanish:  "Un gato bien descansado es un gato feliz.",
+        ],
+        "wrapped.naps.phrase.2": [
+            .english:  "Certified expert in the noble art of napping.",
+            .french:   "Expert certifié dans le noble art de la sieste.",
+            .japanese: "昼寝という崇高な芸術の認定エキスパート。",
+            .german:   "Zertifizierter Experte in der edlen Kunst des Nickerchens.",
+            .spanish:  "Experto certificado en el noble arte de la siesta.",
+        ],
+        "wrapped.naps.phrase.3": [
+            .english:  "This cat sleeps more than you do. And we respect it.",
+            .french:   "Ce chat dort probablement plus que toi. Et on respecte ça.",
+            .japanese: "この猫はあなたより多く寝ている。そして、それを尊重する。",
+            .german:   "Diese Katze schläft mehr als du. Und das respektieren wir.",
+            .spanish:  "Este gato duerme más que tú. Y lo respetamos.",
+        ],
+
+        // Scratches
+        "wrapped.scratches.label": [
+            .english:  "SCRATCHES",
+            .french:   "GRIFFADES",
+            .japanese: "引っかき回数",
+            .german:   "KRATZER",
+            .spanish:  "ARAÑAZOS",
+        ],
+        "wrapped.scratches.phrase.0": [
+            .english:  "Your walls are immaculate. Well done.",
+            .french:   "Tes murs sont impeccables. Bravo.",
+            .japanese: "壁は完璧。よくやった。",
+            .german:   "Deine Wände sind makellos. Gut gemacht.",
+            .spanish:  "Tus paredes están impecables. Bien hecho.",
+        ],
+        "wrapped.scratches.phrase.1": [
+            .english:  "A few scratches. Nothing a lick of paint won't fix.",
+            .french:   "Quelques griffures. Rien que la peinture ne peut pas cacher.",
+            .japanese: "少し引っかき傷が。ペンキ一塗りで直るよ。",
+            .german:   "Einige Kratzer. Nichts, was Farbe nicht richten kann.",
+            .spanish:  "Algunos arañazos. Nada que una capa de pintura no solucione.",
+        ],
+        "wrapped.scratches.phrase.2": [
+            .english:  "This cat has left its mark — literally.",
+            .french:   "Ce chat a laissé sa marque — au sens propre.",
+            .japanese: "この猫は文字通り、その痕跡を残した。",
+            .german:   "Diese Katze hat ihre Spuren hinterlassen — buchstäblich.",
+            .spanish:  "Este gato ha dejado su marca — literalmente.",
+        ],
+        "wrapped.scratches.phrase.3": [
+            .english:  "Your walls have a soul now. We'd call it art.",
+            .french:   "Tes murs ont une âme maintenant. On appelle ça de l'art.",
+            .japanese: "壁に魂が宿った。これはアートと呼ぼう。",
+            .german:   "Deine Wände haben jetzt eine Seele. Wir nennen das Kunst.",
+            .spanish:  "Tus paredes tienen alma ahora. Lo llamaríamos arte.",
+        ],
+
+        // Days
+        "wrapped.days.label": [
+            .english:  "DAYS TOGETHER",
+            .french:   "JOURS ENSEMBLE",
+            .japanese: "一緒に過ごした日数",
+            .german:   "TAGE ZUSAMMEN",
+            .spanish:  "DÍAS JUNTOS",
+        ],
+        "wrapped.days.phrase.0": [
+            .english:  "A beautiful adventure just getting started.",
+            .french:   "Une belle aventure qui commence tout juste.",
+            .japanese: "始まったばかりの美しい冒険。",
+            .german:   "Ein wunderschönes Abenteuer, das gerade erst beginnt.",
+            .spanish:  "Una hermosa aventura que apenas comienza.",
+        ],
+        "wrapped.days.phrase.1": [
+            .english:  "Already a week? This cat is part of the furniture now.",
+            .french:   "Déjà une semaine ? Ce chat fait partie du décor maintenant.",
+            .japanese: "もう一週間？この猫はもう家の一部だ。",
+            .german:   "Schon eine Woche? Diese Katze gehört jetzt zum Inventar.",
+            .spanish:  "¿Ya una semana? Este gato ya forma parte del mobiliario.",
+        ],
+        "wrapped.days.phrase.2": [
+            .english:  "A month and more together. A real cohabitation.",
+            .french:   "Un mois et plus ensemble. Une vraie colocation.",
+            .japanese: "一ヶ月以上一緒に。本当の共同生活だ。",
+            .german:   "Ein Monat und mehr zusammen. Eine echte Wohngemeinschaft.",
+            .spanish:  "Un mes y más juntos. Una verdadera convivencia.",
+        ],
+        "wrapped.days.phrase.3": [
+            .english:  "Almost a year. This cat knows you by heart.",
+            .french:   "Presque un an. Ce chat te connaît par cœur.",
+            .japanese: "もうすぐ一年。この猫はあなたのことを熟知している。",
+            .german:   "Fast ein Jahr. Diese Katze kennt dich in- und auswendig.",
+            .spanish:  "Casi un año. Este gato te conoce de memoria.",
+        ],
+        "wrapped.days.phrase.4": [
+            .english:  "A year and more. Official: you two are inseparable.",
+            .french:   "Un an et plus. Officiel : vous êtes inséparables.",
+            .japanese: "一年以上。公式発表：あなたたちは切っても切れない仲だ。",
+            .german:   "Ein Jahr und mehr. Offiziell: Ihr seid unzertrennlich.",
+            .spanish:  "Un año y más. Oficial: son inseparables.",
+        ],
+
+        // Outro
+        "wrapped.outro.title": [
+            .english:  "See you tomorrow ✦",
+            .french:   "À demain ✦",
+            .japanese: "また明日 ✦",
+            .german:   "Bis morgen ✦",
+            .spanish:  "Hasta mañana ✦",
+        ],
+        "wrapped.outro.sub": [
+            .english:  "Your little cat will be here.",
+            .french:   "Ton petit chat sera là.",
+            .japanese: "あなたの小さな猫がここにいるよ。",
+            .german:   "Deine kleine Katze wird da sein.",
+            .spanish:  "Tu pequeño gato estará aquí.",
+        ],
+        "wrapped.close": [
+            .english:  "Close",
+            .french:   "Fermer",
+            .japanese: "閉じる",
+            .german:   "Schließen",
+            .spanish:  "Cerrar",
+        ],
     ]
 }
