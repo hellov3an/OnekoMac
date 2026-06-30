@@ -31,15 +31,20 @@ targets:
         type: group
       - path: Utils
         type: group
-      # Include Resources/Sprites as a folder reference so GIFs are copied as-is.
+      # GIF sprite sheets — copied as-is (folder reference).
       - path: Resources/Sprites
         type: folder
+        buildPhase: resources
+      # App icon asset catalog.
+      - path: Resources/Assets.xcassets
+        type: group
         buildPhase: resources
     settings:
       base:
         PRODUCT_NAME: OnekoMac
         LD_RUNPATH_SEARCH_PATHS: "$(inherited) @executable_path/../Frameworks"
         COMBINE_HIDPI_IMAGES: YES
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
     entitlements:
       path: OnekoMac.entitlements
       properties:
