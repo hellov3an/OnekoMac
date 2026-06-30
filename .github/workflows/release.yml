@@ -22,14 +22,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0   # needed so git tag -l sees all existing tags
+          fetch-depth: 0
 
       - name: Read version from Info.plist
         id: ver
         run: |
           VERSION=$(/usr/libexec/PlistBuddy -c "Print :CFBundleShortVersionString" Info.plist)
-          echo "version=$VERSION"    >> $GITHUB_OUTPUT
-          echo "tag=v$VERSION"       >> $GITHUB_OUTPUT
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "tag=v$VERSION"    >> $GITHUB_OUTPUT
 
       - name: Check whether this version was already released
         id: check
@@ -45,15 +45,15 @@ jobs:
 
       # ── Everything below only runs for new versions ─────────────────────────
 
-      - name: Install xcodegen
+      - name: Install tools
         if: steps.check.outputs.skip == 'false'
-        run: brew install xcodegen
+        run: brew install xcodegen create-dmg
 
       - name: Generate Xcode project
         if: steps.check.outputs.skip == 'false'
         run: xcodegen generate
 
-      - name: Stamp build number into Info.plist
+      - name: Stamp build number
         if: steps.check.outputs.skip == 'false'
         run: |
           /usr/libexec/PlistBuddy -c "Set :CFBundleVersion ${{ github.run_number }}" Info.plist
@@ -67,24 +67,60 @@ jobs:
             -configuration Release \
             -archivePath "$RUNNER_TEMP/OnekoMac.xcarchive" \
             archive \
-            CODE_SIGN_IDENTITY=""   \
+            CODE_SIGN_IDENTITY=""    \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGNING_ALLOWED=NO
 
-      - name: Package .app → zip
+      - name: Create DMG
         if: steps.check.outputs.skip == 'false'
         run: |
-          APP="$RUNNER_TEMP/OnekoMac.xcarchive/Products/Applications"
-          ZIP="$RUNNER_TEMP/OnekoMac-${{ steps.ver.outputs.tag }}.zip"
-          cd "$APP"
-          zip -r "$ZIP" OnekoMac.app
-          echo "ZIP=$ZIP" >> $GITHUB_ENV
+          APP_DIR="$RUNNER_TEMP/OnekoMac.xcarchive/Products/Applications"
+          DMG="$RUNNER_TEMP/OnekoMac-${{ steps.ver.outputs.tag }}.dmg"
+          ICNS="$APP_DIR/OnekoMac.app/Contents/Resources/AppIcon.icns"
+
+          create-dmg \
+            --volname "OnekoMac" \
+            --volicon "$ICNS" \
+            --window-size 540 360 \
+            --background ".github/assets/dmg-bg.png" \
+            --icon-size 128 \
+            --icon "OnekoMac.app" 135 170 \
+            --app-drop-link 405 170 \
+            --hide-extension "OnekoMac.app" \
+            --no-internet-enable \
+            "$DMG" \
+            "$APP_DIR" \
+          || \
+          create-dmg \
+            --volname "OnekoMac" \
+            --volicon "$ICNS" \
+            --window-size 540 360 \
+            --icon-size 128 \
+            --icon "OnekoMac.app" 135 170 \
+            --app-drop-link 405 170 \
+            --hide-extension "OnekoMac.app" \
+            --no-internet-enable \
+            "$DMG" \
+            "$APP_DIR"
+
+          echo "DMG=$DMG" >> $GITHUB_ENV
 
       - name: Create GitHub Release
         if: steps.check.outputs.skip == 'false'
         uses: softprops/action-gh-release@v2
         with:
-          tag_name:              ${{ steps.ver.outputs.tag }}
-          name:                  "OnekoMac+ ${{ steps.ver.outputs.tag }}"
-          files:                 ${{ env.ZIP }}
+          tag_name:  ${{ steps.ver.outputs.tag }}
+          name:      "OnekoMac ${{ steps.ver.outputs.tag }}"
+          files:     ${{ env.DMG }}
+          body: |
+            ## Install
+
+            1. Download **OnekoMac-${{ steps.ver.outputs.tag }}.dmg**
+            2. Open the DMG and drag **OnekoMac.app** to Applications
+            3. First launch: right-click → **Open** (bypasses Gatekeeper on unsigned builds)
+
+            > **"damaged and can't be opened"?**
+            > Run in Terminal: `xattr -cr /Applications/OnekoMac.app`
+
+            ---
           generate_release_notes: true
