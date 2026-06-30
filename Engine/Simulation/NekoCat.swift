@@ -1,7 +1,7 @@
 import Foundation
 
 // Sprite grid positions ported 1:1 from oneko.js spriteSets.
-// Each tuple is (col, row) in the 8×8 atlas (0-indexed, top-left origin).
+// Each tuple is (col, row) in the 8×4 atlas (256×128 px, 32×32 cells, top-left origin).
 // JS uses negative offsets: [-3,-3] → col=3, row=3.
 enum Anim: String {
     case idle, alert, tired, sleeping
@@ -30,10 +30,11 @@ let spriteSets: [Anim: [(Int, Int)]] = [
 ]
 
 /// Returns the UV rect [u, v, width, height] in 0..1 atlas space for the given sprite+frame.
+/// Atlas is 256×128 px → 8 columns × 4 rows of 32×32 px cells.
 func spriteUV(_ anim: Anim, frame: Int) -> SIMD4<Float> {
     let frames = spriteSets[anim] ?? [(3, 3)]
     let (col, row) = frames[frame % frames.count]
-    return SIMD4<Float>(Float(col) / 8, Float(row) / 8, 1.0 / 8, 1.0 / 8)
+    return SIMD4<Float>(Float(col) / 8, Float(row) / 4, 1.0 / 8, 1.0 / 4)
 }
 
 /// Oneko simulation — direct port of oneko.js `frame()` logic.

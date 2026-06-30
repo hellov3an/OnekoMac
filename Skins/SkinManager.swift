@@ -87,12 +87,8 @@ final class SkinManager {
             bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
         ) else { return nil }
 
-        // CGContext has lower-left origin by default. Flip so row 0 in the buffer
-        // = top of the image, which is what Metal UV (0,0) expects.
-        ctx.translateBy(x: 0, y: CGFloat(h))
-        ctx.scaleBy(x: 1, y: -1)
+        // Off-screen CGBitmapContext stores row 0 at the top — no flip needed.
         ctx.draw(cgImage, in: CGRect(x: 0, y: 0, width: w, height: h))
-        // GIFs have 1-bit alpha (0 or 255) — no premult correction needed.
 
         tex.replace(
             region: MTLRegionMake2D(0, 0, w, h),
