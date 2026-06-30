@@ -303,6 +303,27 @@ enum Strings {
             .german:   "verfügbar",
             .spanish:  "disponible",
         ],
+        "update.downloading": [
+            .english:  "Downloading…",
+            .french:   "Téléchargement…",
+            .japanese: "ダウンロード中…",
+            .german:   "Wird geladen…",
+            .spanish:  "Descargando…",
+        ],
+        "update.installing": [
+            .english:  "Installing…",
+            .french:   "Installation…",
+            .japanese: "インストール中…",
+            .german:   "Installiere…",
+            .spanish:  "Instalando…",
+        ],
+        "update.install_btn": [
+            .english:  "Install",
+            .french:   "Installer",
+            .japanese: "インストール",
+            .german:   "Installieren",
+            .spanish:  "Instalar",
+        ],
         "update.error": [
             .english:  "Could not check for updates",
             .french:   "Impossible de vérifier les mises à jour",

@@ -225,7 +225,12 @@ struct SettingsView: View {
                 }
                 .buttonStyle(.bordered)
                 .controlSize(.small)
-                .disabled(updater.state == .checking)
+                .disabled({
+                    switch updater.state {
+                    case .checking, .downloading, .installing: return true
+                    default: return false
+                    }
+                }())
             }
 
             if case .available(let version, let url) = updater.state {
@@ -234,8 +239,12 @@ struct SettingsView: View {
                     Text("v\(version) \(lang["update.available"])")
                         .fontWeight(.medium)
                     Spacer()
-                    Link(lang["settings.download_btn"], destination: url)
-                        .font(.callout)
+                    Button(lang["update.install_btn"]) {
+                        Task { await updater.downloadAndInstall(zipURL: url) }
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .tint(.green)
+                    .controlSize(.small)
                 }
                 .padding(8)
                 .background(Color.green.opacity(0.1), in: RoundedRectangle(cornerRadius: 8))
@@ -260,6 +269,10 @@ struct SettingsView: View {
                 Image(systemName: "exclamationmark.circle.fill").foregroundStyle(.orange)
                 Text("v\(v) \(lang["update.available"])")
             }
+        case .downloading:
+            HStack(spacing: 6) { ProgressView().scaleEffect(0.7); Text(lang["update.downloading"]) }
+        case .installing:
+            HStack(spacing: 6) { ProgressView().scaleEffect(0.7); Text(lang["update.installing"]) }
         case .error(let msg):
             HStack(spacing: 6) {
                 Image(systemName: "xmark.circle.fill").foregroundStyle(.red)
