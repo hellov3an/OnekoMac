@@ -105,9 +105,64 @@ The Metal shader converts top-left screen coordinates to NDC in one pass.
 
 ---
 
+## Creating a skin
+
+Skins are 256×128 px GIF files arranged as an 8-column × 4-row sprite sheet — the same format as the original `oneko.js`.
+
+### Sprite sheet layout
+
+```
+col →   0    1    2    3    4    5    6    7
+row 0  [nwl][nwl][slp][slp][scW][scS][scS][scS]
+row 1  [nwl][nwl][slp][slp][scW][ SE][ SW][ S ]
+row 2  [NE ][NE ][E  ][trd][W  ][SE ][SW ][S  ]
+row 3  [NE ][NE ][E  ][idl][W  ][SE ][SW ][alt]
+```
+
+Each cell is **32×32 px**. The idle frame is at **col 3, row 3**.
+
+### Step 1 — Make the GIF
+
+- Canvas: exactly **256 × 128 px**
+- Each cell: **32 × 32 px** (pixel art, no anti-aliasing)
+- Name it `oneko-<id>.gif` (e.g. `oneko-ghost.gif`)
+- Keep the same animation grid as the originals — copy one of the bundled GIFs as a starting point
+
+### Step 2 — Test it locally
+
+Drop your GIF in `Resources/Sprites/`, then add its ID to `SkinManager.skinIDs` in `Skins/SkinManager.swift`:
+
+```swift
+static let skinIDs = ["classic", "dog", "tora", "maia", "vaporwave", "ghost"]
+```
+
+Build and run — your skin appears in the picker immediately.
+
+### Step 3 — Submit to the Marketplace
+
+1. **Fork** this repo
+2. Put your GIF in `Marketplace/` (create the folder if needed)
+3. Add an entry to `.github/marketplace/manifest.json`:
+
+```json
+{
+  "id": "ghost",
+  "name": "Ghost",
+  "author": "yourGitHubHandle",
+  "bundled": false,
+  "url": "https://raw.githubusercontent.com/hellov3an/OnekoMac/main/Marketplace/oneko-ghost.gif"
+}
+```
+
+4. Open a **Pull Request** — once merged, the skin appears in every user's Marketplace panel without an app update
+
+> **Tip:** for the `url` field in your PR, use your fork's raw URL first so the skin can be previewed before merge.
+
+---
+
 ## Contributing
 
-PRs welcome. If you're adding a new skin, drop a 256×128 GIF in `Resources/Sprites/` and register it in `SkinManager.skinIDs`.
+PRs welcome — skins, bug fixes, new features, translations.
 
 Bug reports → [Issues](https://github.com/hellov3an/OnekoMac/issues)
 
