@@ -45,6 +45,9 @@ final class OnboardingWindowController {
 
     private func finish() {
         UserDefaults.standard.set(true, forKey: "onboarding_completed")
+        if UserDefaults.standard.string(forKey: "adoption_date") == nil {
+            UserDefaults.standard.set(ISO8601DateFormatter().string(from: Date()), forKey: "adoption_date")
+        }
         window.close()
     }
 }

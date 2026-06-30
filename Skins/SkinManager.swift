@@ -10,6 +10,20 @@ final class SkinManager {
 
     static let skinIDs = ["classic", "dog", "tora", "maia", "vaporwave"]
 
+    // MARK: – Custom sprites directory (Application Support)
+
+    static var customSpritesDir: URL {
+        FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
+            .appendingPathComponent("OnekoMac/Sprites")
+    }
+
+    /// Returns the URL for a skin's GIF — custom (App Support) takes priority over bundle.
+    static func gifURL(for id: String) -> URL? {
+        let custom = customSpritesDir.appendingPathComponent("oneko-\(id).gif")
+        if FileManager.default.fileExists(atPath: custom.path) { return custom }
+        return Bundle.main.url(forResource: "oneko-\(id)", withExtension: "gif", subdirectory: "Sprites")
+    }
+
     var availableIDs: [String] {
         lock.lock(); defer { lock.unlock() }
         return Array(textures.keys).sorted()
@@ -26,7 +40,8 @@ final class SkinManager {
     func loadAll(completion: @escaping () -> Void) {
         var calledBack = false
         for id in SkinManager.skinIDs {
-            loadSkin(id: id) {
+            guard let url = SkinManager.gifURL(for: id) else { continue }
+            loadSkinFromURL(id: id, url: url) {
                 if !calledBack {
                     calledBack = true
                     DispatchQueue.main.async { completion() }
@@ -35,15 +50,47 @@ final class SkinManager {
         }
     }
 
-    // MARK: – Private
-
-    private func loadSkin(id: String, completion: @escaping () -> Void) {
-        guard let dev = device else { return }
-        guard let url = Bundle.main.url(forResource: "oneko-\(id)", withExtension: "gif", subdirectory: "Sprites") else {
-            Log.skin.error("GIF not found in bundle: oneko-\(id).gif (Sprites/)")
-            return
+    /// Load any .gif files found in the custom sprites directory.
+    func loadCustomSprites() {
+        let dir = SkinManager.customSpritesDir
+        guard let urls = try? FileManager.default.contentsOfDirectory(at: dir,
+                                                                       includingPropertiesForKeys: nil)
+        else { return }
+        let gifURLs = urls.filter {
+            $0.pathExtension == "gif" && $0.lastPathComponent.hasPrefix("oneko-")
         }
+        for url in gifURLs {
+            let id = String(url.deletingPathExtension().lastPathComponent.dropFirst("oneko-".count))
+            guard !SkinManager.skinIDs.contains(id) else { continue }
+            loadSkinFromURL(id: id, url: url) {}
+        }
+    }
 
+    /// Download a skin GIF from `url`, save to App Support, then load it.
+    func downloadSprite(id: String, from url: URL, completion: @escaping (Bool) -> Void) {
+        URLSession.shared.dataTask(with: url) { [weak self] data, _, error in
+            guard let self, let data, error == nil else {
+                DispatchQueue.main.async { completion(false) }
+                return
+            }
+            let dir = SkinManager.customSpritesDir
+            do {
+                try FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+                let dest = dir.appendingPathComponent("oneko-\(id).gif")
+                try data.write(to: dest)
+                self.loadSkinFromURL(id: id, url: dest) {
+                    DispatchQueue.main.async { completion(true) }
+                }
+            } catch {
+                DispatchQueue.main.async { completion(false) }
+            }
+        }.resume()
+    }
+
+    // MARK: – Internal loader
+
+    func loadSkinFromURL(id: String, url: URL, completion: @escaping () -> Void) {
+        guard let dev = device else { return }
         DispatchQueue.global(qos: .userInitiated).async { [weak self] in
             guard let self else { return }
             guard let tex = self.gifToTexture(url: url, device: dev) else {
@@ -58,7 +105,8 @@ final class SkinManager {
         }
     }
 
-    /// Decode GIF (static sprite sheet) → MTLTexture via Core Graphics.
+    // MARK: – Private
+
     private func gifToTexture(url: URL, device: MTLDevice) -> MTLTexture? {
         guard let data = try? Data(contentsOf: url),
               let source = CGImageSourceCreateWithData(data as CFData, nil),
@@ -75,7 +123,6 @@ final class SkinManager {
         desc.storageMode = .shared
         guard let tex = device.makeTexture(descriptor: desc) else { return nil }
 
-        // Draw CGImage into a raw RGBA buffer.
         var pixels = [UInt8](repeating: 0, count: w * h * 4)
         let colorSpace = CGColorSpaceCreateDeviceRGB()
         guard let ctx = CGContext(
@@ -87,7 +134,6 @@ final class SkinManager {
             bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
         ) else { return nil }
 
-        // Off-screen CGBitmapContext stores row 0 at the top — no flip needed.
         ctx.draw(cgImage, in: CGRect(x: 0, y: 0, width: w, height: h))
 
         tex.replace(

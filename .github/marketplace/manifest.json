@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "sprites": [
+    { "id": "classic",   "name": "Classic",   "author": "hellov3an", "bundled": true, "url": null },
+    { "id": "dog",       "name": "Dog",       "author": "hellov3an", "bundled": true, "url": null },
+    { "id": "tora",      "name": "Tora",      "author": "hellov3an", "bundled": true, "url": null },
+    { "id": "maia",      "name": "Maia",      "author": "hellov3an", "bundled": true, "url": null },
+    { "id": "vaporwave", "name": "Vaporwave", "author": "hellov3an", "bundled": true, "url": null }
+  ]
+}

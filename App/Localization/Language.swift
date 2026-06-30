@@ -133,6 +133,64 @@ enum Strings {
             .spanish:  "Puedes cambiarlo en cualquier momento.",
         ],
 
+        // ── Onboarding – ID Card ─────────────────────────────────────────────
+        "ob.card.eyebrow": [
+            .english:  "PET PASSPORT",
+            .french:   "CARTE D'IDENTITÉ",
+            .japanese: "ペットパスポート",
+            .german:   "TIERAUSWEIS",
+            .spanish:  "PASAPORTE MASCOTA",
+        ],
+        "ob.card.adopted": [
+            .english:  "Adopted on",
+            .french:   "Adopté le",
+            .japanese: "お迎えした日",
+            .german:   "Adoptiert am",
+            .spanish:  "Adoptado el",
+        ],
+        "ob.card.personality": [
+            .english:  "Personality",
+            .french:   "Personnalité",
+            .japanese: "パーソナリティ",
+            .german:   "Persönlichkeit",
+            .spanish:  "Personalidad",
+        ],
+        "personality.classic": [
+            .english:  "Classic & Loyal",
+            .french:   "Classique & fidèle",
+            .japanese: "古典的で忠実",
+            .german:   "Klassisch & treu",
+            .spanish:  "Clásico & fiel",
+        ],
+        "personality.dog": [
+            .english:  "Playful & Energetic",
+            .french:   "Joueur & énergique",
+            .japanese: "遊び好きで元気",
+            .german:   "Verspielt & energetisch",
+            .spanish:  "Juguetón & enérgico",
+        ],
+        "personality.tora": [
+            .english:  "Wild & Brave",
+            .french:   "Sauvage & courageux",
+            .japanese: "野生的で勇敢",
+            .german:   "Wild & mutig",
+            .spanish:  "Salvaje & valiente",
+        ],
+        "personality.maia": [
+            .english:  "Gentle & Dreamy",
+            .french:   "Doux & rêveur",
+            .japanese: "穏やかで夢見がち",
+            .german:   "Sanft & verträumt",
+            .spanish:  "Dulce & soñador",
+        ],
+        "personality.vaporwave": [
+            .english:  "Retro & Mysterious",
+            .french:   "Rétro & mystérieux",
+            .japanese: "レトロで神秘的",
+            .german:   "Retro & mysteriös",
+            .spanish:  "Retro & misterioso",
+        ],
+
         // ── Onboarding – Welcome ──────────────────────────────────────────────
         "ob.welcome.title": [
             .english:  "Welcome to OnekoMac",
@@ -231,6 +289,72 @@ enum Strings {
             .german:   "OnekoMac beenden",
             .spanish:  "Salir de OnekoMac",
         ],
+        "settings.marketplace": [
+            .english:  "Browse Skins",
+            .french:   "Parcourir les skins",
+            .japanese: "スキンを探す",
+            .german:   "Skins durchsuchen",
+            .spanish:  "Explorar skins",
+        ],
+
+        // ── Marketplace ───────────────────────────────────────────────────────
+        "marketplace.title": [
+            .english:  "Skin Marketplace",
+            .french:   "Marketplace",
+            .japanese: "スキン広場",
+            .german:   "Skin-Marktplatz",
+            .spanish:  "Mercado de Skins",
+        ],
+        "marketplace.subtitle": [
+            .english:  "Browse & download new skins",
+            .french:   "Découvre et télécharge de nouveaux skins",
+            .japanese: "新しいスキンを見つけよう",
+            .german:   "Neue Skins entdecken & laden",
+            .spanish:  "Descubre y descarga nuevos skins",
+        ],
+        "marketplace.loading": [
+            .english:  "Loading…",
+            .french:   "Chargement…",
+            .japanese: "読み込み中…",
+            .german:   "Laden…",
+            .spanish:  "Cargando…",
+        ],
+        "marketplace.bundled": [
+            .english:  "Included",
+            .french:   "Inclus",
+            .japanese: "収録済み",
+            .german:   "Enthalten",
+            .spanish:  "Incluido",
+        ],
+        "marketplace.download": [
+            .english:  "Download",
+            .french:   "Télécharger",
+            .japanese: "ダウンロード",
+            .german:   "Herunterladen",
+            .spanish:  "Descargar",
+        ],
+        "marketplace.installed": [
+            .english:  "Installed",
+            .french:   "Installé",
+            .japanese: "インストール済み",
+            .german:   "Installiert",
+            .spanish:  "Instalado",
+        ],
+        "marketplace.error": [
+            .english:  "Couldn't load skins",
+            .french:   "Impossible de charger les skins",
+            .japanese: "スキンを読み込めません",
+            .german:   "Skins konnten nicht geladen werden",
+            .spanish:  "No se pudieron cargar los skins",
+        ],
+        "marketplace.retry": [
+            .english:  "Retry",
+            .french:   "Réessayer",
+            .japanese: "再試行",
+            .german:   "Erneut versuchen",
+            .spanish:  "Reintentar",
+        ],
+
         "settings.check_btn": [
             .english:  "Check",
             .french:   "Vérifier",

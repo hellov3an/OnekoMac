@@ -299,56 +299,94 @@ struct OnboardingView: View {
         .frame(width: windowW)
     }
 
-    // MARK: – Step 4 · Welcome
+    // MARK: – Step 4 · ID Card
 
     private var welcomeStep: some View {
         VStack(spacing: 0) {
             Spacer()
 
-            ZStack {
-                Circle()
-                    .fill(Color.orange.opacity(0.12))
-                    .frame(width: 108, height: 108)
-                Circle()
-                    .fill(Color.orange.opacity(0.06))
-                    .frame(width: 140, height: 140)
+            Text(lang["ob.card.eyebrow"])
+                .font(.system(.caption2, design: .rounded).weight(.heavy))
+                .tracking(2)
+                .foregroundStyle(.orange)
 
-                if let img = loadSprite(skinID: selectedSkin, size: 72) {
-                    Image(nsImage: img)
-                        .interpolation(.none)
-                        .frame(width: 72, height: 72)
+            Spacer().frame(height: 16)
+
+            // Card
+            VStack(spacing: 0) {
+                // Cat sprite
+                ZStack {
+                    Circle().fill(Color.orange.opacity(0.12)).frame(width: 96, height: 96)
+                    Circle().fill(Color.orange.opacity(0.06)).frame(width: 116, height: 116)
+                    if let img = loadSprite(skinID: selectedSkin, size: 72) {
+                        Image(nsImage: img)
+                            .interpolation(.none)
+                            .frame(width: 72, height: 72)
+                    }
                 }
+                .padding(.top, 24)
+
+                Spacer().frame(height: 14)
+
+                Text(displayName)
+                    .font(.system(size: 26, weight: .black, design: .rounded))
+                    .foregroundStyle(.white)
+
+                Spacer().frame(height: 16)
+
+                Divider().background(.white.opacity(0.15))
+
+                Spacer().frame(height: 16)
+
+                // Info rows
+                VStack(spacing: 10) {
+                    cardRow(icon: "calendar", label: lang["ob.card.adopted"],
+                            value: adoptionDateDisplay)
+                    cardRow(icon: "paintbrush.fill", label: "Skin",
+                            value: selectedSkin.capitalized)
+                    cardRow(icon: "sparkles", label: lang["ob.card.personality"],
+                            value: lang["personality.\(selectedSkin)"])
+                }
+                .padding(.horizontal, 24)
+                .padding(.bottom, 24)
             }
-
-            Spacer().frame(height: 30)
-
-            Text(welcomeGreeting)
-                .font(.system(size: 28, weight: .bold, design: .rounded))
-                .foregroundStyle(.white)
-                .multilineTextAlignment(.center)
-
-            Spacer().frame(height: 10)
-
-            Text(lang["ob.welcome.subtitle"])
-                .font(.callout)
-                .foregroundStyle(.white.opacity(0.45))
+            .frame(width: 300)
+            .background(.white.opacity(0.06), in: RoundedRectangle(cornerRadius: 20))
+            .overlay(RoundedRectangle(cornerRadius: 20).strokeBorder(.white.opacity(0.12), lineWidth: 1))
 
             Spacer()
         }
         .frame(width: windowW)
     }
 
-    private var welcomeGreeting: String {
-        let name = petName.trimmingCharacters(in: .whitespaces).isEmpty
+    private func cardRow(icon: String, label: String, value: String) -> some View {
+        HStack(spacing: 10) {
+            Image(systemName: icon)
+                .font(.caption)
+                .foregroundStyle(.orange)
+                .frame(width: 16)
+            Text(label)
+                .font(.caption)
+                .foregroundStyle(.white.opacity(0.45))
+            Spacer()
+            Text(value)
+                .font(.caption.weight(.semibold))
+                .foregroundStyle(.white)
+        }
+    }
+
+    private var displayName: String {
+        petName.trimmingCharacters(in: .whitespaces).isEmpty
             ? selectedSkin.capitalized
             : petName.trimmingCharacters(in: .whitespaces)
-        switch lang.language {
-        case .japanese: return "\(name)へようこそ ✦"
-        case .french:   return "Bienvenue, \(name) ✦"
-        case .german:   return "Willkommen, \(name) ✦"
-        case .spanish:  return "Bienvenido, \(name) ✦"
-        case .english:  return "Welcome, \(name) ✦"
-        }
+    }
+
+    private var adoptionDateDisplay: String {
+        let fmt = DateFormatter()
+        fmt.dateStyle = .medium
+        fmt.timeStyle = .none
+        fmt.locale = Locale(identifier: lang.language.rawValue)
+        return fmt.string(from: Date())
     }
 
     // MARK: – Navigation bar
@@ -417,9 +455,7 @@ struct OnboardingView: View {
     // MARK: – Helpers
 
     private func loadSprite(skinID: String, size: CGFloat) -> NSImage? {
-        guard let url = Bundle.main.url(forResource: "oneko-\(skinID)",
-                                         withExtension: "gif",
-                                         subdirectory: "Sprites"),
+        guard let url  = SkinManager.gifURL(for: skinID),
               let data = try? Data(contentsOf: url),
               let src  = CGImageSourceCreateWithData(data as CFData, nil),
               let full = CGImageSourceCreateImageAtIndex(src, 0, nil) else { return nil }

@@ -46,6 +46,7 @@ final class MetalRenderer: ObservableObject {
 
     @Published private(set) var stats = DebugStats()
     @Published private(set) var currentSkinID = "classic"
+    @Published private(set) var allSkinIDs: [String] = SkinManager.skinIDs
 
     init() throws {
         guard let dev = MTLCreateSystemDefaultDevice() else {
@@ -97,10 +98,12 @@ final class MetalRenderer: ObservableObject {
         try buildPipeline()
         buildSampler()
 
-        // Load skins (async — falls back to placeholder until ready).
+        // Load bundled skins (async — falls back to placeholder until ready).
         skinManager.loadAll { [weak self] in
             self?.currentSkinID = "classic"
         }
+        // Also load any previously downloaded custom skins.
+        skinManager.loadCustomSprites()
 
         startLoop()
     }
@@ -108,11 +111,15 @@ final class MetalRenderer: ObservableObject {
     // MARK: – Skin switching
 
     func setSkin(_ id: String) {
-        guard skinManager.texture(id: id) != nil else { return }
         currentSkinID = id
     }
 
     var availableSkins: [String] { skinManager.availableIDs }
+
+    func refreshAvailableSkins() {
+        let ids = skinManager.availableIDs
+        DispatchQueue.main.async { self.allSkinIDs = ids }
+    }
 
     // MARK: – Loop
 

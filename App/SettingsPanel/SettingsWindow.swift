@@ -49,15 +49,19 @@ final class SettingsWindowController {
     private let window = SettingsWindow()
     private let updater = Updater()
     private var wrappedController: WrappedWindowController?
+    private var marketplaceController: MarketplaceWindowController?
 
     init(renderer: MetalRenderer, langManager: LanguageManager) {
-        let wrapped = WrappedWindowController(renderer: renderer, langManager: langManager)
-        self.wrappedController = wrapped
+        let wrapped     = WrappedWindowController(renderer: renderer, langManager: langManager)
+        let marketplace = MarketplaceWindowController(renderer: renderer, langManager: langManager)
+        self.wrappedController     = wrapped
+        self.marketplaceController = marketplace
 
         let view = SettingsView(
             renderer: renderer,
             updater:  updater,
-            onShowWrapped: { wrapped.show() }
+            onShowWrapped:     { wrapped.show() },
+            onShowMarketplace: { marketplace.show() }
         )
         .environmentObject(langManager)
         window.contentView = NSHostingView(rootView: view)

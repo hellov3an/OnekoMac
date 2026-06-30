@@ -33,9 +33,7 @@ struct SkinPreview: View {
     }
 
     private func idleImage(for id: String) -> NSImage? {
-        guard let url = Bundle.main.url(forResource: "oneko-\(id)",
-                                         withExtension: "gif",
-                                         subdirectory: "Sprites"),
+        guard let url  = SkinManager.gifURL(for: id),
               let data = try? Data(contentsOf: url),
               let src  = CGImageSourceCreateWithData(data as CFData, nil),
               let full = CGImageSourceCreateImageAtIndex(src, 0, nil) else { return nil }
@@ -55,6 +53,7 @@ struct SettingsView: View {
     @ObservedObject var updater: Updater
     @EnvironmentObject var lang: LanguageManager
     let onShowWrapped: () -> Void
+    let onShowMarketplace: () -> Void
 
     @AppStorage("pet_name") private var petName: String = "Neko"
 
@@ -152,13 +151,32 @@ struct SettingsView: View {
             Label(lang["settings.skin"], systemImage: "paintbrush.fill")
                 .font(.subheadline).bold()
 
-            HStack(spacing: 8) {
-                ForEach(SkinManager.skinIDs, id: \.self) { id in
-                    SkinPreview(skinID: id, isSelected: renderer.currentSkinID == id)
-                        .onTapGesture { renderer.setSkin(id) }
-                        .animation(.easeInOut(duration: 0.15), value: renderer.currentSkinID)
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 8) {
+                    ForEach(renderer.allSkinIDs, id: \.self) { id in
+                        SkinPreview(skinID: id, isSelected: renderer.currentSkinID == id)
+                            .onTapGesture { renderer.setSkin(id) }
+                            .animation(.easeInOut(duration: 0.15), value: renderer.currentSkinID)
+                    }
                 }
             }
+
+            Button {
+                onShowMarketplace()
+            } label: {
+                HStack(spacing: 6) {
+                    Image(systemName: "square.grid.2x2.fill")
+                        .font(.caption)
+                    Text(lang["settings.marketplace"])
+                        .font(.caption.weight(.medium))
+                }
+                .foregroundStyle(.white.opacity(0.7))
+                .padding(.horizontal, 12)
+                .padding(.vertical, 6)
+                .background(.white.opacity(0.07), in: Capsule())
+                .overlay(Capsule().strokeBorder(.white.opacity(0.12), lineWidth: 1))
+            }
+            .buttonStyle(.plain)
         }
     }
 
