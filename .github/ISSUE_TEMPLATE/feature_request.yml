@@ -1,0 +1,51 @@
+name: Feature request
+description: Suggest something to add or improve
+labels: [enhancement]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Got an idea? Describe it below. The best feature requests explain the *why*, not just the *what*.
+
+  - type: dropdown
+    id: category
+    attributes:
+      label: Category
+      options:
+        - New skin / artwork
+        - Cat behaviour / animation
+        - Multi-screen / display
+        - Settings / UI
+        - Performance
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem does this solve?
+      description: Describe the situation you're in that makes this feature desirable.
+      placeholder: "I'm always frustrated when..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Describe the feature
+      description: As concisely as possible, what should it do?
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives you've considered
+      description: Any workaround or other approaches you've thought about?
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional context
+      description: Mockups, references, links to similar implementations, etc.

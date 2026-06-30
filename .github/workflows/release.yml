@@ -1,49 +1,90 @@
 name: Release
 
+# Fires on every push to main.
+# Creates a GitHub Release only when CFBundleShortVersionString in Info.plist
+# is newer than the latest published tag — no manual tagging needed.
+
 on:
   push:
-    tags:
-      - "v*.*.*"
+    branches: [main]
 
 permissions:
   contents: write
 
+env:
+  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
 jobs:
-  build-and-release:
+  release:
     runs-on: macos-15
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # needed so git tag -l sees all existing tags
+
+      - name: Read version from Info.plist
+        id: ver
+        run: |
+          VERSION=$(/usr/libexec/PlistBuddy -c "Print :CFBundleShortVersionString" Info.plist)
+          echo "version=$VERSION"    >> $GITHUB_OUTPUT
+          echo "tag=v$VERSION"       >> $GITHUB_OUTPUT
+
+      - name: Check whether this version was already released
+        id: check
+        run: |
+          TAG="${{ steps.ver.outputs.tag }}"
+          if gh release view "$TAG" &>/dev/null 2>&1; then
+            echo "Version $TAG already released — skipping."
+            echo "skip=true" >> $GITHUB_OUTPUT
+          else
+            echo "New version $TAG — will build and release."
+            echo "skip=false" >> $GITHUB_OUTPUT
+          fi
+
+      # ── Everything below only runs for new versions ─────────────────────────
 
       - name: Install xcodegen
+        if: steps.check.outputs.skip == 'false'
         run: brew install xcodegen
 
       - name: Generate Xcode project
+        if: steps.check.outputs.skip == 'false'
         run: xcodegen generate
 
+      - name: Stamp build number into Info.plist
+        if: steps.check.outputs.skip == 'false'
+        run: |
+          /usr/libexec/PlistBuddy -c "Set :CFBundleVersion ${{ github.run_number }}" Info.plist
+
       - name: Build Release archive
+        if: steps.check.outputs.skip == 'false'
         run: |
           xcodebuild \
             -project OnekoMac.xcodeproj \
-            -scheme OnekoMac \
+            -scheme   OnekoMac \
             -configuration Release \
             -archivePath "$RUNNER_TEMP/OnekoMac.xcarchive" \
             archive \
-            CODE_SIGN_IDENTITY="" \
+            CODE_SIGN_IDENTITY=""   \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGNING_ALLOWED=NO
 
-      - name: Package .app into zip
+      - name: Package .app → zip
+        if: steps.check.outputs.skip == 'false'
         run: |
-          APP_PATH="$RUNNER_TEMP/OnekoMac.xcarchive/Products/Applications/OnekoMac.app"
-          cd "$RUNNER_TEMP/OnekoMac.xcarchive/Products/Applications"
-          zip -r "$RUNNER_TEMP/OnekoMac-${{ github.ref_name }}.zip" OnekoMac.app
-          echo "ZIP_PATH=$RUNNER_TEMP/OnekoMac-${{ github.ref_name }}.zip" >> $GITHUB_ENV
+          APP="$RUNNER_TEMP/OnekoMac.xcarchive/Products/Applications"
+          ZIP="$RUNNER_TEMP/OnekoMac-${{ steps.ver.outputs.tag }}.zip"
+          cd "$APP"
+          zip -r "$ZIP" OnekoMac.app
+          echo "ZIP=$ZIP" >> $GITHUB_ENV
 
       - name: Create GitHub Release
+        if: steps.check.outputs.skip == 'false'
         uses: softprops/action-gh-release@v2
         with:
-          files: ${{ env.ZIP_PATH }}
+          tag_name:              ${{ steps.ver.outputs.tag }}
+          name:                  "OnekoMac+ ${{ steps.ver.outputs.tag }}"
+          files:                 ${{ env.ZIP }}
           generate_release_notes: true
-          name: "OnekoMac ${{ github.ref_name }}"

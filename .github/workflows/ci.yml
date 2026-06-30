@@ -24,11 +24,20 @@ jobs:
         run: |
           xcodebuild \
             -project OnekoMac.xcodeproj \
-            -scheme OnekoMac \
+            -scheme   OnekoMac \
             -configuration Debug \
             -destination "platform=macOS" \
             build \
-            CODE_SIGN_IDENTITY="" \
+            CODE_SIGN_IDENTITY=""    \
             CODE_SIGNING_REQUIRED=NO \
-            CODE_SIGNING_ALLOWED=NO \
-            | xcpretty || true
+            CODE_SIGNING_ALLOWED=NO  \
+            2>&1 | xcpretty --color --simple || \
+          xcodebuild \
+            -project OnekoMac.xcodeproj \
+            -scheme   OnekoMac \
+            -configuration Debug \
+            -destination "platform=macOS" \
+            build \
+            CODE_SIGN_IDENTITY=""    \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO
