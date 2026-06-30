@@ -167,14 +167,14 @@ struct SettingsView: View {
                 HStack(spacing: 6) {
                     Image(systemName: "square.grid.2x2.fill")
                         .font(.caption)
+                        .foregroundStyle(.orange)
                     Text(lang["settings.marketplace"])
                         .font(.caption.weight(.medium))
+                        .foregroundStyle(.primary)
                 }
-                .foregroundStyle(.white.opacity(0.7))
                 .padding(.horizontal, 12)
                 .padding(.vertical, 6)
-                .background(.white.opacity(0.07), in: Capsule())
-                .overlay(Capsule().strokeBorder(.white.opacity(0.12), lineWidth: 1))
+                .background(.quaternary, in: Capsule())
             }
             .buttonStyle(.plain)
         }
