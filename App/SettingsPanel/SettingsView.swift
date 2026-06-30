@@ -1,5 +1,6 @@
 import SwiftUI
 import AppKit
+import ServiceManagement
 
 // MARK: – Skin preview image (idle frame cropped from the GIF atlas)
 
@@ -59,6 +60,7 @@ struct SettingsView: View {
 
     @State private var eggTaps = 0
     @State private var showEgg = false
+    @State private var launchAtLogin: Bool = (SMAppService.mainApp.status == .enabled)
 
     var body: some View {
         VStack(spacing: 0) {
@@ -69,6 +71,8 @@ struct SettingsView: View {
                     skinSection
                     Divider()
                     wrappedButton
+                    Divider()
+                    personalizeSection
                     Divider()
                     updatesSection
                     Divider()
@@ -177,7 +181,71 @@ struct SettingsView: View {
                 .background(.quaternary, in: Capsule())
             }
             .buttonStyle(.plain)
+
+            HStack {
+                ColorPicker(lang["settings.tint"], selection: Binding(
+                    get: { Color(renderer.tintColor) },
+                    set: { renderer.setTintColor(NSColor($0)) }
+                ))
+                .font(.caption)
+                Spacer()
+                Button(lang["settings.tint_reset"]) { renderer.setTintColor(.white) }
+                    .buttonStyle(.bordered)
+                    .controlSize(.mini)
+            }
         }
+    }
+
+    // MARK: – Personalize section (launch at login + share card)
+
+    var personalizeSection: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Toggle(lang["settings.launch_login"], isOn: $launchAtLogin)
+                .toggleStyle(.switch)
+                .controlSize(.small)
+                .font(.subheadline)
+                .onChange(of: launchAtLogin) { newVal in
+                    do {
+                        if newVal { try SMAppService.mainApp.register() }
+                        else      { try SMAppService.mainApp.unregister() }
+                    } catch { launchAtLogin = !newVal }
+                }
+
+            Button { shareCardFromSettings() } label: {
+                HStack(spacing: 6) {
+                    Image(systemName: "square.and.arrow.up").font(.caption)
+                    Text(lang["ob.card.share"]).font(.caption.weight(.medium)).foregroundStyle(.primary)
+                }
+                .padding(.horizontal, 12)
+                .padding(.vertical, 6)
+                .background(.quaternary, in: Capsule())
+            }
+            .buttonStyle(.plain)
+        }
+    }
+
+    private func shareCardFromSettings() {
+        let name = petName.trimmingCharacters(in: .whitespaces).isEmpty ? "Neko" : petName
+        let skinID = renderer.currentSkinID
+        let dateStr: String = {
+            if let stored = UserDefaults.standard.string(forKey: "adoption_date"),
+               let date = ISO8601DateFormatter().date(from: stored) {
+                let fmt = DateFormatter()
+                fmt.dateStyle = .medium
+                fmt.locale = Locale(identifier: lang.language.rawValue)
+                return fmt.string(from: date)
+            }
+            let fmt = DateFormatter(); fmt.dateStyle = .medium
+            return fmt.string(from: Date())
+        }()
+        let exportView = CardExportView(
+            name: name, skinID: skinID, dateStr: dateStr,
+            personality: lang["personality.\(skinID)"],
+            adoptedLabel: lang["ob.card.adopted"],
+            personalityLabel: lang["ob.card.personality"]
+        )
+        guard let image = renderCard(exportView: exportView) else { return }
+        showSharePicker(for: image)
     }
 
     // MARK: – Wrapped CTA

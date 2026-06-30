@@ -46,10 +46,12 @@ vertex VertexOut sprite_vertex(
 fragment float4 sprite_fragment(
     VertexOut in [[stage_in]],
     texture2d<float> atlas [[texture(0)]],
-    sampler smp [[sampler(0)]]
+    sampler smp [[sampler(0)]],
+    constant float4 &tint [[buffer(1)]]
 ) {
     float4 color = atlas.sample(smp, in.uv);
     if (color.a < 0.01) discard_fragment();
+    color.rgb *= tint.rgb;
     return color;
 }
 """

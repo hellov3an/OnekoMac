@@ -31,6 +31,7 @@
 		DC4A045ACCF987D2BA57F4F3 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66132A6ABAD5BCAA7DA83E8C /* SettingsView.swift */; };
 		DD363471E3969A90B2399E21 /* NekoCat.swift in Sources */ = {isa = PBXBuildFile; fileRef = B966ED127313678D1BDFFD1C /* NekoCat.swift */; };
 		EEC8D007F251901DC49C0EE7 /* RenderPipeline.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55B3B81C5011267F6DAF0B3C /* RenderPipeline.swift */; };
+		EFB2D711A9F0A736412F5A50 /* PetCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC79699CA4521C8E31117D5D /* PetCardView.swift */; };
 		F0EF73B65AB2BFD3F3C67F39 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 094894EA086E148C24332877 /* AppDelegate.swift */; };
 		F342058606EFCE4E9A05D948 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64E78100FB2CCE4D913C064E /* main.swift */; };
 /* End PBXBuildFile section */
@@ -61,6 +62,7 @@
 		DB2C7B4B1ED08191325EBB90 /* OnboardingWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingWindow.swift; sourceTree = "<group>"; };
 		E3ACC486413860AE3AA7FDB2 /* Sprites */ = {isa = PBXFileReference; lastKnownFileType = folder; name = Sprites; path = Resources/Sprites; sourceTree = SOURCE_ROOT; };
 		E518A06A04AFBBF4857FA9C8 /* OverlayWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverlayWindow.swift; sourceTree = "<group>"; };
+		EC79699CA4521C8E31117D5D /* PetCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PetCardView.swift; sourceTree = "<group>"; };
 		F0F9A515A928932CC0E4336F /* MetalRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetalRenderer.swift; sourceTree = "<group>"; };
 		F6CA30A79FFBAA296F4B8492 /* Math.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Math.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -72,6 +74,14 @@
 				B6DA81A3304E1D396304D6C4 /* SkinManager.swift */,
 			);
 			path = Skins;
+			sourceTree = "<group>";
+		};
+		0BA2218302794F63C9805B10 /* PetCard */ = {
+			isa = PBXGroup;
+			children = (
+				EC79699CA4521C8E31117D5D /* PetCardView.swift */,
+			);
+			path = PetCard;
 			sourceTree = "<group>";
 		};
 		142E796154F60C6C4675389C /* Products */ = {
@@ -119,6 +129,7 @@
 				EADBCF02B1795271AFF5BADE /* Marketplace */,
 				F319C750148C65D2D751E10A /* MenuBar */,
 				AA99FBF572F8B8C6E9148BCA /* Onboarding */,
+				0BA2218302794F63C9805B10 /* PetCard */,
 				1886A61FC3FBC7B73B590565 /* SettingsPanel */,
 				9FB9F765FEF53E01E4082328 /* Wrapped */,
 			);
@@ -313,6 +324,7 @@
 				16CE5D1D6257332B8F261F61 /* OnboardingView.swift in Sources */,
 				CC189D8ABD61181C52DCC39D /* OnboardingWindow.swift in Sources */,
 				93EC4705B43537BBE68AC3DB /* OverlayWindow.swift in Sources */,
+				EFB2D711A9F0A736412F5A50 /* PetCardView.swift in Sources */,
 				EEC8D007F251901DC49C0EE7 /* RenderPipeline.swift in Sources */,
 				DC4A045ACCF987D2BA57F4F3 /* SettingsView.swift in Sources */,
 				B6B0D98D06592ED53CEA2E2B /* SettingsWindow.swift in Sources */,

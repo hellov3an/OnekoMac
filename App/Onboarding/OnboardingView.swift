@@ -312,67 +312,46 @@ struct OnboardingView: View {
 
             Spacer().frame(height: 16)
 
-            // Card
-            VStack(spacing: 0) {
-                // Cat sprite
-                ZStack {
-                    Circle().fill(Color.orange.opacity(0.12)).frame(width: 96, height: 96)
-                    Circle().fill(Color.orange.opacity(0.06)).frame(width: 116, height: 116)
-                    if let img = loadSprite(skinID: selectedSkin, size: 72) {
-                        Image(nsImage: img)
-                            .interpolation(.none)
-                            .frame(width: 72, height: 72)
-                    }
+            PetCardView(
+                name: displayName,
+                skinID: selectedSkin,
+                dateStr: adoptionDateDisplay,
+                personality: lang["personality.\(selectedSkin)"],
+                adoptedLabel: lang["ob.card.adopted"],
+                personalityLabel: lang["ob.card.personality"]
+            )
+
+            Spacer().frame(height: 16)
+
+            Button { shareCard() } label: {
+                HStack(spacing: 6) {
+                    Image(systemName: "square.and.arrow.up").font(.caption)
+                    Text(lang["ob.card.share"]).font(.caption.weight(.medium))
                 }
-                .padding(.top, 24)
-
-                Spacer().frame(height: 14)
-
-                Text(displayName)
-                    .font(.system(size: 26, weight: .black, design: .rounded))
-                    .foregroundStyle(.white)
-
-                Spacer().frame(height: 16)
-
-                Divider().background(.white.opacity(0.15))
-
-                Spacer().frame(height: 16)
-
-                // Info rows
-                VStack(spacing: 10) {
-                    cardRow(icon: "calendar", label: lang["ob.card.adopted"],
-                            value: adoptionDateDisplay)
-                    cardRow(icon: "paintbrush.fill", label: "Skin",
-                            value: selectedSkin.capitalized)
-                    cardRow(icon: "sparkles", label: lang["ob.card.personality"],
-                            value: lang["personality.\(selectedSkin)"])
-                }
-                .padding(.horizontal, 24)
-                .padding(.bottom, 24)
+                .foregroundStyle(.white.opacity(0.7))
+                .padding(.horizontal, 16)
+                .padding(.vertical, 8)
+                .background(.white.opacity(0.08), in: Capsule())
+                .overlay(Capsule().strokeBorder(.white.opacity(0.12), lineWidth: 1))
             }
-            .frame(width: 300)
-            .background(.white.opacity(0.06), in: RoundedRectangle(cornerRadius: 20))
-            .overlay(RoundedRectangle(cornerRadius: 20).strokeBorder(.white.opacity(0.12), lineWidth: 1))
+            .buttonStyle(.plain)
 
             Spacer()
         }
         .frame(width: windowW)
     }
 
-    private func cardRow(icon: String, label: String, value: String) -> some View {
-        HStack(spacing: 10) {
-            Image(systemName: icon)
-                .font(.caption)
-                .foregroundStyle(.orange)
-                .frame(width: 16)
-            Text(label)
-                .font(.caption)
-                .foregroundStyle(.white.opacity(0.45))
-            Spacer()
-            Text(value)
-                .font(.caption.weight(.semibold))
-                .foregroundStyle(.white)
-        }
+    private func shareCard() {
+        let exportView = CardExportView(
+            name: displayName,
+            skinID: selectedSkin,
+            dateStr: adoptionDateDisplay,
+            personality: lang["personality.\(selectedSkin)"],
+            adoptedLabel: lang["ob.card.adopted"],
+            personalityLabel: lang["ob.card.personality"]
+        )
+        guard let image = renderCard(exportView: exportView) else { return }
+        showSharePicker(for: image)
     }
 
     private var displayName: String {

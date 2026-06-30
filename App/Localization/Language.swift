@@ -686,5 +686,35 @@ enum Strings {
             .german:   "Schließen",
             .spanish:  "Cerrar",
         ],
+
+        // ── v3 additions ──────────────────────────────────────────────────────
+        "ob.card.share": [
+            .english:  "Share my card",
+            .french:   "Partager ma carte",
+            .japanese: "カードをシェア",
+            .german:   "Karte teilen",
+            .spanish:  "Compartir tarjeta",
+        ],
+        "settings.launch_login": [
+            .english:  "Launch at login",
+            .french:   "Lancer au démarrage",
+            .japanese: "ログイン時に起動",
+            .german:   "Bei Anmeldung starten",
+            .spanish:  "Iniciar al arranque",
+        ],
+        "settings.tint": [
+            .english:  "Color tint",
+            .french:   "Teinte",
+            .japanese: "カラーティント",
+            .german:   "Farbton",
+            .spanish:  "Tinte de color",
+        ],
+        "settings.tint_reset": [
+            .english:  "Reset",
+            .french:   "Réinitialiser",
+            .japanese: "リセット",
+            .german:   "Zurücksetzen",
+            .spanish:  "Restablecer",
+        ],
     ]
 }
