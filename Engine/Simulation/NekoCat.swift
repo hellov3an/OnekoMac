@@ -63,8 +63,8 @@ final class NekoCat {
     // The JS runs at 100ms ticks; we accumulate real dt to match.
     private let tickInterval: Float = 0.1
 
-    // Speed in points per 100ms tick — matches JS nekoSpeed = 10.
-    private let nekoSpeed: Float = 10
+    // Speed in points per 100ms tick — original JS was 10, bumped to 16.
+    private let nekoSpeed: Float = 16
 
     func update(dt: Float, mouseX: Float, mouseY: Float) {
         logicAccum += dt

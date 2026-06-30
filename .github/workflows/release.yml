@@ -71,12 +71,15 @@ jobs:
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGNING_ALLOWED=NO
 
-      - name: Create DMG
+      - name: Package artifacts
         if: steps.check.outputs.skip == 'false'
         run: |
           APP_DIR="$RUNNER_TEMP/OnekoMac.xcarchive/Products/Applications"
-          DMG="$RUNNER_TEMP/OnekoMac-${{ steps.ver.outputs.tag }}.dmg"
+          TAG="${{ steps.ver.outputs.tag }}"
           ICNS="$APP_DIR/OnekoMac.app/Contents/Resources/AppIcon.icns"
+
+          # ── DMG ──────────────────────────────────────────────────────────────
+          DMG="$RUNNER_TEMP/OnekoMac-${TAG}.dmg"
 
           create-dmg \
             --volname "OnekoMac" \
@@ -103,7 +106,13 @@ jobs:
             "$DMG" \
             "$APP_DIR"
 
+          # ── ZIP (.app) ───────────────────────────────────────────────────────
+          ZIP="$RUNNER_TEMP/OnekoMac-${TAG}.zip"
+          cd "$APP_DIR"
+          zip -r --symlinks "$ZIP" OnekoMac.app
+
           echo "DMG=$DMG" >> $GITHUB_ENV
+          echo "ZIP=$ZIP" >> $GITHUB_ENV
 
       - name: Create GitHub Release
         if: steps.check.outputs.skip == 'false'
@@ -111,13 +120,19 @@ jobs:
         with:
           tag_name:  ${{ steps.ver.outputs.tag }}
           name:      "OnekoMac ${{ steps.ver.outputs.tag }}"
-          files:     ${{ env.DMG }}
+          files: |
+            ${{ env.DMG }}
+            ${{ env.ZIP }}
           body: |
             ## Install
 
+            **Recommended → DMG**
             1. Download **OnekoMac-${{ steps.ver.outputs.tag }}.dmg**
             2. Open the DMG and drag **OnekoMac.app** to Applications
-            3. First launch: right-click → **Open** (bypasses Gatekeeper on unsigned builds)
+            3. First launch: right-click → **Open**
+
+            **Alternative → ZIP**
+            Download **OnekoMac-${{ steps.ver.outputs.tag }}.zip**, unzip, drag to Applications.
 
             > **"damaged and can't be opened"?**
             > Run in Terminal: `xattr -cr /Applications/OnekoMac.app`
