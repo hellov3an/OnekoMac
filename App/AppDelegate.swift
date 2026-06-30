@@ -5,6 +5,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var overlayWindow: OverlayWindow!
     private var renderer: MetalRenderer!
     private var menuBar: MenuBarController!
+    private var langManager = LanguageManager()
+    private var onboardingController: OnboardingWindowController?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         NSApp.setActivationPolicy(.accessory)
@@ -21,7 +23,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         overlayWindow.contentViewController = vc
         overlayWindow.orderFrontRegardless()
 
-        menuBar = MenuBarController(renderer: renderer)
+        menuBar = MenuBarController(renderer: renderer, langManager: langManager)
+
+        if !UserDefaults.standard.bool(forKey: "onboarding_completed") {
+            onboardingController = OnboardingWindowController(
+                renderer: renderer,
+                langManager: langManager
+            )
+            onboardingController?.show()
+        }
     }
 
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool { false }

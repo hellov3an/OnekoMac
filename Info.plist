@@ -9,11 +9,11 @@
     <key>CFBundleName</key>
     <string>OnekoMac</string>
     <key>CFBundleDisplayName</key>
-    <string>OnekoMac+</string>
+    <string>OnekoMac</string>
     <key>CFBundleVersion</key>
     <string>1</string>
     <key>CFBundleShortVersionString</key>
-    <string>1.1.0</string>
+    <string>2.0.0</string>
     <key>CFBundlePackageType</key>
     <string>APPL</string>
     <key>LSUIElement</key>

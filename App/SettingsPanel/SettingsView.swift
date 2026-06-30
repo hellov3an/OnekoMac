@@ -40,8 +40,7 @@ struct SkinPreview: View {
               let src  = CGImageSourceCreateWithData(data as CFData, nil),
               let full = CGImageSourceCreateImageAtIndex(src, 0, nil) else { return nil }
 
-        let col = 3, row = 3, cellSize = 32
-        let rect = CGRect(x: col * cellSize, y: row * cellSize, width: cellSize, height: cellSize)
+        let rect = CGRect(x: 3 * 32, y: 3 * 32, width: 32, height: 32)
         guard let cropped = full.cropping(to: rect) else { return nil }
         let img = NSImage(cgImage: cropped, size: NSSize(width: 48, height: 48))
         img.cacheMode = .never
@@ -55,6 +54,7 @@ struct SettingsView: View {
     @ObservedObject var renderer: MetalRenderer
     @ObservedObject var updater: Updater
     @ObservedObject var stats: CatStats
+    @EnvironmentObject var lang: LanguageManager
 
     var body: some View {
         VStack(spacing: 0) {
@@ -86,7 +86,7 @@ struct SettingsView: View {
                 .font(.title2)
                 .foregroundStyle(.orange)
             VStack(alignment: .leading, spacing: 1) {
-                Text("OnekoMac+")
+                Text("OnekoMac")
                     .font(.headline)
                 Text("v\(updater.currentVersion)")
                     .font(.caption)
@@ -108,7 +108,7 @@ struct SettingsView: View {
 
     var skinSection: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Label("Skin", systemImage: "paintbrush.fill")
+            Label(lang["settings.skin"], systemImage: "paintbrush.fill")
                 .font(.subheadline).bold()
 
             HStack(spacing: 8) {
@@ -126,10 +126,10 @@ struct SettingsView: View {
     var wrappedSection: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
-                Label("Statistiques", systemImage: "trophy.fill")
+                Label(lang["settings.stats"], systemImage: "trophy.fill")
                     .font(.subheadline).bold()
                 Spacer()
-                Button("Réinitialiser") { stats.reset() }
+                Button(lang["settings.reset"]) { stats.reset() }
                     .font(.caption)
                     .foregroundStyle(.secondary)
                     .buttonStyle(.plain)
@@ -138,25 +138,25 @@ struct SettingsView: View {
             LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 8) {
                 statCard(
                     value: formattedDistance,
-                    label: "parcourus",
+                    label: lang["stats.walked"],
                     icon: "figure.walk",
                     color: .orange
                 )
                 statCard(
                     value: "\(stats.naps)",
-                    label: stats.naps == 1 ? "sieste" : "siestes",
+                    label: stats.naps == 1 ? lang["stats.nap"] : lang["stats.naps"],
                     icon: "moon.fill",
                     color: .indigo
                 )
                 statCard(
                     value: "\(stats.scratches)",
-                    label: stats.scratches == 1 ? "grattage" : "grattages",
+                    label: stats.scratches == 1 ? lang["stats.scratch"] : lang["stats.scratches"],
                     icon: "hand.point.right.fill",
                     color: .pink
                 )
                 statCard(
                     value: "\(stats.daysTogether)j",
-                    label: "ensemble",
+                    label: lang["stats.together"],
                     icon: "calendar.heart.fill",
                     color: .green
                 )
@@ -193,13 +193,13 @@ struct SettingsView: View {
 
     var updatesSection: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Label("Mises à jour", systemImage: "arrow.down.circle.fill")
+            Label(lang["settings.updates"], systemImage: "arrow.down.circle.fill")
                 .font(.subheadline).bold()
 
             HStack(spacing: 10) {
                 updateStatusView
                 Spacer()
-                Button("Vérifier") {
+                Button(lang["settings.check_btn"]) {
                     Task { await updater.checkForUpdates() }
                 }
                 .buttonStyle(.bordered)
@@ -210,10 +210,10 @@ struct SettingsView: View {
             if case .available(let version, let url) = updater.state {
                 HStack(spacing: 6) {
                     Image(systemName: "arrow.down.circle.fill").foregroundStyle(.green)
-                    Text("v\(version) disponible")
+                    Text("v\(version) \(lang["update.available"])")
                         .fontWeight(.medium)
                     Spacer()
-                    Link("Télécharger", destination: url)
+                    Link(lang["settings.download_btn"], destination: url)
                         .font(.callout)
                 }
                 .padding(8)
@@ -226,18 +226,18 @@ struct SettingsView: View {
     var updateStatusView: some View {
         switch updater.state {
         case .idle:
-            Text("Jamais vérifié").foregroundStyle(.secondary)
+            Text(lang["update.never"]).foregroundStyle(.secondary)
         case .checking:
-            HStack(spacing: 6) { ProgressView().scaleEffect(0.7); Text("Vérification…") }
+            HStack(spacing: 6) { ProgressView().scaleEffect(0.7); Text(lang["update.checking"]) }
         case .upToDate:
             HStack(spacing: 6) {
                 Image(systemName: "checkmark.circle.fill").foregroundStyle(.green)
-                Text("À jour")
+                Text(lang["update.up_to_date"])
             }
         case .available(let v, _):
             HStack(spacing: 6) {
                 Image(systemName: "exclamationmark.circle.fill").foregroundStyle(.orange)
-                Text("v\(v) disponible")
+                Text("v\(v) \(lang["update.available"])")
             }
         case .error(let msg):
             HStack(spacing: 6) {
@@ -251,7 +251,7 @@ struct SettingsView: View {
 
     var debugSection: some View {
         VStack(alignment: .leading, spacing: 6) {
-            Label("Debug", systemImage: "chart.bar.fill")
+            Label(lang["settings.debug"], systemImage: "chart.bar.fill")
                 .font(.subheadline).bold()
             HStack {
                 debugStat("FPS",    String(format: "%.0f", renderer.stats.fps))
@@ -276,12 +276,29 @@ struct SettingsView: View {
                 .font(.caption)
                 .foregroundStyle(.secondary)
             Spacer()
-            Button("Quitter OnekoMac") { NSApplication.shared.terminate(nil) }
+            languagePicker
+            Spacer()
+            Button(lang["settings.quit"]) { NSApplication.shared.terminate(nil) }
                 .buttonStyle(.bordered)
                 .controlSize(.small)
                 .tint(.red)
         }
         .padding(.horizontal, 20)
         .padding(.vertical, 10)
+    }
+
+    private var languagePicker: some View {
+        Picker("", selection: Binding(
+            get: { lang.language },
+            set: { lang.set($0) }
+        )) {
+            ForEach(Language.allCases) { l in
+                Text("\(l.flag) \(l.displayName)").tag(l)
+            }
+        }
+        .pickerStyle(.menu)
+        .labelsHidden()
+        .frame(width: 118)
+        .controlSize(.small)
     }
 }

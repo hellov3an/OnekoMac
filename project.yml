@@ -35,10 +35,10 @@ targets:
       - path: Resources/Sprites
         type: folder
         buildPhase: resources
-      # App icon asset catalog.
+      # App icon asset catalog — must be type:file so xcodegen
+      # compiles it (produces Assets.car) instead of copying raw PNGs.
       - path: Resources/Assets.xcassets
-        type: group
-        buildPhase: resources
+        type: file
     settings:
       base:
         PRODUCT_NAME: OnekoMac

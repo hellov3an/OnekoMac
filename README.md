@@ -1,8 +1,8 @@
 <div align="center">
 
-<img src="Resources/Sprites/oneko-classic.gif" width="64" height="64" />
+<img src=".github/assets/icon.png" width="128" height="128" />
 
-# OnekoMac+
+# OnekoMac
 
 **A pixel cat that lives in your menu bar and chases your cursor — forever.**
 
@@ -27,7 +27,7 @@
 In 1989, a Japanese programmer put a tiny cat on the desktop that chased the cursor.  
 It became one of the most beloved pieces of software ever written.
 
-**OnekoMac+** brings that cat back — as a proper native macOS app, rebuilt from scratch:
+**OnekoMac** brings that cat back — as a proper native macOS app, rebuilt from scratch:
 
 - Runs as a floating overlay above every window, every Space, every full-screen app
 - Rendered with Metal at up to 120 Hz (ProMotion-aware)

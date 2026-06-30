@@ -10,7 +10,7 @@ final class SettingsWindow: NSPanel {
             backing:     .buffered,
             defer:       false
         )
-        title                          = "OnekoMac+"
+        title                          = "OnekoMac"
         titlebarAppearsTransparent     = true
         isMovableByWindowBackground    = true
         level                          = .floating
@@ -26,7 +26,6 @@ final class SettingsWindow: NSPanel {
         let winW = frame.width
         let winH = frame.height
 
-        // Convert button origin to screen coordinates.
         let btnScreenOrigin = button.window.map {
             button.convert(NSPoint.zero, to: nil)
                 .applying(CGAffineTransform(translationX: $0.frame.origin.x,
@@ -50,8 +49,9 @@ final class SettingsWindowController {
     private let window = SettingsWindow()
     private let updater = Updater()
 
-    init(renderer: MetalRenderer) {
+    init(renderer: MetalRenderer, langManager: LanguageManager) {
         let view = SettingsView(renderer: renderer, updater: updater, stats: renderer.catStats)
+            .environmentObject(langManager)
         window.contentView = NSHostingView(rootView: view)
     }
 

@@ -5,8 +5,8 @@ final class MenuBarController {
     private var statusItem: NSStatusItem!
     private var windowController: SettingsWindowController!
 
-    init(renderer: MetalRenderer) {
-        windowController = SettingsWindowController(renderer: renderer)
+    init(renderer: MetalRenderer, langManager: LanguageManager) {
+        windowController = SettingsWindowController(renderer: renderer, langManager: langManager)
         setupStatusItem()
     }
 
@@ -24,5 +24,4 @@ final class MenuBarController {
     @objc private func toggle(_ sender: NSStatusBarButton) {
         windowController.toggle(relativeTo: sender)
     }
-
 }
