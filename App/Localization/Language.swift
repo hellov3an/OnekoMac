@@ -702,19 +702,5 @@ enum Strings {
             .german:   "Bei Anmeldung starten",
             .spanish:  "Iniciar al arranque",
         ],
-        "settings.tint": [
-            .english:  "Color tint",
-            .french:   "Teinte",
-            .japanese: "カラーティント",
-            .german:   "Farbton",
-            .spanish:  "Tinte de color",
-        ],
-        "settings.tint_reset": [
-            .english:  "Reset",
-            .french:   "Réinitialiser",
-            .japanese: "リセット",
-            .german:   "Zurücksetzen",
-            .spanish:  "Restablecer",
-        ],
     ]
 }

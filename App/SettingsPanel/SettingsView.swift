@@ -2,18 +2,6 @@ import SwiftUI
 import AppKit
 import ServiceManagement
 
-private let tintSwatchPresets: [NSColor] = {
-    var p: [NSColor] = [.white]
-    p.append(NSColor(srgbRed: 1.0,  green: 0.50, blue: 0.10, alpha: 1))
-    p.append(NSColor(srgbRed: 1.0,  green: 0.20, blue: 0.25, alpha: 1))
-    p.append(NSColor(srgbRed: 1.0,  green: 0.85, blue: 0.10, alpha: 1))
-    p.append(NSColor(srgbRed: 0.15, green: 0.90, blue: 0.40, alpha: 1))
-    p.append(NSColor(srgbRed: 0.10, green: 0.80, blue: 1.0,  alpha: 1))
-    p.append(NSColor(srgbRed: 0.20, green: 0.40, blue: 1.0,  alpha: 1))
-    p.append(NSColor(srgbRed: 0.75, green: 0.20, blue: 1.0,  alpha: 1))
-    p.append(NSColor(srgbRed: 1.0,  green: 0.25, blue: 0.75, alpha: 1))
-    return p
-}()
 
 // MARK: – Skin preview image (idle frame cropped from the GIF atlas)
 
@@ -74,9 +62,6 @@ struct SettingsView: View {
     @State private var eggTaps = 0
     @State private var showEgg = false
     @State private var launchAtLogin: Bool = (SMAppService.mainApp.status == .enabled)
-    @State private var colorObs: NSObjectProtocol?
-    @State private var colorPanelOpen = false
-
     var body: some View {
         VStack(spacing: 0) {
             titleBar
@@ -99,22 +84,6 @@ struct SettingsView: View {
             bottomBar
         }
         .frame(width: 340)
-        .onAppear {
-            colorObs = NotificationCenter.default.addObserver(
-                forName: NSColorPanel.colorDidChangeNotification,
-                object: NSColorPanel.shared,
-                queue: .main
-            ) { _ in
-                guard colorPanelOpen else { return }
-                renderer.setTintColor(NSColorPanel.shared.color)
-            }
-        }
-        .onDisappear {
-            colorObs.map { NotificationCenter.default.removeObserver($0) }
-            colorObs = nil
-            colorPanelOpen = false
-            NSColorPanel.shared.orderOut(nil)
-        }
     }
 
     // MARK: – Title bar
@@ -213,55 +182,6 @@ struct SettingsView: View {
             }
             .buttonStyle(.plain)
 
-            VStack(alignment: .leading, spacing: 6) {
-                HStack(spacing: 4) {
-                    Image(systemName: "paintpalette.fill")
-                        .foregroundStyle(.orange)
-                        .font(.caption)
-                    Text(lang["settings.tint"])
-                        .font(.callout)
-                    Spacer()
-                    if !isPresetActive(.white) {
-                        Button(lang["settings.tint_reset"]) {
-                            renderer.setTintColor(.white)
-                            colorPanelOpen = false
-                            NSColorPanel.shared.orderOut(nil)
-                        }
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                        .buttonStyle(.plain)
-                    }
-                }
-                HStack(spacing: 5) {
-                    ForEach(Array(tintSwatchPresets.enumerated()), id: \.offset) { _, preset in
-                        tintSwatch(preset)
-                    }
-                    Spacer()
-                    Button {
-                        colorPanelOpen = true
-                        NSColorPanel.shared.color = renderer.tintColor
-                        NSColorPanel.shared.orderFront(nil)
-                    } label: {
-                        ZStack {
-                            Circle()
-                                .fill(
-                                    AngularGradient(
-                                        colors: [.red, .yellow, .green, .cyan, .blue, .purple, .red],
-                                        center: .center
-                                    )
-                                )
-                                .frame(width: 22, height: 22)
-                            Circle()
-                                .strokeBorder(.secondary.opacity(0.3), lineWidth: 1)
-                                .frame(width: 22, height: 22)
-                            Image(systemName: "plus")
-                                .font(.system(size: 9, weight: .black))
-                                .foregroundStyle(.white)
-                        }
-                    }
-                    .buttonStyle(.plain)
-                }
-            }
         }
     }
 
@@ -466,36 +386,4 @@ struct SettingsView: View {
         .controlSize(.small)
     }
 
-    // MARK: – Tint helpers
-
-    private func tintSwatch(_ color: NSColor) -> some View {
-        let active = isPresetActive(color)
-        let srgb = color.usingColorSpace(.sRGB)
-        let brightness = (srgb?.redComponent ?? 0) + (srgb?.greenComponent ?? 0) + (srgb?.blueComponent ?? 0)
-        let isLight = brightness > 2.4
-        return ZStack {
-            Circle()
-                .fill(Color(nsColor: color))
-                .frame(width: 22, height: 22)
-            Circle()
-                .strokeBorder(isLight ? Color.secondary.opacity(0.25) : Color.clear, lineWidth: 1)
-                .frame(width: 22, height: 22)
-            if active {
-                Image(systemName: "checkmark")
-                    .font(.system(size: 9, weight: .black))
-                    .foregroundStyle(isLight ? Color.black.opacity(0.45) : .white)
-            }
-        }
-        .scaleEffect(active ? 1.15 : 1.0)
-        .animation(.spring(response: 0.2, dampingFraction: 0.65), value: active)
-        .onTapGesture { renderer.setTintColor(color) }
-    }
-
-    private func isPresetActive(_ preset: NSColor) -> Bool {
-        guard let p = preset.usingColorSpace(.sRGB),
-              let c = renderer.tintColor.usingColorSpace(.sRGB) else { return false }
-        return abs(p.redComponent   - c.redComponent)   < 0.02 &&
-               abs(p.greenComponent - c.greenComponent) < 0.02 &&
-               abs(p.blueComponent  - c.blueComponent)  < 0.02
-    }
 }

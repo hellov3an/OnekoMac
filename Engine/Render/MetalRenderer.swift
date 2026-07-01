@@ -47,8 +47,6 @@ final class MetalRenderer: ObservableObject {
     @Published private(set) var stats = DebugStats()
     @Published private(set) var currentSkinID = "classic"
     @Published private(set) var allSkinIDs: [String] = SkinManager.skinIDs
-    @Published private(set) var tintColor: NSColor = .white
-    private(set) var tintRGBA: SIMD4<Float> = SIMD4<Float>(1, 1, 1, 1)
 
     init() throws {
         guard let dev = MTLCreateSystemDefaultDevice() else {
@@ -108,33 +106,6 @@ final class MetalRenderer: ObservableObject {
         skinManager.loadCustomSprites()
 
         startLoop()
-
-        if let hex = UserDefaults.standard.string(forKey: "tint_color"),
-           let c = Self.color(fromHex: hex) {
-            setTintColor(c)
-        }
-    }
-
-    func setTintColor(_ color: NSColor) {
-        tintColor = color
-        let c = color.usingColorSpace(.sRGB) ?? color
-        tintRGBA = SIMD4<Float>(Float(c.redComponent), Float(c.greenComponent),
-                                Float(c.blueComponent), 1)
-        UserDefaults.standard.set(
-            String(format: "#%02X%02X%02X",
-                   Int(c.redComponent * 255),
-                   Int(c.greenComponent * 255),
-                   Int(c.blueComponent * 255)),
-            forKey: "tint_color")
-    }
-
-    private static func color(fromHex hex: String) -> NSColor? {
-        let s = hex.trimmingCharacters(in: .init(charactersIn: "#"))
-        guard s.count == 6, let rgb = UInt32(s, radix: 16) else { return nil }
-        let r = CGFloat((rgb >> 16) & 0xFF) / 255
-        let g = CGFloat((rgb >> 8)  & 0xFF) / 255
-        let b = CGFloat( rgb        & 0xFF) / 255
-        return NSColor(srgbRed: r, green: g, blue: b, alpha: 1)
     }
 
     // MARK: – Skin switching
@@ -212,8 +183,6 @@ final class MetalRenderer: ObservableObject {
 
         if let tex = skinManager.texture(id: currentSkinID) {
             enc.setFragmentTexture(tex, index: 0)
-            var tint = tintRGBA
-            enc.setFragmentBytes(&tint, length: MemoryLayout<SIMD4<Float>>.size, index: 1)
             enc.drawPrimitives(type: .triangleStrip, vertexStart: 0, vertexCount: 4)
         }
 
