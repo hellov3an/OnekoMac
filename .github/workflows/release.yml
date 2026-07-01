@@ -17,6 +17,9 @@ env:
 jobs:
   release:
     runs-on: macos-15
+    outputs:
+      skip:    ${{ steps.check.outputs.skip }}
+      version: ${{ steps.ver.outputs.version }}
 
     steps:
       - name: Checkout
@@ -139,3 +142,41 @@ jobs:
 
             ---
           generate_release_notes: true
+
+  update-tap:
+    needs: release
+    if: needs.release.outputs.skip == 'false'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout homebrew-tap
+        uses: actions/checkout@v4
+        with:
+          repository: hellov3an/homebrew-tap
+          token: ${{ secrets.HOMEBREW_TAP_TOKEN }}
+
+      - name: Compute SHA256 of DMG
+        id: sha
+        run: |
+          VERSION="${{ needs.release.outputs.version }}"
+          URL="https://github.com/hellov3an/OnekoMac/releases/download/v${VERSION}/OnekoMac-v${VERSION}.dmg"
+          echo "Downloading $URL …"
+          SHA=$(curl -sL "$URL" | shasum -a 256 | awk '{print $1}')
+          echo "sha256=$SHA" >> $GITHUB_OUTPUT
+          echo "SHA256: $SHA"
+
+      - name: Update cask version and sha256
+        run: |
+          VERSION="${{ needs.release.outputs.version }}"
+          SHA="${{ steps.sha.outputs.sha256 }}"
+          sed -i "s/version \".*\"/version \"${VERSION}\"/" Casks/onekomac.rb
+          sed -i "s/sha256 \".*\"/sha256 \"${SHA}\"/" Casks/onekomac.rb
+          cat Casks/onekomac.rb
+
+      - name: Commit and push
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add Casks/onekomac.rb
+          git commit -m "update onekomac cask to v${{ needs.release.outputs.version }}"
+          git push
