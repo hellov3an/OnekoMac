@@ -723,5 +723,12 @@ enum Strings {
             .german:   "Dein Haustier",
             .spanish:  "Tu mascota",
         ],
+        "settings.achievements": [
+            .english:  "Achievements",
+            .french:   "Succès",
+            .japanese: "実績",
+            .german:   "Erfolge",
+            .spanish:  "Logros",
+        ],
     ]
 }

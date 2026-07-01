@@ -103,6 +103,38 @@ private struct StatCard: View {
     }
 }
 
+// MARK: – Achievement pill
+
+private struct AchievementPill: View {
+    let achievement: Achievement
+    let unlocked: Bool
+
+    var body: some View {
+        VStack(spacing: 4) {
+            Text(achievement.icon)
+                .font(.title3)
+                .opacity(unlocked ? 1 : 0.22)
+            Text(achievement.title)
+                .font(.system(size: 8, weight: .medium))
+                .foregroundStyle(unlocked ? Color.white.opacity(0.85) : Color.white.opacity(0.2))
+                .lineLimit(2)
+                .multilineTextAlignment(.center)
+        }
+        .frame(width: 58, height: 54)
+        .background(
+            unlocked ? Color.orange.opacity(0.12) : Color.white.opacity(0.035),
+            in: RoundedRectangle(cornerRadius: 9)
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 9)
+                .strokeBorder(
+                    unlocked ? Color.orange.opacity(0.28) : Color.white.opacity(0.05),
+                    lineWidth: 1
+                )
+        )
+    }
+}
+
 // MARK: – Skin preview
 
 struct SkinPreview: View {
@@ -169,6 +201,7 @@ struct SettingsView: View {
                 VStack(alignment: .leading, spacing: 18) {
                     petSection
                     statsSection
+                    achievementsSection
                     wrappedButton
                     personalizeSection
                     updatesSection
@@ -337,6 +370,39 @@ struct SettingsView: View {
                         .font(.caption2)
                         .foregroundStyle(Color.nekoMuted)
                 }
+            }
+        }
+    }
+
+    // MARK: – Achievements section
+
+    private var achievementsSection: some View {
+        let manager = renderer.achievementManager
+        let total   = allAchievements.count
+        let count   = manager.unlockedIDs.count
+
+        return VStack(alignment: .leading, spacing: 10) {
+            HStack {
+                SectionLabel(text: lang["settings.achievements"])
+                Spacer()
+                Text("\(count)/\(total)")
+                    .font(.caption.monospacedDigit())
+                    .foregroundStyle(count == total ? Color.orange : Color.nekoMuted)
+            }
+
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 6) {
+                    ForEach(allAchievements) { a in
+                        AchievementPill(
+                            achievement: a,
+                            unlocked: manager.unlockedIDs.contains(a.id)
+                        )
+                        .help(manager.unlockedIDs.contains(a.id)
+                              ? "\(a.title) — \(a.description)"
+                              : "???")
+                    }
+                }
+                .padding(.vertical, 2)
             }
         }
     }

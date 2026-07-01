@@ -7,13 +7,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var menuBar: MenuBarController!
     private var langManager = LanguageManager()
     private var onboardingController: OnboardingWindowController?
+    private var achievementNotifications: AchievementNotificationController?
 
     func applicationWillFinishLaunching(_ notification: Notification) {
         let running = NSRunningApplication.runningApplications(
             withBundleIdentifier: Bundle.main.bundleIdentifier ?? ""
         )
         if running.count > 1 {
-            // Another instance is already running — bring it forward and exit.
             running.first(where: { $0 != NSRunningApplication.current })?.activate(options: .activateIgnoringOtherApps)
             NSApp.terminate(nil)
         }
@@ -35,6 +35,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         overlayWindow.orderFrontRegardless()
 
         menuBar = MenuBarController(renderer: renderer, langManager: langManager)
+
+        // Wire achievement toast notifications
+        achievementNotifications = AchievementNotificationController(
+            manager: renderer.achievementManager
+        )
 
         if !UserDefaults.standard.bool(forKey: "onboarding_completed") {
             onboardingController = OnboardingWindowController(

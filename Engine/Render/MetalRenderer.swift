@@ -49,6 +49,16 @@ final class MetalRenderer: ObservableObject {
     @Published private(set) var allSkinIDs: [String] = SkinManager.skinIDs
     @Published var catScale: Float = 1.0
     @Published var speedMultiplier: Float = 1.0
+    @Published var laserActive: Bool = false
+
+    // Laser pointer
+    private let laserMover = LaserMover()
+    private var laserTexture: MTLTexture?
+    private var laserInstanceBuffers: [MTLBuffer] = []
+
+    // Achievements
+    let achievementManager = AchievementManager()
+    private var achievementCheckAccum: Double = 0
 
     private var lastClickTime: TimeInterval = 0
     private var clickMonitor: Any?
@@ -87,10 +97,11 @@ final class MetalRenderer: ObservableObject {
         hostView.layer = metalLayer
         view = hostView
 
-        // Triple-buffered instance buffers — just 1 sprite each.
+        // Triple-buffered instance buffers — cat + laser dot.
         let stride = MemoryLayout<SpriteInstanceGPU>.stride
         for _ in 0..<3 {
             instanceBuffers.append(dev.makeBuffer(length: stride, options: .storageModeShared)!)
+            laserInstanceBuffers.append(dev.makeBuffer(length: stride, options: .storageModeShared)!)
         }
 
         skinManager.setDevice(dev)
@@ -102,6 +113,7 @@ final class MetalRenderer: ObservableObject {
 
         try buildPipeline()
         buildSampler()
+        laserTexture = makeLaserTexture()
 
         // Load bundled skins (async — falls back to placeholder until ready).
         skinManager.loadAll { [weak self] in
@@ -125,12 +137,31 @@ final class MetalRenderer: ObservableObject {
     func setCatScale(_ scale: Float) {
         catScale = scale
         UserDefaults.standard.set(Double(scale), forKey: "cat_scale")
+        checkAchievements()
     }
 
     func setSpeedMultiplier(_ v: Float) {
         speedMultiplier = v
         neko.speedMultiplier = v
         UserDefaults.standard.set(Double(v), forKey: "cat_speed")
+        checkAchievements()
+    }
+
+    func setLaserActive(_ active: Bool) {
+        laserActive = active
+        if active {
+            laserMover.place(x: neko.posX, y: neko.posY)
+        }
+        checkAchievements()
+    }
+
+    func checkAchievements() {
+        achievementManager.check(
+            stats: catStats,
+            laserActive: laserActive,
+            scale: catScale,
+            speedMultiplier: speedMultiplier
+        )
     }
 
     // MARK: – Double-click to dock / single-click to wake
@@ -193,11 +224,17 @@ final class MetalRenderer: ObservableObject {
         let union = NSScreen.screens.reduce(NSRect.null) { $0.union($1.frame) }
         neko.screenWidth  = Float(union.width)
         neko.screenHeight = Float(union.height)
+        laserMover.setScreen(width: Float(union.width), height: Float(union.height))
         let s = NSScreen.main?.backingScaleFactor ?? 1.0
         metalLayer.drawableSize = CGSize(width: union.width * s, height: union.height * s)
 
-        let mouse = mouseTracker.position
-        neko.update(dt: Float(dt), mouseX: mouse.x, mouseY: mouse.y)
+        if laserActive {
+            laserMover.tick(dt: Float(dt))
+            neko.update(dt: Float(dt), mouseX: laserMover.x, mouseY: laserMover.y)
+        } else {
+            let mouse = mouseTracker.position
+            neko.update(dt: Float(dt), mouseX: mouse.x, mouseY: mouse.y)
+        }
         render(dt: dt)
     }
 
@@ -214,9 +251,11 @@ final class MetalRenderer: ObservableObject {
         let screenW = Float(union.width  > 0 ? union.width  : 1440)
         let screenH = Float(union.height > 0 ? union.height : 900)
 
-        // Upload instance for the single cat.
-        let buf = instanceBuffers[bufferIndex]
+        // Upload instance for the cat (and optionally the laser dot).
+        let frameIndex = bufferIndex
         bufferIndex = (bufferIndex + 1) % 3
+
+        let buf = instanceBuffers[frameIndex]
         let ptr = buf.contents().bindMemory(to: SpriteInstanceGPU.self, capacity: 1)
         let spriteSize = 64 * catScale
         ptr[0] = SpriteInstanceGPU(
@@ -240,11 +279,26 @@ final class MetalRenderer: ObservableObject {
         enc.setFragmentSamplerState(sampler, index: 0)
 
         var uni = Uniforms(screenSize: SIMD2<Float>(screenW, screenH))
-        enc.setVertexBuffer(buf, offset: 0, index: 0)
         enc.setVertexBytes(&uni, length: MemoryLayout<Uniforms>.size, index: 1)
 
+        // Draw cat
+        enc.setVertexBuffer(buf, offset: 0, index: 0)
         if let tex = skinManager.texture(id: currentSkinID) {
             enc.setFragmentTexture(tex, index: 0)
+            enc.drawPrimitives(type: .triangleStrip, vertexStart: 0, vertexCount: 4)
+        }
+
+        // Draw laser dot (rendered under/before the cat so cat runs on top)
+        if laserActive, let laserTex = laserTexture {
+            let laserBuf = laserInstanceBuffers[frameIndex]
+            let lptr = laserBuf.contents().bindMemory(to: SpriteInstanceGPU.self, capacity: 1)
+            lptr[0] = SpriteInstanceGPU(
+                position: SIMD2<Float>(laserMover.x, laserMover.y),
+                size:     SIMD2<Float>(14, 14),
+                uvRect:   SIMD4<Float>(0, 0, 1, 1)
+            )
+            enc.setVertexBuffer(laserBuf, offset: 0, index: 0)
+            enc.setFragmentTexture(laserTex, index: 0)
             enc.drawPrimitives(type: .triangleStrip, vertexStart: 0, vertexCount: 4)
         }
 
@@ -293,6 +347,8 @@ final class MetalRenderer: ObservableObject {
     private func accumStats(dt: Double, gpuMs: Double) {
         fpsAccum  += dt
         fpsFrames += 1
+        achievementCheckAccum += dt
+
         if fpsAccum >= 0.5 {
             pendingStats.fps   = Double(fpsFrames) / fpsAccum
             pendingStats.gpuMs = gpuMs
@@ -301,5 +357,63 @@ final class MetalRenderer: ObservableObject {
             let snap = pendingStats
             DispatchQueue.main.async { [weak self] in self?.stats = snap }
         }
+
+        if achievementCheckAccum >= 15 {
+            achievementCheckAccum = 0
+            let laser = laserActive
+            let scale = catScale
+            let speed = speedMultiplier
+            DispatchQueue.main.async { [weak self] in
+                guard let self else { return }
+                self.achievementManager.check(
+                    stats: self.catStats,
+                    laserActive: laser,
+                    scale: scale,
+                    speedMultiplier: speed
+                )
+            }
+        }
+    }
+
+    // MARK: – Laser dot texture (red glow, generated at runtime)
+
+    private func makeLaserTexture() -> MTLTexture? {
+        let size = 32
+        let desc = MTLTextureDescriptor.texture2DDescriptor(
+            pixelFormat: .rgba8Unorm, width: size, height: size, mipmapped: false)
+        desc.usage = .shaderRead
+        guard let tex = device.makeTexture(descriptor: desc) else { return nil }
+
+        var pixels = [UInt8](repeating: 0, count: size * size * 4)
+        let c = Float(size) / 2
+        let outerR = c - 1
+        let innerR = outerR * 0.32
+
+        for y in 0..<size {
+            for x in 0..<size {
+                let dx = Float(x) - c + 0.5
+                let dy = Float(y) - c + 0.5
+                let d  = sqrt(dx * dx + dy * dy)
+                guard d < outerR else { continue }
+                let i = (y * size + x) * 4
+                let t = 1 - (d / outerR)
+                let alpha = t * t * t
+                pixels[i]   = UInt8(min(255, Int(255 * alpha)))      // R
+                pixels[i+1] = UInt8(min(255, Int(28  * alpha)))      // G
+                pixels[i+2] = UInt8(min(255, Int(8   * alpha)))      // B
+                pixels[i+3] = UInt8(min(255, Int(255 * alpha)))
+                // White-hot core
+                if d < innerR {
+                    let bloom = pow(1 - d / innerR, 2)
+                    pixels[i]   = UInt8(min(255, Int(Float(pixels[i])   + bloom * 255)))
+                    pixels[i+1] = UInt8(min(255, Int(Float(pixels[i+1]) + bloom * 210)))
+                    pixels[i+2] = UInt8(min(255, Int(Float(pixels[i+2]) + bloom * 210)))
+                    pixels[i+3] = 255
+                }
+            }
+        }
+        tex.replace(region: MTLRegionMake2D(0, 0, size, size),
+                    mipmapLevel: 0, withBytes: pixels, bytesPerRow: size * 4)
+        return tex
     }
 }
