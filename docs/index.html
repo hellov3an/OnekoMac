@@ -3,691 +3,770 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="preconnect" href="https://api.fontshare.com" crossorigin />
+  <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700,900&display=swap" />
   <title>OnekoMac — The pixel cat that lives in your menu bar</title>
-  <meta name="description" content="A pixel art cat that chases your cursor. Native macOS app. Metal GPU rendering. 120 Hz. No Electron. No bloat." />
+  <meta name="description" content="A pixel art cat that chases your cursor. Native macOS. Metal GPU. 120 Hz. No Electron. Free." />
   <meta property="og:title" content="OnekoMac" />
-  <meta property="og:description" content="A pixel art cat that lives in your menu bar and chases your cursor — forever." />
+  <meta property="og:description" content="The 1989 internet cat, rebuilt for Apple Silicon." />
   <meta property="og:type" content="website" />
   <meta name="twitter:card" content="summary_large_image" />
-
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+/* ─── Reset & tokens ─────────────────────────────────────────────── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 
-    :root {
-      --bg:        #09090f;
-      --bg2:       #0d0d18;
-      --bg3:       #111120;
-      --orange:    #ff7a30;
-      --orange2:   #ff5c1a;
-      --pink:      #ff4d8b;
-      --purple:    #9b6dff;
-      --blue:      #4d9fff;
-      --text:      #ffffff;
-      --muted:     rgba(255,255,255,.48);
-      --muted2:    rgba(255,255,255,.24);
-      --card:      rgba(255,255,255,.038);
-      --card-hover:rgba(255,255,255,.065);
-      --border:    rgba(255,255,255,.07);
-      --border-h:  rgba(255,255,255,.14);
-      --radius-sm: 14px;
-      --radius:    20px;
-      --radius-lg: 28px;
-      --font:      -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Helvetica, Arial, sans-serif;
-    }
+:root {
+  --bg:      #08080e;
+  --bg2:     #0c0c16;
+  --s:       rgba(255,255,255,.042);
+  --s2:      rgba(255,255,255,.072);
+  --b:       rgba(255,255,255,.07);
+  --b2:      rgba(255,255,255,.14);
+  --text:    #fff;
+  --muted:   rgba(255,255,255,.48);
+  --muted2:  rgba(255,255,255,.25);
+  --o:       #ff7a30;
+  --p:       #ff4d8b;
+  --v:       #9b6dff;
+  --bl:      #4da6ff;
+  --r: 18px;
+  --font: "Satoshi", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
 
-    html { scroll-behavior: smooth; }
+html { scroll-behavior: smooth; }
 
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: var(--font);
-      line-height: 1.6;
-      -webkit-font-smoothing: antialiased;
-      overflow-x: hidden;
-    }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
 
-    a { color: inherit; text-decoration: none; }
+a { color: inherit; text-decoration: none; }
 
-    /* ── Sprite ──────────────────────────────────────────────── */
-    .sprite {
-      display: inline-block;
-      background-repeat: no-repeat;
-      image-rendering: pixelated;
-      image-rendering: crisp-edges;
-      flex-shrink: 0;
-      background-size: 768px 384px;
-      background-position: -288px -288px;
-      width: 96px; height: 96px;
-    }
-    .s16  { width:16px;height:16px;background-size:128px 64px;background-position:-48px -48px; }
-    .s24  { width:24px;height:24px;background-size:192px 96px;background-position:-72px -72px; }
-    .s32  { width:32px;height:32px;background-size:256px 128px;background-position:-96px -96px; }
-    .s64  { width:64px;height:64px;background-size:512px 256px;background-position:-192px -192px; }
-    .s96  { width:96px;height:96px;background-size:768px 384px;background-position:-288px -288px; }
-    .s128 { width:128px;height:128px;background-size:1024px 512px;background-position:-384px -384px; }
-    .s160 { width:160px;height:160px;background-size:1280px 640px;background-position:-480px -480px; }
+/* ─── Noise overlay ───────────────────────────────────────────────── */
+.noise {
+  position: fixed; inset: 0; z-index: 9998;
+  pointer-events: none;
+  opacity: .042;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+  background-size: 200px 200px;
+  mix-blend-mode: screen;
+}
 
-    /* ── Shared gradient text ────────────────────────────────── */
-    .grad {
-      background: linear-gradient(135deg, var(--orange) 0%, var(--pink) 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-    .grad-cool {
-      background: linear-gradient(135deg, var(--blue) 0%, var(--purple) 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
+/* ─── Cursor cat ──────────────────────────────────────────────────── */
+#neko {
+  position: fixed;
+  z-index: 9997;
+  pointer-events: none;
+  will-change: left, top;
+  transform: translate(-50%, -50%);
+  filter: drop-shadow(0 6px 18px rgba(255,122,48,.35));
+  transition: opacity .4s;
+}
+#neko-hint {
+  position: absolute;
+  bottom: -22px; left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  font-size: 10px; font-weight: 600; letter-spacing: .05em;
+  color: rgba(255,255,255,.38);
+  transition: opacity 1s ease 1s;
+}
+#neko.moved #neko-hint { opacity: 0; }
+@media (hover: none) { #neko { display: none; } }
 
-    /* ── Nav ─────────────────────────────────────────────────── */
-    nav {
-      position: fixed; top: 0; left: 0; right: 0; z-index: 200;
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 0 32px;
-      height: 56px;
-    }
-    .nav-inner {
-      position: absolute; inset: 8px 24px;
-      background: rgba(9,9,15,.72);
-      backdrop-filter: blur(20px) saturate(1.4);
-      -webkit-backdrop-filter: blur(20px) saturate(1.4);
-      border: 1px solid var(--border);
-      border-radius: 50px;
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 0 20px;
-    }
-    .nav-logo {
-      display: flex; align-items: center; gap: 8px;
-      font-weight: 700; font-size: 15px; letter-spacing: -.01em;
-    }
-    .nav-links {
-      display: flex; align-items: center; gap: 8px;
-    }
-    .nav-links a {
-      font-size: 13px; color: var(--muted);
-      padding: 5px 12px; border-radius: 50px;
-      transition: color .18s, background .18s;
-    }
-    .nav-links a:hover { color: var(--text); background: rgba(255,255,255,.06); }
-    .btn-nav {
-      background: linear-gradient(135deg, var(--orange), var(--pink));
-      color: #fff !important; font-weight: 600; font-size: 13px !important;
-      padding: 7px 16px !important; border-radius: 50px;
-      transition: opacity .18s !important; background-color: transparent;
-    }
-    .btn-nav:hover { opacity: .88; background: linear-gradient(135deg, var(--orange), var(--pink)) !important; }
+/* ─── Sprite ──────────────────────────────────────────────────────── */
+.sp {
+  display: inline-block;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  background-repeat: no-repeat;
+  flex-shrink: 0;
+}
+/* idle frame: col 3, row 3 */
+.sp-20  { width:20px;height:20px;  background-size:160px 80px;  background-position:-60px -60px; }
+.sp-28  { width:28px;height:28px;  background-size:224px 112px; background-position:-84px -84px; }
+.sp-44  { width:44px;height:44px;  background-size:352px 176px; background-position:-132px -132px; }
+.sp-56  { width:56px;height:56px;  background-size:448px 224px; background-position:-168px -168px; }
+.sp-72  { width:72px;height:72px;  background-size:576px 288px; background-position:-216px -216px; }
+.sp-96  { width:96px;height:96px;  background-size:768px 384px; background-position:-288px -288px; }
+.sp-128 { width:128px;height:128px;background-size:1024px 512px;background-position:-384px -384px; }
+.sp-160 { width:160px;height:160px;background-size:1280px 640px;background-position:-480px -480px; }
 
-    /* ── Hero ────────────────────────────────────────────────── */
-    .hero {
-      min-height: 100svh;
-      display: flex; flex-direction: column; align-items: center; justify-content: center;
-      text-align: center;
-      padding: 120px 24px 80px;
-      position: relative; overflow: hidden;
-    }
-    .hero-glow {
-      position: absolute; top: 10%; left: 50%; transform: translateX(-50%);
-      width: 900px; height: 500px;
-      background: radial-gradient(ellipse at center, rgba(255,122,48,.1) 0%, transparent 65%);
-      pointer-events: none;
-    }
-    .hero-glow2 {
-      position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);
-      width: 600px; height: 300px;
-      background: radial-gradient(ellipse at center, rgba(155,109,255,.07) 0%, transparent 70%);
-      pointer-events: none;
-    }
+/* ─── Shared ──────────────────────────────────────────────────────── */
+.grad-text {
+  background: linear-gradient(100deg, var(--o) 0%, var(--p) 55%, var(--v) 100%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: grad-move 5s linear infinite;
+}
+@keyframes grad-move { from{background-position:0%} to{background-position:200%} }
 
-    .hero-pill {
-      display: inline-flex; align-items: center; gap: 8px;
-      background: rgba(255,122,48,.1);
-      border: 1px solid rgba(255,122,48,.22);
-      color: var(--orange);
-      font-size: 12px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase;
-      padding: 6px 16px; border-radius: 50px;
-      margin-bottom: 48px;
-    }
-    .hero-pill-dot {
-      width: 6px; height: 6px; border-radius: 50%;
-      background: var(--orange);
-      animation: pulse-dot 2s ease-in-out infinite;
-    }
-    @keyframes pulse-dot {
-      0%,100% { opacity: 1; transform: scale(1); }
-      50%      { opacity: .5; transform: scale(.7); }
-    }
+.eyebrow {
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  font-size: 11px; font-weight: 700; letter-spacing: .13em; text-transform: uppercase;
+  color: var(--o); margin-bottom: 16px;
+}
+.eyebrow-line { width: 28px; height: 1px; background: rgba(255,122,48,.35); }
 
-    /* Cat parade */
-    .hero-cats {
-      position: relative;
-      display: flex; align-items: flex-end; justify-content: center;
-      gap: 0; margin-bottom: 48px;
-      height: 160px;
-    }
-    .hero-cat-main {
-      animation: hero-float 3.2s ease-in-out infinite;
-      position: relative; z-index: 2;
-      filter: drop-shadow(0 0 40px rgba(255,122,48,.35));
-    }
-    @keyframes hero-float {
-      0%,100% { transform: translateY(0); }
-      50%      { transform: translateY(-10px); }
-    }
-    .hero-cat-side {
-      position: absolute;
-      opacity: .22;
-      animation: hero-float 3.2s ease-in-out infinite;
-    }
-    .hero-cat-side.left  { left: calc(50% - 180px); animation-delay: -.8s; }
-    .hero-cat-side.right { right: calc(50% - 180px); animation-delay: -1.6s; }
-    .hero-cat-side.far-left  { left: calc(50% - 320px); opacity: .1; animation-delay: -.4s; transform-origin: center; }
-    .hero-cat-side.far-right { right: calc(50% - 320px); opacity: .1; animation-delay: -2s; }
-    .hero-cat-glow {
-      position: absolute; bottom: -20px; left: 50%; transform: translateX(-50%);
-      width: 180px; height: 50px;
-      background: radial-gradient(ellipse, rgba(255,122,48,.3) 0%, transparent 70%);
-      filter: blur(8px);
-    }
+.section-h {
+  text-align: center;
+  font-size: clamp(32px, 4.5vw, 52px);
+  font-weight: 800; letter-spacing: -.04em; line-height: 1.08;
+  margin-bottom: 12px;
+}
+.section-p {
+  text-align: center; color: var(--muted);
+  font-size: 16px; max-width: 440px; margin: 0 auto 56px; line-height: 1.75;
+}
 
-    .hero h1 {
-      font-size: clamp(40px, 7vw, 76px);
-      font-weight: 800; line-height: 1.05;
-      letter-spacing: -.04em;
-      max-width: 780px;
-      margin-bottom: 22px;
-    }
+/* ─── Nav ─────────────────────────────────────────────────────────── */
+nav {
+  position: fixed; inset: 0 0 auto; z-index: 200;
+  display: flex; align-items: center;
+  padding: 8px 20px;
+  pointer-events: none;
+}
+.nav-pill {
+  width: 100%;
+  display: flex; align-items: center; justify-content: space-between;
+  background: rgba(8, 8, 14, 0.72);
+  backdrop-filter: blur(16px) saturate(1.6);
+  -webkit-backdrop-filter: blur(16px) saturate(1.6);
+  border: 1px solid var(--b);
+  border-radius: 50px;
+  padding: 0 8px 0 16px;
+  height: 44px;
+  pointer-events: all;
+  box-shadow: inset 0 8px 24px 0 rgba(255, 122, 48, 0.04);
+}
+.nav-brand {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 14px; font-weight: 700; letter-spacing: -.01em;
+}
+.nav-links {
+  display: flex; align-items: center; gap: 4px;
+}
+.nav-links a {
+  font-size: 13px; color: var(--muted);
+  padding: 5px 12px; border-radius: 50px;
+  transition: color .15s, background .15s;
+}
+.nav-links a:hover { color: var(--text); background: rgba(255,255,255,.06); }
+.nav-dl {
+  display: inline-flex; align-items: center; gap: 7px;
+  background: linear-gradient(135deg, var(--o), var(--p));
+  color: #fff !important; font-size: 13px !important; font-weight: 700 !important;
+  padding: 8px 18px !important; border-radius: 50px;
+  box-shadow: 0 2px 14px rgba(255,122,48,.28), inset 0 1px 0 rgba(255,255,255,.18);
+  transition: opacity .15s !important;
+}
+.nav-dl:hover { opacity: .88; }
 
-    .hero-sub {
-      font-size: clamp(16px, 2vw, 19px); color: var(--muted);
-      max-width: 460px; margin-bottom: 44px;
-      line-height: 1.75;
-    }
+/* ─── Hero ────────────────────────────────────────────────────────── */
+.hero {
+  min-height: 100svh;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  text-align: center;
+  padding: 110px 24px 80px;
+  position: relative; overflow: hidden;
+}
 
-    .hero-ctas {
-      display: flex; gap: 12px; flex-wrap: wrap; justify-content: center;
-      margin-bottom: 48px;
-    }
-    .btn-primary {
-      display: inline-flex; align-items: center; gap: 9px;
-      background: linear-gradient(135deg, var(--orange), var(--pink));
-      color: #fff; font-weight: 700; font-size: 15px;
-      padding: 14px 32px; border-radius: 50px;
-      transition: transform .2s, box-shadow .2s, opacity .2s;
-      box-shadow: 0 4px 32px rgba(255,122,48,.28), inset 0 1px 0 rgba(255,255,255,.2);
-    }
-    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 40px rgba(255,122,48,.42); }
-    .btn-ghost {
-      display: inline-flex; align-items: center; gap: 9px;
-      background: rgba(255,255,255,.055);
-      border: 1px solid var(--border);
-      color: var(--text); font-weight: 600; font-size: 15px;
-      padding: 14px 28px; border-radius: 50px;
-      backdrop-filter: blur(8px);
-      transition: background .2s, border-color .2s;
-    }
-    .btn-ghost:hover { background: rgba(255,255,255,.09); border-color: var(--border-h); }
+/* Dot grid */
+.hero-grid {
+  position: absolute; inset: 0; pointer-events: none;
+  background-image: radial-gradient(rgba(255,255,255,.075) 1px, transparent 1px);
+  background-size: 30px 30px;
+  mask-image: radial-gradient(ellipse 70% 70% at 50% 50%, black 30%, transparent 100%);
+  -webkit-mask-image: radial-gradient(ellipse 70% 70% at 50% 50%, black 30%, transparent 100%);
+}
 
-    .hero-chips {
-      display: flex; gap: 10px; flex-wrap: wrap; justify-content: center;
-    }
-    .chip {
-      display: inline-flex; align-items: center; gap: 6px;
-      background: rgba(255,255,255,.05);
-      border: 1px solid var(--border);
-      border-radius: 50px;
-      font-size: 12px; font-weight: 500; color: var(--muted);
-      padding: 5px 13px;
-    }
+/* Gradient blobs */
+.blob {
+  position: absolute; border-radius: 50%; pointer-events: none;
+  filter: blur(90px);
+}
+.blob-1 {
+  width: 700px; height: 500px;
+  top: -10%; left: 20%;
+  background: radial-gradient(circle, rgba(255,122,48,.14) 0%, transparent 60%);
+  animation: bdrift1 14s ease-in-out infinite alternate;
+}
+.blob-2 {
+  width: 500px; height: 500px;
+  top: 20%; right: 10%;
+  background: radial-gradient(circle, rgba(155,109,255,.11) 0%, transparent 60%);
+  animation: bdrift2 18s ease-in-out infinite alternate;
+}
+.blob-3 {
+  width: 400px; height: 400px;
+  bottom: 0; left: 50%;
+  background: radial-gradient(circle, rgba(77,166,255,.07) 0%, transparent 60%);
+  animation: bdrift3 22s ease-in-out infinite alternate;
+}
+@keyframes bdrift1 { from{transform:translate(0,0) scale(1)}   to{transform:translate(-60px,50px) scale(1.15)} }
+@keyframes bdrift2 { from{transform:translate(0,0) scale(1.1)} to{transform:translate(40px,-80px) scale(1)} }
+@keyframes bdrift3 { from{transform:translate(-50%,0) scale(1)} to{transform:translate(-50%,-40px) scale(1.2)} }
 
-    /* ── Stats strip ─────────────────────────────────────────── */
-    .stats-strip {
-      border-top: 1px solid var(--border);
-      border-bottom: 1px solid var(--border);
-      padding: 32px 24px;
-      display: flex; align-items: center; justify-content: center;
-      gap: 0;
-      overflow: hidden;
-    }
-    .stat-item {
-      flex: 1; max-width: 200px;
-      text-align: center;
-      padding: 12px 20px;
-      position: relative;
-    }
-    .stat-item + .stat-item::before {
-      content: '';
-      position: absolute; left: 0; top: 20%; height: 60%;
-      width: 1px; background: var(--border);
-    }
-    .stat-num {
-      font-size: clamp(28px, 4vw, 42px);
-      font-weight: 800; letter-spacing: -.035em;
-      line-height: 1;
-      margin-bottom: 6px;
-    }
-    .stat-label {
-      font-size: 12px; color: var(--muted); font-weight: 500;
-      letter-spacing: .03em;
-    }
+.hero-badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: rgba(255,122,48,.1); border: 1px solid rgba(255,122,48,.22);
+  color: var(--o); font-size: 11px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase;
+  padding: 6px 16px; border-radius: 50px;
+  margin-bottom: 44px; position: relative; z-index: 1;
+}
+.badge-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--o);
+  animation: bdot 2s ease-in-out infinite;
+  box-shadow: 0 0 8px var(--o);
+}
+@keyframes bdot { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.4;transform:scale(.65)} }
 
-    /* ── Bento features ──────────────────────────────────────── */
-    .bento-section {
-      padding: 100px 24px;
-      max-width: 1120px; margin: 0 auto;
-    }
-    .section-eyebrow {
-      display: flex; align-items: center; justify-content: center; gap: 10px;
-      font-size: 11px; font-weight: 700; letter-spacing: .14em;
-      color: var(--orange); text-transform: uppercase;
-      margin-bottom: 16px;
-    }
-    .section-eyebrow-line {
-      width: 30px; height: 1px; background: rgba(255,122,48,.4);
-    }
-    .section-title {
-      text-align: center;
-      font-size: clamp(30px, 4.5vw, 50px);
-      font-weight: 800; letter-spacing: -.035em;
-      line-height: 1.1;
-      margin-bottom: 12px;
-    }
-    .section-sub {
-      text-align: center; color: var(--muted); font-size: 17px;
-      max-width: 460px; margin: 0 auto 64px;
-      line-height: 1.7;
-    }
+.hero-cat {
+  margin-bottom: 44px; position: relative; z-index: 1;
+  filter: drop-shadow(0 0 60px rgba(255,122,48,.28)) drop-shadow(0 20px 40px rgba(0,0,0,.5));
+  animation: float 3.6s ease-in-out infinite;
+}
+@keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-12px)} }
+.hero-cat-glow {
+  position: absolute; bottom: -30px; left: 50%; transform: translateX(-50%);
+  width: 180px; height: 40px;
+  background: radial-gradient(ellipse, rgba(255,122,48,.22) 0%, transparent 70%);
+  filter: blur(10px);
+}
 
-    .bento-grid {
-      display: grid;
-      grid-template-columns: repeat(12, 1fr);
-      grid-template-rows: auto;
-      gap: 14px;
-    }
+.hero h1 {
+  font-size: clamp(48px, 8vw, 92px);
+  font-weight: 700; line-height: 1.02; letter-spacing: -.04em;
+  max-width: 880px;
+  margin-bottom: 24px;
+  position: relative; z-index: 1;
+}
+.hero h1 em {
+  font-style: italic;
+  color: rgb(255, 180, 130);
+  -webkit-text-fill-color: rgb(255, 180, 130);
+}
 
-    /* Card base */
-    .bcard {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 28px;
-      overflow: hidden;
-      position: relative;
-      transition: border-color .22s, background .22s, transform .22s;
-    }
-    .bcard:hover {
-      border-color: var(--border-h);
-      background: var(--card-hover);
-      transform: translateY(-2px);
-    }
-    .bcard::before {
-      content: '';
-      position: absolute; top: 0; left: 0; right: 0;
-      height: 1px;
-      background: linear-gradient(90deg, transparent, rgba(255,255,255,.09), transparent);
-    }
+.hero-sub {
+  font-size: clamp(15px, 1.8vw, 18px); color: var(--muted);
+  max-width: 440px; line-height: 1.8;
+  margin-bottom: 44px;
+  position: relative; z-index: 1;
+}
 
-    /* Grid positions */
-    .bc-metal  { grid-column: span 5; }
-    .bc-cat    { grid-column: span 4; }
-    .bc-skins  { grid-column: span 3; }
-    .bc-laser  { grid-column: span 4; }
-    .bc-xp     { grid-column: span 4; }
-    .bc-lang   { grid-column: span 4; }
-    .bc-achiev { grid-column: span 7; }
-    .bc-dock   { grid-column: span 5; }
+.hero-ctas {
+  display: flex; gap: 10px; flex-wrap: wrap; justify-content: center;
+  margin-bottom: 44px; position: relative; z-index: 1;
+}
+.btn-cta {
+  display: inline-flex; align-items: center; gap: 9px;
+  background: linear-gradient(135deg, var(--o), var(--p));
+  color: #fff; font-weight: 700; font-size: 15px;
+  padding: 15px 36px; border-radius: 50px;
+  box-shadow: 0 4px 30px rgba(255,122,48,.32), inset 0 1px 0 rgba(255,255,255,.22);
+  transition: transform .2s, box-shadow .2s;
+}
+.btn-cta:hover { transform: translateY(-2px); box-shadow: 0 10px 40px rgba(255,122,48,.46); }
+.btn-ghost {
+  display: inline-flex; align-items: center; gap: 9px;
+  background: var(--s);
+  border: 1px solid var(--b);
+  color: var(--text); font-weight: 600; font-size: 15px;
+  padding: 15px 28px; border-radius: 50px;
+  backdrop-filter: blur(8px);
+  transition: background .18s, border-color .18s;
+}
+.btn-ghost:hover { background: var(--s2); border-color: var(--b2); }
 
-    .bcard-icon {
-      font-size: 32px; line-height: 1;
-      margin-bottom: 20px; display: block;
-    }
-    .bcard h3 {
-      font-size: 19px; font-weight: 700; letter-spacing: -.02em;
-      margin-bottom: 10px; line-height: 1.2;
-    }
-    .bcard p {
-      font-size: 14px; color: var(--muted); line-height: 1.7;
-    }
+.hero-chips {
+  display: flex; gap: 8px; flex-wrap: wrap; justify-content: center;
+  position: relative; z-index: 1;
+}
+.chip {
+  display: inline-flex; align-items: center; gap: 5px;
+  background: var(--s); border: 1px solid var(--b);
+  border-radius: 50px; font-size: 12px; font-weight: 500; color: var(--muted);
+  padding: 5px 12px;
+}
 
-    /* Highlight card */
-    .bcard-highlight {
-      background: linear-gradient(135deg, rgba(255,122,48,.1) 0%, rgba(255,77,139,.08) 100%);
-      border-color: rgba(255,122,48,.22);
-    }
-    .bcard-highlight::before {
-      background: linear-gradient(90deg, transparent, rgba(255,122,48,.18), transparent);
-    }
-    .bcard-highlight:hover { border-color: rgba(255,122,48,.38); }
+/* scroll hint */
+.scroll-hint {
+  position: absolute; bottom: 32px; left: 50%; transform: translateX(-50%);
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+  font-size: 11px; color: var(--muted2); letter-spacing: .06em; text-transform: uppercase;
+  animation: bounce 2.4s ease-in-out infinite;
+  z-index: 1;
+}
+.scroll-arrow { font-size: 16px; }
+@keyframes bounce { 0%,100%{transform:translateX(-50%) translateY(0)} 50%{transform:translateX(-50%) translateY(6px)} }
 
-    /* Cool card */
-    .bcard-cool {
-      background: linear-gradient(135deg, rgba(77,159,255,.08) 0%, rgba(155,109,255,.08) 100%);
-      border-color: rgba(155,109,255,.18);
-    }
-    .bcard-cool:hover { border-color: rgba(155,109,255,.32); }
+/* ─── Marquee ──────────────────────────────────────────────────────── */
+.marquee-wrap {
+  border-top: 1px solid var(--b);
+  border-bottom: 1px solid var(--b);
+  background: var(--bg2);
+  overflow: hidden;
+  padding: 12px 0;
+  user-select: none;
+}
+.marquee-track {
+  display: flex; gap: 0;
+  animation: marquee 38s linear infinite;
+  width: max-content;
+}
+.marquee-track:hover { animation-play-state: paused; }
+@keyframes marquee { from{transform:translateX(0)} to{transform:translateX(-50%)} }
+.m-item {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 0 28px;
+  font-size: 13px; font-weight: 600; color: var(--muted);
+  white-space: nowrap;
+  border-right: 1px solid var(--b);
+  transition: color .2s;
+}
+.m-item:last-child { border-right: none; }
+.m-item:hover { color: var(--text); }
+.m-icon { font-size: 15px; }
 
-    /* Metal GPU card — big visual */
-    .bc-metal .bcard-vis {
-      margin: 20px 0 0;
-      display: flex; align-items: center; gap: 10px;
-    }
-    .fps-bar {
-      height: 40px;
-      background: linear-gradient(90deg, var(--orange), var(--pink));
-      border-radius: 6px;
-      flex: 1;
-      display: flex; align-items: center; padding: 0 14px;
-      font-weight: 800; font-size: 22px; letter-spacing: -.03em;
-    }
-    .fps-label {
-      font-size: 12px; color: var(--muted); white-space: nowrap;
-    }
+/* ─── Bento ────────────────────────────────────────────────────────── */
+.bento-section {
+  padding: 96px 24px;
+  max-width: 1100px; margin: 0 auto;
+}
 
-    /* Cat card — sprite display */
-    .bc-cat .sprite-showcase {
-      margin-top: 20px;
-      display: flex; justify-content: center; align-items: center;
-      gap: 16px;
-      padding: 20px;
-      background: rgba(255,255,255,.03);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-sm);
-      position: relative;
-    }
-    .sprite-showcase::before {
-      content: '';
-      position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-      width: 120px; height: 120px;
-      background: radial-gradient(circle, rgba(255,122,48,.18) 0%, transparent 60%);
-      pointer-events: none;
-    }
+.bento {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 12px;
+}
 
-    /* Skins card */
-    .bc-skins .skin-bubbles {
-      margin-top: 20px;
-      display: flex; flex-direction: column; gap: 8px;
-    }
-    .skin-row {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 8px 12px;
-      background: rgba(255,255,255,.04);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      font-size: 13px;
-    }
-    .skin-row-name { font-weight: 600; color: var(--text); }
-    .skin-dot { width: 8px; height: 8px; border-radius: 50%; }
+/* Card base */
+.bc {
+  background: rgba(12, 12, 24, 0.6);
+  border: 1px solid var(--b);
+  border-radius: var(--r);
+  padding: 26px;
+  overflow: hidden;
+  position: relative;
+  transition: border-color .22s, background .22s, box-shadow .22s;
+  will-change: transform;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: inset 0 20px 40px 0 rgba(255, 122, 48, 0.038);
+}
+.bc::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,.1) 50%, transparent 100%);
+  pointer-events: none;
+}
+.bc:hover {
+  border-color: var(--b2);
+  box-shadow: inset 0 20px 40px 0 rgba(255, 122, 48, 0.07);
+}
 
-    /* XP card */
-    .xp-bar-wrap { margin-top: 18px; }
-    .xp-bar-track {
-      height: 8px;
-      background: rgba(255,255,255,.07);
-      border-radius: 50px;
-      overflow: hidden;
-      margin-bottom: 6px;
-    }
-    .xp-bar-fill {
-      height: 100%; border-radius: 50px;
-      background: linear-gradient(90deg, var(--orange), var(--pink));
-      animation: xp-grow 2s ease-out 0.5s both;
-      width: 72%;
-    }
-    @keyframes xp-grow {
-      from { width: 0; }
-      to   { width: 72%; }
-    }
-    .xp-meta {
-      display: flex; justify-content: space-between;
-      font-size: 12px; color: var(--muted);
-    }
-    .level-badge {
-      display: inline-flex; align-items: center; gap: 6px;
-      background: linear-gradient(135deg, rgba(255,122,48,.15), rgba(255,77,139,.1));
-      border: 1px solid rgba(255,122,48,.25);
-      border-radius: 50px; padding: 5px 14px;
-      font-size: 13px; font-weight: 700;
-      margin-top: 14px;
-    }
+/* Accent cards */
+.bc-warm {
+  background: linear-gradient(145deg, rgba(255,122,48,.1) 0%, rgba(255,77,139,.07) 100%);
+  border-color: rgba(255,122,48,.22);
+  box-shadow: inset 0 20px 40px 0 rgba(255, 122, 48, 0.08) !important;
+}
+.bc-warm::before { background: linear-gradient(90deg, transparent, rgba(255,122,48,.22), transparent); }
+.bc-warm:hover { border-color: rgba(255,122,48,.4); box-shadow: inset 0 20px 40px 0 rgba(255, 122, 48, 0.14) !important; }
 
-    /* Laser card */
-    .laser-dot {
-      display: inline-block; width: 12px; height: 12px; border-radius: 50%;
-      background: radial-gradient(circle, #fff 25%, #ff3030 60%, transparent 100%);
-      box-shadow: 0 0 12px 4px rgba(255,30,30,.5);
-      animation: laser-pulse 1.4s ease-in-out infinite;
-    }
-    @keyframes laser-pulse {
-      0%,100% { box-shadow: 0 0 12px 4px rgba(255,30,30,.5); }
-      50%      { box-shadow: 0 0 22px 8px rgba(255,30,30,.75); }
-    }
-    .laser-tag {
-      display: inline-flex; align-items: center; gap: 8px;
-      margin-top: 16px;
-      background: rgba(255,40,40,.1);
-      border: 1px solid rgba(255,40,40,.22);
-      border-radius: 50px; padding: 6px 14px;
-      font-size: 13px; font-weight: 600;
-      color: #ff6060;
-    }
+.bc-cool {
+  background: linear-gradient(145deg, rgba(77,166,255,.08) 0%, rgba(155,109,255,.08) 100%);
+  border-color: rgba(155,109,255,.18);
+  box-shadow: inset 0 20px 40px 0 rgba(155, 109, 255, 0.06) !important;
+}
+.bc-cool:hover { border-color: rgba(155,109,255,.32); box-shadow: inset 0 20px 40px 0 rgba(155, 109, 255, 0.1) !important; }
 
-    /* Achievements card */
-    .achiev-pills {
-      margin-top: 20px;
-      display: flex; flex-wrap: wrap; gap: 8px;
-    }
-    .achiev-pill {
-      display: inline-flex; align-items: center; gap: 6px;
-      background: rgba(255,255,255,.05);
-      border: 1px solid var(--border);
-      border-radius: 50px; padding: 5px 12px;
-      font-size: 12px; font-weight: 600;
-      transition: border-color .18s, background .18s;
-    }
-    .achiev-pill.unlocked {
-      background: rgba(255,122,48,.1);
-      border-color: rgba(255,122,48,.28);
-      color: #ffaa77;
-    }
-    .achiev-pill.secret {
-      background: rgba(155,109,255,.1);
-      border-color: rgba(155,109,255,.28);
-      color: #bb99ff;
-    }
+/* Spans */
+.col-6  { grid-column: span 6; }
+.col-5  { grid-column: span 5; }
+.col-4  { grid-column: span 4; }
+.col-3  { grid-column: span 3; }
+.col-7  { grid-column: span 7; }
+.col-12 { grid-column: span 12; }
 
-    /* Dock card */
-    .dock-anim {
-      margin-top: 20px;
-      display: flex; align-items: center; gap: 14px;
-      padding: 16px 20px;
-      background: rgba(255,255,255,.04);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-    }
-    .dock-bar {
-      flex: 1; height: 6px; background: rgba(255,255,255,.07); border-radius: 50px; overflow: hidden;
-    }
-    .dock-bar-fill {
-      height: 100%; width: 100%;
-      background: linear-gradient(90deg, var(--purple), var(--blue));
-      border-radius: 50px;
-      animation: slide-fill 3s ease-in-out infinite alternate;
-    }
-    @keyframes slide-fill {
-      from { width: 20%; }
-      to   { width: 95%; }
-    }
-    .dock-label { font-size: 12px; color: var(--muted); white-space: nowrap; }
+.bc-title {
+  font-size: 18px; font-weight: 700; letter-spacing: -.02em;
+  margin-bottom: 8px; line-height: 1.2;
+}
+.bc-desc {
+  font-size: 13px; color: var(--muted); line-height: 1.7;
+}
+.bc-icon { font-size: 30px; line-height: 1; margin-bottom: 18px; display: block; }
 
-    /* ── Skins showcase ──────────────────────────────────────── */
-    .skins-section {
-      padding: 0 24px 100px;
-      max-width: 1120px; margin: 0 auto;
-    }
-    .skins-row {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-      gap: 12px;
-    }
-    .skin-card {
-      display: flex; flex-direction: column; align-items: center; gap: 16px;
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 28px 20px 24px;
-      transition: border-color .22s, background .22s, transform .22s;
-      position: relative; overflow: hidden;
-    }
-    .skin-card::after {
-      content: '';
-      position: absolute; bottom: 0; left: 0; right: 0;
-      height: 60px;
-      background: linear-gradient(0deg, rgba(255,122,48,.04) 0%, transparent 100%);
-      opacity: 0; transition: opacity .22s;
-    }
-    .skin-card:hover {
-      border-color: rgba(255,122,48,.3);
-      background: rgba(255,122,48,.04);
-      transform: translateY(-4px);
-    }
-    .skin-card:hover::after { opacity: 1; }
-    .skin-name {
-      font-size: 13px; font-weight: 600;
-      color: var(--muted); letter-spacing: .04em;
-    }
-    .bundled-badge {
-      position: absolute; top: 10px; right: 10px;
-      font-size: 9px; font-weight: 700; letter-spacing: .07em;
-      background: rgba(255,122,48,.15);
-      color: var(--orange);
-      padding: 2px 7px; border-radius: 4px;
-      text-transform: uppercase;
-    }
+/* Metal GPU card */
+.perf-monitor {
+  margin-top: 22px;
+  background: rgba(0,0,0,.3);
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 12px;
+  padding: 16px;
+  font-family: "SF Mono", "Fira Code", monospace;
+  font-size: 12px;
+}
+.perf-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 4px 0;
+  border-bottom: 1px solid rgba(255,255,255,.05);
+}
+.perf-row:last-child { border-bottom: none; }
+.perf-label { color: var(--muted2); font-size: 11px; width: 60px; }
+.perf-bar-wrap { flex: 1; height: 4px; background: rgba(255,255,255,.06); border-radius: 2px; margin: 0 12px; overflow: hidden; }
+.perf-bar { height: 100%; border-radius: 2px; }
+.perf-val { color: var(--text); font-weight: 700; font-size: 11px; width: 48px; text-align: right; }
+.perf-bar.cpu  { width: 3%; background: var(--bl); }
+.perf-bar.gpu  { width: 12%; background: linear-gradient(90deg,var(--v),var(--bl)); }
+.perf-bar.fps  { width: 100%; background: linear-gradient(90deg,var(--o),var(--p)); animation: fps-fill 3s ease-out 0.3s both; }
+@keyframes fps-fill { from{width:0} to{width:100%} }
 
-    /* ── Quote / Social proof ────────────────────────────────── */
-    .quote-section {
-      padding: 90px 24px;
-      border-top: 1px solid var(--border);
-      border-bottom: 1px solid var(--border);
-      background: linear-gradient(180deg, rgba(255,122,48,.04) 0%, rgba(155,109,255,.04) 100%);
-      text-align: center;
-    }
-    .quote-icon { font-size: 42px; margin-bottom: 24px; display: block; }
-    .quote-text {
-      font-size: clamp(24px, 4.5vw, 46px);
-      font-weight: 800; letter-spacing: -.035em;
-      line-height: 1.2;
-      max-width: 820px; margin: 0 auto 20px;
-    }
-    .quote-cite {
-      font-size: 14px; color: var(--muted); font-style: normal;
-    }
+/* XP card */
+.xp-track {
+  margin-top: 20px;
+  background: rgba(255,255,255,.05);
+  border: 1px solid var(--b);
+  border-radius: 12px;
+  padding: 16px;
+}
+.xp-header { display: flex; justify-content: space-between; margin-bottom: 12px; }
+.xp-level {
+  font-size: 13px; font-weight: 700;
+  background: linear-gradient(135deg, var(--o), var(--p));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.xp-sub { font-size: 11px; color: var(--muted2); }
+.xp-bar-outer { height: 6px; background: rgba(255,255,255,.07); border-radius: 50px; overflow: hidden; }
+.xp-bar-inner {
+  height: 100%; width: 72%; border-radius: 50px;
+  background: linear-gradient(90deg, var(--o), var(--p));
+  animation: xpfill 1.8s cubic-bezier(.22,1,.36,1) .5s both;
+}
+@keyframes xpfill { from{width:0} to{width:72%} }
+.xp-label { display: flex; justify-content: space-between; margin-top: 8px; font-size: 11px; color: var(--muted2); }
+.streak-row { display: flex; gap: 4px; margin-top: 14px; }
+.streak-day {
+  flex: 1; height: 20px; border-radius: 4px;
+  background: rgba(255,255,255,.05);
+  border: 1px solid var(--b);
+}
+.streak-day.on {
+  background: linear-gradient(135deg, var(--o), var(--p));
+  border-color: transparent;
+}
+.streak-day.on:last-child { box-shadow: 0 0 10px rgba(255,122,48,.35); }
 
-    /* ── Install ─────────────────────────────────────────────── */
-    .install-section {
-      padding: 100px 24px;
-      max-width: 1120px; margin: 0 auto;
-    }
-    .install-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 14px;
-      margin-bottom: 48px;
-    }
-    .install-step {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 32px 28px;
-      position: relative;
-      transition: border-color .2s, background .2s;
-    }
-    .install-step:hover { border-color: var(--border-h); background: var(--card-hover); }
-    .step-num {
-      width: 38px; height: 38px; border-radius: 12px;
-      background: linear-gradient(135deg, var(--orange), var(--pink));
-      display: flex; align-items: center; justify-content: center;
-      font-weight: 800; font-size: 16px;
-      margin-bottom: 20px;
-      box-shadow: 0 4px 16px rgba(255,122,48,.25);
-    }
-    .install-step h3 { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
-    .install-step p { font-size: 14px; color: var(--muted); line-height: 1.65; }
-    .install-cta { text-align: center; }
-    .install-note {
-      font-size: 13px; color: var(--muted2);
-      margin-top: 16px;
-    }
+/* Laser card */
+.laser-stage {
+  margin-top: 20px;
+  display: flex; align-items: center; justify-content: center;
+  height: 80px;
+  background: rgba(0,0,0,.25);
+  border: 1px solid rgba(255,255,255,.06);
+  border-radius: 12px;
+  position: relative;
+  overflow: hidden;
+}
+.laser-dot-big {
+  width: 18px; height: 18px; border-radius: 50%;
+  background: radial-gradient(circle, #fff 20%, #ff2020 55%, transparent 100%);
+  box-shadow: 0 0 20px 8px rgba(255,30,30,.55), 0 0 40px 12px rgba(255,30,30,.2);
+  animation: ldrift 3s ease-in-out infinite alternate;
+  position: relative; z-index: 1;
+}
+.laser-beam {
+  position: absolute; left: 0; top: 50%;
+  height: 1px; width: 100%;
+  background: linear-gradient(90deg, transparent 0%, rgba(255,30,30,.22) 50%, transparent 100%);
+}
+@keyframes ldrift {
+  from { transform: translate(-30px, -10px); }
+  to   { transform: translate(30px, 10px); }
+}
+.laser-cat {
+  position: absolute; bottom: 8px; left: 50%;
+  animation: lcat 3s ease-in-out infinite alternate;
+  transform-origin: center bottom;
+}
+@keyframes lcat {
+  from { transform: translateX(-50%) translateX(-35px); }
+  to   { transform: translateX(-50%) translateX(35px); }
+}
 
-    /* ── Footer ──────────────────────────────────────────────── */
-    footer {
-      background: var(--bg2);
-      border-top: 1px solid var(--border);
-      padding: 40px;
-    }
-    .footer-inner {
-      max-width: 1120px; margin: 0 auto;
-      display: flex; align-items: center; justify-content: space-between;
-      flex-wrap: wrap; gap: 20px;
-    }
-    .footer-brand {
-      display: flex; align-items: center; gap: 8px;
-      font-size: 15px; font-weight: 700;
-    }
-    .footer-mid { font-size: 13px; color: var(--muted); text-align: center; }
-    .footer-mid a { color: var(--orange); transition: opacity .18s; }
-    .footer-mid a:hover { opacity: .75; }
-    .footer-links { display: flex; gap: 20px; }
-    .footer-links a { font-size: 13px; color: var(--muted); transition: color .18s; }
-    .footer-links a:hover { color: var(--text); }
+/* Skins card */
+.skin-list { margin-top: 18px; display: flex; flex-direction: column; gap: 7px; }
+.skin-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 8px 12px;
+  background: rgba(255,255,255,.04); border: 1px solid var(--b);
+  border-radius: 10px; font-size: 13px; font-weight: 600;
+  transition: border-color .18s, background .18s;
+}
+.skin-row:hover { background: rgba(255,255,255,.07); border-color: var(--b2); }
+.skin-dot { width: 9px; height: 9px; border-radius: 50%; }
 
-    /* ── Responsive ──────────────────────────────────────────── */
-    @media (max-width: 900px) {
-      .bc-metal  { grid-column: span 12; }
-      .bc-cat    { grid-column: span 6; }
-      .bc-skins  { grid-column: span 6; }
-      .bc-laser  { grid-column: span 6; }
-      .bc-xp     { grid-column: span 6; }
-      .bc-lang   { grid-column: span 12; }
-      .bc-achiev { grid-column: span 12; }
-      .bc-dock   { grid-column: span 12; }
-      .install-grid { grid-template-columns: 1fr; }
-    }
-    @media (max-width: 640px) {
-      nav { padding: 0 12px; }
-      .nav-links a:not(.btn-nav) { display: none; }
-      .hero { padding: 100px 20px 60px; }
-      .hero h1 { font-size: 36px; }
-      .hero-cat-side { display: none; }
-      .bc-cat  { grid-column: span 12; }
-      .bc-skins{ grid-column: span 12; }
-      .bc-laser{ grid-column: span 12; }
-      .bc-xp   { grid-column: span 12; }
-      .stats-strip { flex-wrap: wrap; gap: 0; }
-      .stat-item { min-width: 50%; }
-      footer { padding: 30px 20px; }
-      .footer-inner { flex-direction: column; text-align: center; }
-      .footer-links { justify-content: center; }
-    }
+/* Achievement card */
+.achiev-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  gap: 8px; margin-top: 18px;
+}
+.ap {
+  display: flex; flex-direction: column; align-items: center; gap: 5px;
+  padding: 10px 6px;
+  background: rgba(255,255,255,.04); border: 1px solid var(--b);
+  border-radius: 12px; text-align: center;
+  transition: border-color .18s, background .18s;
+}
+.ap:hover { background: rgba(255,255,255,.07); border-color: var(--b2); }
+.ap.done { background: rgba(255,122,48,.08); border-color: rgba(255,122,48,.25); }
+.ap.done:hover { border-color: rgba(255,122,48,.45); }
+.ap.secret { background: rgba(155,109,255,.07); border-color: rgba(155,109,255,.2); }
+.ap-icon { font-size: 22px; }
+.ap-name { font-size: 10px; font-weight: 600; color: var(--muted); line-height: 1.3; }
+.ap.done .ap-name { color: rgba(255,170,100,.9); }
+.ap.secret .ap-name { color: rgba(180,150,255,.8); }
 
-    /* ── Scroll-in animation ─────────────────────────────────── */
-    .fade-up {
-      opacity: 0; transform: translateY(24px);
-      transition: opacity .6s ease, transform .6s ease;
-    }
-    .fade-up.visible {
-      opacity: 1; transform: translateY(0);
-    }
+/* Dock card */
+.dock-vis {
+  margin-top: 18px;
+  display: flex; align-items: center; gap: 12px;
+  padding: 14px 16px;
+  background: rgba(0,0,0,.2); border: 1px solid rgba(255,255,255,.06);
+  border-radius: 12px;
+}
+.dock-track {
+  flex: 1; height: 4px;
+  background: rgba(255,255,255,.06); border-radius: 2px; overflow: hidden;
+}
+.dock-fill {
+  height: 100%; border-radius: 2px;
+  background: linear-gradient(90deg, var(--v), var(--bl));
+  animation: dfill 2.8s cubic-bezier(.33,1,.68,1) infinite;
+}
+@keyframes dfill { 0%{width:0%} 60%{width:100%} 100%{width:100%;opacity:0} }
+.dock-caption { font-size: 11px; color: var(--muted2); white-space: nowrap; line-height: 1.5; }
+
+/* Lang card */
+.lang-pills { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 16px; }
+.lang-pill {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: rgba(255,255,255,.05); border: 1px solid var(--b);
+  border-radius: 8px; font-size: 12px; font-weight: 600;
+  padding: 5px 11px; transition: border-color .16s;
+}
+.lang-pill:hover { border-color: var(--b2); }
+
+/* Open source / free card */
+.oss-wrap {
+  display: flex; flex-direction: column; height: 100%; justify-content: space-between;
+}
+.oss-big {
+  font-size: 52px; font-weight: 900; letter-spacing: -.05em;
+  line-height: 1;
+  background: linear-gradient(135deg, var(--o), var(--p));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.oss-label { font-size: 13px; color: var(--muted); margin-top: 6px; margin-bottom: auto; }
+.gh-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: rgba(255,255,255,.06); border: 1px solid var(--b);
+  border-radius: 8px; font-size: 12px; font-weight: 600;
+  padding: 7px 14px; margin-top: 20px;
+  transition: background .16s, border-color .16s;
+  color: var(--text);
+}
+.gh-btn:hover { background: rgba(255,255,255,.1); border-color: var(--b2); }
+
+/* ─── Skins showcase ───────────────────────────────────────────────── */
+.skins-section {
+  padding: 0 24px 96px;
+  max-width: 1100px; margin: 0 auto;
+}
+.skins-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 12px;
+}
+.skin-card {
+  display: flex; flex-direction: column; align-items: center; gap: 14px;
+  background: rgba(12,12,24,.6); border: 1px solid var(--b);
+  border-radius: var(--r); padding: 28px 16px 22px;
+  position: relative; overflow: hidden;
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  box-shadow: inset 0 16px 32px 0 rgba(255,122,48,.03);
+  transition: border-color .2s, background .2s, transform .22s, box-shadow .2s;
+}
+.skin-card:hover {
+  border-color: rgba(255,122,48,.3);
+  background: rgba(255,122,48,.05);
+  transform: translateY(-4px);
+}
+.skin-card::after {
+  content: '';
+  position: absolute; bottom: 0; left: 0; right: 0; height: 40px;
+  background: linear-gradient(0deg, rgba(255,122,48,.04), transparent);
+  opacity: 0; transition: opacity .2s;
+}
+.skin-card:hover::after { opacity: 1; }
+.skin-badge {
+  position: absolute; top: 8px; right: 8px;
+  font-size: 9px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase;
+  background: rgba(255,122,48,.14); color: var(--o);
+  padding: 2px 6px; border-radius: 4px;
+}
+.skin-name { font-size: 12px; font-weight: 600; color: var(--muted); letter-spacing: .04em; }
+.skin-card.ghost {
+  border-style: dashed; border-color: rgba(255,255,255,.09);
+  justify-content: center;
+}
+.skin-card.ghost:hover { border-color: rgba(255,255,255,.18); background: var(--s2); }
+.skin-plus { font-size: 32px; opacity: .18; line-height: 1; margin-bottom: 6px; }
+
+/* ─── Quote ────────────────────────────────────────────────────────── */
+.quote-section {
+  padding: 88px 24px;
+  background: linear-gradient(180deg, rgba(255,122,48,.05) 0%, rgba(155,109,255,.05) 100%);
+  border-top: 1px solid var(--b); border-bottom: 1px solid var(--b);
+  text-align: center;
+}
+.quote-mark { font-size: 40px; display: block; margin-bottom: 20px; opacity: .55; line-height: 1; }
+.quote-body {
+  font-size: clamp(26px, 4.5vw, 50px);
+  font-weight: 800; letter-spacing: -.04em; line-height: 1.18;
+  max-width: 860px; margin: 0 auto 18px;
+}
+.quote-cite { font-size: 14px; color: var(--muted); font-style: normal; }
+
+/* ─── Install ──────────────────────────────────────────────────────── */
+.install-section {
+  padding: 96px 24px;
+  max-width: 1100px; margin: 0 auto;
+}
+.install-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 12px; margin-bottom: 44px;
+}
+.install-card {
+  background: rgba(12,12,24,.6); border: 1px solid var(--b);
+  border-radius: var(--r); padding: 30px 26px;
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  box-shadow: inset 0 16px 32px 0 rgba(255,122,48,.03);
+  transition: border-color .2s, background .2s, box-shadow .2s;
+}
+.install-card:hover { border-color: var(--b2); box-shadow: inset 0 16px 32px 0 rgba(255,122,48,.07); }
+.step-n {
+  width: 36px; height: 36px; border-radius: 10px;
+  background: linear-gradient(135deg, var(--o), var(--p));
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 800; font-size: 15px;
+  margin-bottom: 18px;
+  box-shadow: 0 3px 14px rgba(255,122,48,.24);
+}
+.install-card h3 { font-size: 17px; font-weight: 700; margin-bottom: 8px; }
+.install-card p { font-size: 13px; color: var(--muted); line-height: 1.7; }
+
+.brew-wrap {
+  background: rgba(0,0,0,.4);
+  border: 1px solid rgba(255,255,255,.09);
+  border-radius: 12px;
+  padding: 16px 20px;
+  margin-bottom: 44px;
+  display: flex; align-items: center; justify-content: space-between; gap: 16px;
+}
+.brew-label { font-size: 11px; color: var(--muted2); letter-spacing: .06em; text-transform: uppercase; margin-bottom: 6px; }
+.brew-cmd {
+  font-family: "SF Mono","Fira Code","Cascadia Code",monospace;
+  font-size: 13px; color: #a8ffae;
+  letter-spacing: .01em;
+}
+.brew-copy {
+  flex-shrink: 0;
+  background: rgba(255,255,255,.07); border: 1px solid var(--b);
+  border-radius: 8px; padding: 7px 14px;
+  font-size: 12px; font-weight: 600; color: var(--muted);
+  cursor: pointer; transition: background .16s, color .16s;
+}
+.brew-copy:hover { background: rgba(255,255,255,.13); color: var(--text); }
+
+.install-cta { text-align: center; }
+.install-note { font-size: 12px; color: var(--muted2); margin-top: 14px; }
+
+/* ─── Footer ───────────────────────────────────────────────────────── */
+footer {
+  background: var(--bg2);
+  border-top: 1px solid var(--b);
+  padding: 36px 40px;
+}
+.footer-in {
+  max-width: 1100px; margin: 0 auto;
+  display: flex; align-items: center; justify-content: space-between;
+  flex-wrap: wrap; gap: 20px;
+}
+.footer-brand { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 700; }
+.footer-mid { font-size: 12px; color: var(--muted); text-align: center; }
+.footer-mid a { color: var(--o); transition: opacity .16s; }
+.footer-mid a:hover { opacity: .72; }
+.footer-links { display: flex; gap: 18px; }
+.footer-links a { font-size: 12px; color: var(--muted); transition: color .16s; }
+.footer-links a:hover { color: var(--text); }
+
+/* ─── Scroll-reveal ────────────────────────────────────────────────── */
+.reveal {
+  opacity: 0; transform: translateY(28px);
+  transition: opacity .65s ease, transform .65s ease;
+}
+.reveal.vis { opacity: 1; transform: none; }
+.reveal-d1 { transition-delay: .1s; }
+.reveal-d2 { transition-delay: .18s; }
+.reveal-d3 { transition-delay: .26s; }
+
+/* ─── Responsive ───────────────────────────────────────────────────── */
+@media(max-width:960px) {
+  .col-6 { grid-column: span 12; }
+  .col-5 { grid-column: span 12; }
+  .col-7 { grid-column: span 12; }
+  .col-4 { grid-column: span 6; }
+  .col-3 { grid-column: span 6; }
+  .skins-grid { grid-template-columns: repeat(3, 1fr); }
+  .install-grid { grid-template-columns: 1fr; }
+}
+@media(max-width:640px) {
+  .nav-links a:not(.nav-dl):not(:last-child) { display: none; }
+  .col-3,.col-4 { grid-column: span 12; }
+  .skins-grid { grid-template-columns: repeat(2, 1fr); }
+  footer { padding: 28px 20px; }
+  .footer-in { flex-direction: column; align-items: center; text-align: center; }
+  .footer-links { justify-content: center; }
+  .brew-wrap { flex-direction: column; align-items: flex-start; }
+  .achiev-grid { grid-template-columns: repeat(4, 1fr); }
+}
   </style>
 </head>
 <body>
 
-<!-- ══ Nav ══════════════════════════════════════════════════════ -->
+<!-- Noise -->
+<div class="noise" aria-hidden="true"></div>
+
+<!-- ── Cursor cat ──────────────────────────────────────────────────── -->
+<div id="neko" aria-hidden="true">
+  <div class="sp sp-44" id="neko-sprite" style="background-image:url('https://raw.githubusercontent.com/hellov3an/OnekoMac/main/Resources/Sprites/oneko-classic.gif')"></div>
+  <div id="neko-hint">move your cursor</div>
+</div>
+
+<!-- ── Nav ─────────────────────────────────────────────────────────── -->
 <nav>
-  <div class="nav-inner">
-    <div class="nav-logo">
-      <div class="sprite s24" style="background-image:url('https://raw.githubusercontent.com/hellov3an/OnekoMac/main/Resources/Sprites/oneko-classic.gif')"></div>
+  <div class="nav-pill">
+    <div class="nav-brand">
+      <div class="sp sp-20" style="background-image:url('https://raw.githubusercontent.com/hellov3an/OnekoMac/main/Resources/Sprites/oneko-classic.gif')"></div>
       OnekoMac
     </div>
     <div class="nav-links">
@@ -695,312 +774,360 @@
       <a href="#skins">Skins</a>
       <a href="#install">Install</a>
       <a href="https://github.com/hellov3an/OnekoMac" target="_blank">GitHub</a>
-      <a class="btn-nav" href="https://github.com/hellov3an/OnekoMac/releases/latest">↓ Download</a>
+      <a class="nav-dl" href="https://github.com/hellov3an/OnekoMac/releases/latest">↓ Download</a>
     </div>
   </div>
 </nav>
 
-<!-- ══ Hero ═════════════════════════════════════════════════════ -->
+<!-- ── Hero ────────────────────────────────────────────────────────── -->
 <div class="hero">
-  <div class="hero-glow"></div>
-  <div class="hero-glow2"></div>
+  <div class="hero-grid" aria-hidden="true"></div>
+  <div class="blob blob-1" aria-hidden="true"></div>
+  <div class="blob blob-2" aria-hidden="true"></div>
+  <div class="blob blob-3" aria-hidden="true"></div>
 
-  <div class="hero-pill">
-    <div class="hero-pill-dot"></div>
-    v3.4.0 — Achievements &amp; Laser Pointer
+  <div class="hero-badge reveal">
+    <div class="badge-dot"></div>
+    v3.4.0 — Now with 32 achievements
   </div>
 
-  <div class="hero-cats">
-    <div class="hero-cat-side far-left">
-      <div class="sprite s64" style="background-image:url('https://raw.githubusercontent.com/hellov3an/OnekoMac/main/Resources/Sprites/oneko-tora.gif')"></div>
-    </div>
-    <div class="hero-cat-side left">
-      <div class="sprite s96" style="background-image:url('https://raw.githubusercontent.com/hellov3an/OnekoMac/main/Resources/Sprites/oneko-dog.gif')"></div>
-    </div>
-    <div class="hero-cat-main">
-      <div class="sprite s160" style="background-image:url('https://raw.githubusercontent.com/hellov3an/OnekoMac/main/Resources/Sprites/oneko-classic.gif')"></div>
-    </div>
-    <div class="hero-cat-side right">
-      <div class="sprite s96" style="background-image:url('https://raw.githubusercontent.com/hellov3an/OnekoMac/main/Resources/Sprites/oneko-maia.gif')"></div>
-    </div>
-    <div class="hero-cat-side far-right">
-      <div class="sprite s64" style="background-image:url('https://raw.githubusercontent.com/hellov3an/OnekoMac/main/Resources/Sprites/oneko-vaporwave.gif')"></div>
-    </div>
-    <div class="hero-cat-glow"></div>
+  <div class="hero-cat reveal">
+    <div class="sp sp-160" style="background-image:url('https://raw.githubusercontent.com/hellov3an/OnekoMac/main/Resources/Sprites/oneko-classic.gif')"></div>
+    <div class="hero-cat-glow" aria-hidden="true"></div>
   </div>
 
-  <h1>The pixel cat that lives<br>in your <span class="grad">menu bar.</span></h1>
+  <h1 class="reveal">
+    The 1989 internet cat,<br>
+    built for <em>Apple Silicon.</em>
+  </h1>
 
-  <p class="hero-sub">
-    A faithful recreation of the 1989 oneko —
-    rendered with Metal at 120 Hz, chasing your cursor
-    across every screen, forever.
+  <p class="hero-sub reveal">
+    Native Metal GPU rendering at 120 Hz.
+    Chases your cursor across every screen.
+    Sleeps in your menu bar. Free forever.
   </p>
 
-  <div class="hero-ctas">
-    <a class="btn-primary" href="https://github.com/hellov3an/OnekoMac/releases/latest">
-      ↓ &nbsp;Download for macOS
+  <div class="hero-ctas reveal">
+    <a class="btn-cta" href="https://github.com/hellov3an/OnekoMac/releases/latest">
+      ↓ &thinsp; Download for macOS
     </a>
     <a class="btn-ghost" href="https://github.com/hellov3an/OnekoMac" target="_blank">
-      ★ &nbsp;View on GitHub
+      ★ &thinsp; View on GitHub
     </a>
   </div>
 
-  <div class="hero-chips">
+  <div class="hero-chips reveal">
     <div class="chip">🍎 macOS 13+</div>
     <div class="chip">⚡ Metal GPU</div>
     <div class="chip">🆓 Free &amp; Open Source</div>
     <div class="chip">🚫 No Electron</div>
-    <div class="chip">🏆 32 Achievements</div>
+    <div class="chip">🏆 32 achievements</div>
+  </div>
+
+  <div class="scroll-hint" aria-hidden="true">
+    <span>Scroll</span>
+    <span class="scroll-arrow">↓</span>
   </div>
 </div>
 
-<!-- ══ Stats ════════════════════════════════════════════════════ -->
-<div class="stats-strip fade-up">
-  <div class="stat-item">
-    <div class="stat-num grad">120</div>
-    <div class="stat-label">FPS on ProMotion</div>
-  </div>
-  <div class="stat-item">
-    <div class="stat-num grad">5</div>
-    <div class="stat-label">Bundled skins</div>
-  </div>
-  <div class="stat-item">
-    <div class="stat-num grad">32</div>
-    <div class="stat-label">Achievements to unlock</div>
-  </div>
-  <div class="stat-item">
-    <div class="stat-num grad">5</div>
-    <div class="stat-label">Languages</div>
-  </div>
-  <div class="stat-item">
-    <div class="stat-num grad">0</div>
-    <div class="stat-label">Permissions needed</div>
+<!-- ── Marquee ──────────────────────────────────────────────────────── -->
+<div class="marquee-wrap" aria-hidden="true">
+  <div class="marquee-track" id="marquee-track">
+    <span class="m-item"><span class="m-icon">⚡</span>Metal GPU · 120 Hz</span>
+    <span class="m-item"><span class="m-icon">🐱</span>Chases your cursor</span>
+    <span class="m-item"><span class="m-icon">🏆</span>32 achievements</span>
+    <span class="m-item"><span class="m-icon">🔴</span>Laser pointer mode</span>
+    <span class="m-item"><span class="m-icon">😴</span>Naps in your menu bar</span>
+    <span class="m-item"><span class="m-icon">⭐</span>XP &amp; level system</span>
+    <span class="m-item"><span class="m-icon">🎨</span>5 bundled skins + marketplace</span>
+    <span class="m-item"><span class="m-icon">🌍</span>5 languages</span>
+    <span class="m-item"><span class="m-icon">🔥</span>Daily streak system</span>
+    <span class="m-item"><span class="m-icon">🔒</span>Secret achievements</span>
+    <span class="m-item"><span class="m-icon">📐</span>Resizable 0.5× to 3×</span>
+    <span class="m-item"><span class="m-icon">🚫</span>Zero permissions</span>
+    <span class="m-item"><span class="m-icon">🆓</span>MIT License</span>
+    <!-- Duplicate for seamless loop -->
+    <span class="m-item"><span class="m-icon">⚡</span>Metal GPU · 120 Hz</span>
+    <span class="m-item"><span class="m-icon">🐱</span>Chases your cursor</span>
+    <span class="m-item"><span class="m-icon">🏆</span>32 achievements</span>
+    <span class="m-item"><span class="m-icon">🔴</span>Laser pointer mode</span>
+    <span class="m-item"><span class="m-icon">😴</span>Naps in your menu bar</span>
+    <span class="m-item"><span class="m-icon">⭐</span>XP &amp; level system</span>
+    <span class="m-item"><span class="m-icon">🎨</span>5 bundled skins + marketplace</span>
+    <span class="m-item"><span class="m-icon">🌍</span>5 languages</span>
+    <span class="m-item"><span class="m-icon">🔥</span>Daily streak system</span>
+    <span class="m-item"><span class="m-icon">🔒</span>Secret achievements</span>
+    <span class="m-item"><span class="m-icon">📐</span>Resizable 0.5× to 3×</span>
+    <span class="m-item"><span class="m-icon">🚫</span>Zero permissions</span>
+    <span class="m-item"><span class="m-icon">🆓</span>MIT License</span>
   </div>
 </div>
 
-<!-- ══ Bento Features ═══════════════════════════════════════════ -->
+<!-- ── Bento ────────────────────────────────────────────────────────── -->
 <section class="bento-section" id="features">
-  <div class="section-eyebrow">
-    <div class="section-eyebrow-line"></div>
-    Why OnekoMac
-    <div class="section-eyebrow-line"></div>
+  <div class="eyebrow reveal">
+    <div class="eyebrow-line"></div>
+    Features
+    <div class="eyebrow-line"></div>
   </div>
-  <h2 class="section-title fade-up">A cat worth keeping</h2>
-  <p class="section-sub fade-up">Everything you'd expect from a native app — and a lot you wouldn't.</p>
+  <h2 class="section-h reveal">Obsessively native.</h2>
+  <p class="section-p reveal">Built as if it shipped with macOS.</p>
 
-  <div class="bento-grid">
+  <div class="bento">
 
-    <!-- Metal GPU — large card -->
-    <div class="bcard bc-metal bcard-highlight fade-up">
-      <span class="bcard-icon">⚡</span>
-      <h3>Metal GPU · 120 Hz</h3>
-      <p>CVDisplayLink + triple-buffered Metal pipeline. Silky smooth on ProMotion. Zero CPU overhead at idle.</p>
-      <div class="bcard-vis">
-        <div class="fps-bar">120 FPS</div>
-        <div class="fps-label">ProMotion<br>ready</div>
-      </div>
-    </div>
-
-    <!-- Cat card -->
-    <div class="bcard bc-cat fade-up">
-      <span class="bcard-icon">🐱</span>
-      <h3>Name &amp; customise</h3>
-      <p>Give your cat a name. Generate a pixel identity card. Your cat, your story.</p>
-      <div class="sprite-showcase">
-        <div class="sprite s64" style="background-image:url('https://raw.githubusercontent.com/hellov3an/OnekoMac/main/Resources/Sprites/oneko-classic.gif')"></div>
-      </div>
-    </div>
-
-    <!-- Skins -->
-    <div class="bcard bc-skins fade-up">
-      <span class="bcard-icon">🎨</span>
-      <h3>Skins</h3>
-      <p>5 bundled + community marketplace</p>
-      <div class="skin-bubbles">
-        <div class="skin-row">
-          <span class="skin-row-name">Classic</span>
-          <span class="skin-dot" style="background:#ff7a30"></span>
+    <!-- Metal GPU — wide -->
+    <div class="bc bc-warm col-6 reveal reveal-d1">
+      <span class="bc-icon">⚡</span>
+      <div class="bc-title">Metal GPU · 120 Hz</div>
+      <div class="bc-desc">CVDisplayLink + triple-buffered Metal pipeline. Silky on ProMotion. Zero CPU at idle.</div>
+      <div class="perf-monitor">
+        <div class="perf-row">
+          <span class="perf-label">CPU</span>
+          <div class="perf-bar-wrap"><div class="perf-bar cpu"></div></div>
+          <span class="perf-val" style="color:var(--bl)">~2%</span>
         </div>
-        <div class="skin-row">
-          <span class="skin-row-name">Tora</span>
-          <span class="skin-dot" style="background:#ffaa30"></span>
+        <div class="perf-row">
+          <span class="perf-label">GPU</span>
+          <div class="perf-bar-wrap"><div class="perf-bar gpu"></div></div>
+          <span class="perf-val" style="color:var(--v)">0.4ms</span>
         </div>
-        <div class="skin-row">
-          <span class="skin-row-name">Vaporwave</span>
-          <span class="skin-dot" style="background:#9b6dff"></span>
+        <div class="perf-row">
+          <span class="perf-label">FPS</span>
+          <div class="perf-bar-wrap"><div class="perf-bar fps"></div></div>
+          <span class="perf-val" style="color:var(--o)">120</span>
         </div>
-        <div class="skin-row" style="opacity:.45">
-          <span class="skin-row-name" style="font-style:italic">+ community</span>
-          <span style="font-size:11px;color:var(--orange)">∞</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- Laser pointer -->
-    <div class="bcard bc-laser bcard-cool fade-up">
-      <span class="bcard-icon">🔴</span>
-      <h3>Laser pointer mode</h3>
-      <p>Right-click the menu bar icon to unleash a laser dot. Watch your cat lose its mind chasing it autonomously.</p>
-      <div class="laser-tag">
-        <div class="laser-dot"></div>
-        Active — cat is chasing
       </div>
     </div>
 
     <!-- XP / Level -->
-    <div class="bcard bc-xp fade-up">
-      <span class="bcard-icon">⭐</span>
-      <h3>XP &amp; Levels</h3>
-      <p>Your cat earns XP from every meter walked. Level up and track progress.</p>
-      <div class="xp-bar-wrap">
-        <div class="xp-bar-track">
-          <div class="xp-bar-fill"></div>
+    <div class="bc col-3 reveal reveal-d2">
+      <span class="bc-icon">⭐</span>
+      <div class="bc-title">XP &amp; Levels</div>
+      <div class="bc-desc">Every meter your cat walks earns XP. Level up. Track your streak.</div>
+      <div class="xp-track">
+        <div class="xp-header">
+          <span class="xp-level">Level 7</span>
+          <span class="xp-sub">Kilometer Club</span>
         </div>
-        <div class="xp-meta">
-          <span>Level 7</span>
-          <span>72% to next</span>
+        <div class="xp-bar-outer"><div class="xp-bar-inner"></div></div>
+        <div class="xp-label"><span>1.2 km</span><span>72% → Lv 8</span></div>
+        <div class="streak-row">
+          <div class="streak-day on"></div>
+          <div class="streak-day on"></div>
+          <div class="streak-day on"></div>
+          <div class="streak-day on"></div>
+          <div class="streak-day on"></div>
+          <div class="streak-day on"></div>
+          <div class="streak-day on"></div>
+          <div class="streak-day"></div>
+          <div class="streak-day"></div>
+          <div class="streak-day"></div>
         </div>
-        <div class="level-badge">
-          🏅 Level 7 · Kilometer Club
+      </div>
+    </div>
+
+    <!-- Skins -->
+    <div class="bc col-3 reveal reveal-d3">
+      <span class="bc-icon">🎨</span>
+      <div class="bc-title">Skins</div>
+      <div class="bc-desc">5 bundled + community marketplace.</div>
+      <div class="skin-list">
+        <div class="skin-row"><span>Classic</span><span class="skin-dot" style="background:#ff7a30"></span></div>
+        <div class="skin-row"><span>Tora</span><span class="skin-dot" style="background:#ffb040"></span></div>
+        <div class="skin-row"><span>Vaporwave</span><span class="skin-dot" style="background:#9b6dff"></span></div>
+        <div class="skin-row" style="opacity:.45"><span style="font-style:italic">Community ∞</span><span style="font-size:11px;color:var(--o)">→</span></div>
+      </div>
+    </div>
+
+    <!-- Laser -->
+    <div class="bc bc-cool col-4 reveal reveal-d1">
+      <span class="bc-icon">🔴</span>
+      <div class="bc-title">Laser pointer mode</div>
+      <div class="bc-desc">Right-click the menu bar to release a laser dot. Your cat goes absolutely feral.</div>
+      <div class="laser-stage">
+        <div class="laser-beam" aria-hidden="true"></div>
+        <div class="laser-dot-big" aria-hidden="true"></div>
+        <div class="laser-cat" aria-hidden="true">
+          <div class="sp sp-28" style="background-image:url('https://raw.githubusercontent.com/hellov3an/OnekoMac/main/Resources/Sprites/oneko-classic.gif')"></div>
         </div>
+      </div>
+    </div>
+
+    <!-- Achievements -->
+    <div class="bc bc-warm col-5 reveal reveal-d2">
+      <span class="bc-icon">🏆</span>
+      <div class="bc-title">32 achievements — some secret</div>
+      <div class="bc-desc">6 categories, a dedicated wrapped-style window, and hidden ones you discover by accident.</div>
+      <div class="achiev-grid">
+        <div class="ap done"><span class="ap-icon">🐾</span><span class="ap-name">First Step</span></div>
+        <div class="ap done"><span class="ap-icon">⚡</span><span class="ap-name">Speed Demon</span></div>
+        <div class="ap done"><span class="ap-icon">🔴</span><span class="ap-name">Laser Fan</span></div>
+        <div class="ap done"><span class="ap-icon">🔥</span><span class="ap-name">Streak 7</span></div>
+        <div class="ap secret"><span class="ap-icon">🔒</span><span class="ap-name">???</span></div>
+        <div class="ap secret"><span class="ap-icon">🔒</span><span class="ap-name">???</span></div>
+        <div class="ap secret"><span class="ap-icon">🔒</span><span class="ap-name">???</span></div>
+        <div class="ap"><span class="ap-icon" style="opacity:.2">💤</span><span class="ap-name" style="opacity:.3">Locked</span></div>
+      </div>
+    </div>
+
+    <!-- Dock to sleep -->
+    <div class="bc col-3 reveal reveal-d3">
+      <span class="bc-icon">😴</span>
+      <div class="bc-title">Double-click to nap</div>
+      <div class="bc-desc">The cat sprints to the menu bar to sleep. Click again to wake it.</div>
+      <div class="dock-vis">
+        <div class="sp sp-28" style="background-image:url('https://raw.githubusercontent.com/hellov3an/OnekoMac/main/Resources/Sprites/oneko-classic.gif')"></div>
+        <div class="dock-track"><div class="dock-fill"></div></div>
+        <div class="dock-caption">Running to<br>menu bar…</div>
       </div>
     </div>
 
     <!-- Languages -->
-    <div class="bcard bc-lang fade-up">
-      <span class="bcard-icon">🌍</span>
-      <h3>5 languages</h3>
-      <p>English, French, Japanese, German, Spanish — with a live language switcher in settings. No restart needed.</p>
-    </div>
-
-    <!-- Achievements — wide card -->
-    <div class="bcard bc-achiev fade-up">
-      <span class="bcard-icon">🏆</span>
-      <h3>32 achievements — including secrets</h3>
-      <p>6 categories. Hidden achievements you can only discover by using the app in unexpected ways. A dedicated wrapped-style window to see your collection.</p>
-      <div class="achiev-pills">
-        <div class="achiev-pill unlocked">🐾 First Step</div>
-        <div class="achiev-pill unlocked">🔥 Streak 7</div>
-        <div class="achiev-pill unlocked">🔴 Laser Enthusiast</div>
-        <div class="achiev-pill unlocked">⚡ Speed Demon</div>
-        <div class="achiev-pill secret">🔒 ???</div>
-        <div class="achiev-pill secret">🔒 ???</div>
-        <div class="achiev-pill secret">🦉 ???</div>
-        <div class="achiev-pill" style="opacity:.4">💤 Sleepyhead</div>
-        <div class="achiev-pill" style="opacity:.4">🏅 Kilometer Club</div>
-        <div class="achiev-pill" style="opacity:.4">🎪 ???</div>
+    <div class="bc col-4 reveal reveal-d1">
+      <span class="bc-icon">🌍</span>
+      <div class="bc-title">5 languages</div>
+      <div class="bc-desc">Live switching in settings. No restart needed.</div>
+      <div class="lang-pills">
+        <div class="lang-pill">🇬🇧 English</div>
+        <div class="lang-pill">🇫🇷 Français</div>
+        <div class="lang-pill">🇯🇵 日本語</div>
+        <div class="lang-pill">🇩🇪 Deutsch</div>
+        <div class="lang-pill">🇪🇸 Español</div>
       </div>
     </div>
 
-    <!-- Dock to menu bar -->
-    <div class="bcard bc-dock fade-up">
-      <span class="bcard-icon">😴</span>
-      <h3>Double-click to nap</h3>
-      <p>Double-click the cat and it sprints to the menu bar to sleep. Click again to wake it up. It remembers nothing of its dreams.</p>
-      <div class="dock-anim">
-        <div class="sprite s32" style="background-image:url('https://raw.githubusercontent.com/hellov3an/OnekoMac/main/Resources/Sprites/oneko-classic.gif')"></div>
-        <div class="dock-bar"><div class="dock-bar-fill"></div></div>
-        <div class="dock-label">Running to<br>menu bar…</div>
+    <!-- Scale -->
+    <div class="bc col-4 reveal reveal-d2">
+      <span class="bc-icon">📐</span>
+      <div class="bc-title">Resize freely</div>
+      <div class="bc-desc">Scale from 0.5× tiny to 3× kaiju. Pixel-perfect at every size.</div>
+      <div style="margin-top:18px;display:flex;align-items:flex-end;gap:8px;justify-content:center">
+        <div class="sp sp-20" style="background-image:url('https://raw.githubusercontent.com/hellov3an/OnekoMac/main/Resources/Sprites/oneko-classic.gif');opacity:.6"></div>
+        <div class="sp sp-28" style="background-image:url('https://raw.githubusercontent.com/hellov3an/OnekoMac/main/Resources/Sprites/oneko-classic.gif');opacity:.75"></div>
+        <div class="sp sp-44" style="background-image:url('https://raw.githubusercontent.com/hellov3an/OnekoMac/main/Resources/Sprites/oneko-classic.gif')"></div>
+        <div class="sp sp-56" style="background-image:url('https://raw.githubusercontent.com/hellov3an/OnekoMac/main/Resources/Sprites/oneko-classic.gif');opacity:.8"></div>
+        <div class="sp sp-72" style="background-image:url('https://raw.githubusercontent.com/hellov3an/OnekoMac/main/Resources/Sprites/oneko-classic.gif');opacity:.55"></div>
+      </div>
+    </div>
+
+    <!-- Free & open source -->
+    <div class="bc col-4 reveal reveal-d3">
+      <div class="oss-wrap">
+        <div>
+          <div class="oss-big">$0</div>
+          <div class="oss-label">Free forever. MIT License.<br>No ads. No tracking. No account.</div>
+        </div>
+        <a class="gh-btn" href="https://github.com/hellov3an/OnekoMac" target="_blank">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+          View on GitHub
+        </a>
       </div>
     </div>
 
   </div>
 </section>
 
-<!-- ══ Skins showcase ════════════════════════════════════════════ -->
+<!-- ── Skins ─────────────────────────────────────────────────────────── -->
 <section class="skins-section" id="skins">
-  <div class="section-eyebrow">
-    <div class="section-eyebrow-line"></div>
+  <div class="eyebrow reveal">
+    <div class="eyebrow-line"></div>
     Skins
-    <div class="section-eyebrow-line"></div>
+    <div class="eyebrow-line"></div>
   </div>
-  <h2 class="section-title fade-up">5 bundled. Community unlimited.</h2>
-  <p class="section-sub fade-up" style="margin-bottom:48px">Switch live in settings. Build your own — it's just a GIF.</p>
+  <h2 class="section-h reveal">5 bundled. Community unlimited.</h2>
+  <p class="section-p reveal">Switch live. Build your own — it's just a 256×128 GIF.</p>
 
-  <div class="skins-row">
-    <div class="skin-card fade-up">
-      <div class="bundled-badge">Bundled</div>
-      <div class="sprite s64" style="background-image:url('https://raw.githubusercontent.com/hellov3an/OnekoMac/main/Resources/Sprites/oneko-classic.gif')"></div>
+  <div class="skins-grid">
+    <div class="skin-card reveal reveal-d1">
+      <div class="skin-badge">Bundled</div>
+      <div class="sp sp-72" style="background-image:url('https://raw.githubusercontent.com/hellov3an/OnekoMac/main/Resources/Sprites/oneko-classic.gif')"></div>
       <div class="skin-name">Classic</div>
     </div>
-    <div class="skin-card fade-up">
-      <div class="bundled-badge">Bundled</div>
-      <div class="sprite s64" style="background-image:url('https://raw.githubusercontent.com/hellov3an/OnekoMac/main/Resources/Sprites/oneko-dog.gif')"></div>
+    <div class="skin-card reveal reveal-d1">
+      <div class="skin-badge">Bundled</div>
+      <div class="sp sp-72" style="background-image:url('https://raw.githubusercontent.com/hellov3an/OnekoMac/main/Resources/Sprites/oneko-dog.gif')"></div>
       <div class="skin-name">Dog</div>
     </div>
-    <div class="skin-card fade-up">
-      <div class="bundled-badge">Bundled</div>
-      <div class="sprite s64" style="background-image:url('https://raw.githubusercontent.com/hellov3an/OnekoMac/main/Resources/Sprites/oneko-tora.gif')"></div>
+    <div class="skin-card reveal reveal-d2">
+      <div class="skin-badge">Bundled</div>
+      <div class="sp sp-72" style="background-image:url('https://raw.githubusercontent.com/hellov3an/OnekoMac/main/Resources/Sprites/oneko-tora.gif')"></div>
       <div class="skin-name">Tora</div>
     </div>
-    <div class="skin-card fade-up">
-      <div class="bundled-badge">Bundled</div>
-      <div class="sprite s64" style="background-image:url('https://raw.githubusercontent.com/hellov3an/OnekoMac/main/Resources/Sprites/oneko-maia.gif')"></div>
+    <div class="skin-card reveal reveal-d2">
+      <div class="skin-badge">Bundled</div>
+      <div class="sp sp-72" style="background-image:url('https://raw.githubusercontent.com/hellov3an/OnekoMac/main/Resources/Sprites/oneko-maia.gif')"></div>
       <div class="skin-name">Maia</div>
     </div>
-    <div class="skin-card fade-up">
-      <div class="bundled-badge">Bundled</div>
-      <div class="sprite s64" style="background-image:url('https://raw.githubusercontent.com/hellov3an/OnekoMac/main/Resources/Sprites/oneko-vaporwave.gif')"></div>
+    <div class="skin-card reveal reveal-d3">
+      <div class="skin-badge">Bundled</div>
+      <div class="sp sp-72" style="background-image:url('https://raw.githubusercontent.com/hellov3an/OnekoMac/main/Resources/Sprites/oneko-vaporwave.gif')"></div>
       <div class="skin-name">Vaporwave</div>
     </div>
-    <div class="skin-card fade-up" style="border-style: dashed; border-color: rgba(255,255,255,.1);">
-      <div style="font-size:36px; opacity:.3">＋</div>
-      <div class="skin-name" style="text-align:center; line-height:1.5">Community<br>Marketplace</div>
+    <div class="skin-card ghost reveal reveal-d3">
+      <div class="skin-plus">＋</div>
+      <div class="skin-name" style="text-align:center;line-height:1.6">Community<br>Marketplace</div>
     </div>
   </div>
 </section>
 
-<!-- ══ Quote ════════════════════════════════════════════════════ -->
-<div class="quote-section fade-up">
-  <span class="quote-icon">💬</span>
-  <blockquote class="quote-text">
-    "Wait, <span class="grad">what's that</span><br>on your screen?"
+<!-- ── Quote ──────────────────────────────────────────────────────────── -->
+<div class="quote-section reveal">
+  <span class="quote-mark">💬</span>
+  <blockquote class="quote-body">
+    "Wait, <em style="font-style:italic;color:rgb(255,180,130);-webkit-text-fill-color:rgb(255,180,130)">what's that</em><br>on your screen?"
   </blockquote>
   <cite class="quote-cite">— Every coworker. Every Zoom call. Every time.</cite>
 </div>
 
-<!-- ══ Install ══════════════════════════════════════════════════ -->
+<!-- ── Install ────────────────────────────────────────────────────────── -->
 <section class="install-section" id="install">
-  <div class="section-eyebrow">
-    <div class="section-eyebrow-line"></div>
+  <div class="eyebrow reveal">
+    <div class="eyebrow-line"></div>
     Get started
-    <div class="section-eyebrow-line"></div>
+    <div class="eyebrow-line"></div>
   </div>
-  <h2 class="section-title fade-up">Up in 30 seconds</h2>
-  <p class="section-sub fade-up" style="margin-bottom:48px">No permissions. No account. No tracking. No Electron.</p>
+  <h2 class="section-h reveal">Up in 30 seconds.</h2>
+  <p class="section-p reveal" style="margin-bottom:44px">No permissions. No account. No tracking.</p>
 
   <div class="install-grid">
-    <div class="install-step fade-up">
-      <div class="step-num">1</div>
+    <div class="install-card reveal reveal-d1">
+      <div class="step-n">1</div>
       <h3>Download</h3>
-      <p>Grab the <code style="background:rgba(255,255,255,.08);padding:2px 6px;border-radius:5px;font-size:13px">.dmg</code> from the latest GitHub Release.</p>
+      <p>Grab the <code style="background:rgba(255,255,255,.07);padding:1px 6px;border-radius:5px;font-size:12px">.dmg</code> from the latest GitHub Release.</p>
     </div>
-    <div class="install-step fade-up">
-      <div class="step-num">2</div>
+    <div class="install-card reveal reveal-d2">
+      <div class="step-n">2</div>
       <h3>Drag to Applications</h3>
       <p>Open the DMG and drag OnekoMac into your Applications folder.</p>
     </div>
-    <div class="install-step fade-up">
-      <div class="step-num">3</div>
-      <h3>Launch &amp; enjoy</h3>
+    <div class="install-card reveal reveal-d3">
+      <div class="step-n">3</div>
+      <h3>Launch</h3>
       <p>Open the app. Your cat appears. It follows your cursor. Forever.</p>
     </div>
   </div>
 
-  <div class="install-cta fade-up">
-    <a class="btn-primary" href="https://github.com/hellov3an/OnekoMac/releases/latest" style="font-size:17px; padding: 16px 40px;">
-      ↓ &nbsp;Download OnekoMac — Free
+  <div class="brew-wrap reveal">
+    <div>
+      <div class="brew-label">Or install with Homebrew</div>
+      <div class="brew-cmd" id="brew-cmd">brew install --cask hellov3an/tap/onekomac</div>
+    </div>
+    <button class="brew-copy" id="brew-copy-btn" onclick="copyBrew()">Copy</button>
+  </div>
+
+  <div class="install-cta reveal">
+    <a class="btn-cta" href="https://github.com/hellov3an/OnekoMac/releases/latest" style="font-size:16px;padding:16px 44px">
+      ↓ &thinsp; Download OnekoMac — Free
     </a>
     <p class="install-note">macOS 13 Ventura or later · Apple Silicon &amp; Intel · MIT License</p>
   </div>
 </section>
 
-<!-- ══ Footer ════════════════════════════════════════════════════ -->
+<!-- ── Footer ─────────────────────────────────────────────────────────── -->
 <footer>
-  <div class="footer-inner">
+  <div class="footer-in">
     <div class="footer-brand">
-      <div class="sprite s24" style="background-image:url('https://raw.githubusercontent.com/hellov3an/OnekoMac/main/Resources/Sprites/oneko-classic.gif')"></div>
+      <div class="sp sp-20" style="background-image:url('https://raw.githubusercontent.com/hellov3an/OnekoMac/main/Resources/Sprites/oneko-classic.gif')"></div>
       OnekoMac
     </div>
     <div class="footer-mid">
@@ -1016,11 +1143,77 @@
 </footer>
 
 <script>
-  // Scroll-in animation
-  const obs = new IntersectionObserver((entries) => {
-    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); } });
-  }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
-  document.querySelectorAll('.fade-up').forEach(el => obs.observe(el));
+/* ── Cursor-following cat ──────────────────────────────────────────── */
+(function() {
+  const neko = document.getElementById('neko');
+  if (!neko || window.matchMedia('(hover: none)').matches) return;
+
+  let cx = window.innerWidth * 0.75;
+  let cy = window.innerHeight * 0.5;
+  let mx = cx, my = cy;
+  let moved = false;
+
+  neko.style.left = cx + 'px';
+  neko.style.top  = cy + 'px';
+  neko.style.opacity = '1';
+
+  document.addEventListener('mousemove', function(e) {
+    mx = e.clientX;
+    my = e.clientY;
+    if (!moved) { moved = true; neko.classList.add('moved'); }
+  });
+
+  let raf;
+  (function tick() {
+    const dx = mx - cx;
+    const dy = my - cy;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+    if (dist > 5) {
+      const spd = Math.min(dist * 0.115, 17);
+      cx += (dx / dist) * spd;
+      cy += (dy / dist) * spd;
+      neko.style.left = cx + 'px';
+      neko.style.top  = cy + 'px';
+    }
+    raf = requestAnimationFrame(tick);
+  })();
+})();
+
+/* ── Scroll reveal ─────────────────────────────────────────────────── */
+(function() {
+  const io = new IntersectionObserver(function(entries) {
+    entries.forEach(function(e) {
+      if (e.isIntersecting) { e.target.classList.add('vis'); io.unobserve(e.target); }
+    });
+  }, { threshold: 0.08, rootMargin: '0px 0px -32px 0px' });
+  document.querySelectorAll('.reveal').forEach(function(el) { io.observe(el); });
+})();
+
+/* ── 3D card tilt ──────────────────────────────────────────────────── */
+(function() {
+  document.querySelectorAll('.bc').forEach(function(card) {
+    card.addEventListener('mousemove', function(e) {
+      const r = card.getBoundingClientRect();
+      const x = (e.clientX - r.left) / r.width  - 0.5;
+      const y = (e.clientY - r.top)  / r.height - 0.5;
+      card.style.transform = 'perspective(700px) rotateX(' + (-y * 7) + 'deg) rotateY(' + (x * 7) + 'deg) translateY(-3px)';
+    });
+    card.addEventListener('mouseleave', function() {
+      card.style.transform = '';
+    });
+  });
+})();
+
+/* ── Brew copy ─────────────────────────────────────────────────────── */
+function copyBrew() {
+  const cmd = document.getElementById('brew-cmd').textContent;
+  navigator.clipboard.writeText(cmd).then(function() {
+    const btn = document.getElementById('brew-copy-btn');
+    btn.textContent = 'Copied!';
+    btn.style.color = '#a8ffae';
+    setTimeout(function() { btn.textContent = 'Copy'; btn.style.color = ''; }, 2000);
+  });
+}
 </script>
 
 </body>
