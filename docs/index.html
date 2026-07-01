@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OnekoMac — The pixel cat that lives in your menu bar</title>
+  <meta name="description" content="A pixel art cat that chases your cursor. Native macOS app. Metal GPU rendering. 120 Hz. No Electron. No bloat." />
+  <meta property="og:title" content="OnekoMac" />
+  <meta property="og:description" content="A pixel art cat that lives in your menu bar and chases your cursor — forever." />
+  <meta property="og:type" content="website" />
+  <meta name="twitter:card" content="summary_large_image" />
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #07071a;
+      --bg2:       #0e0e24;
+      --orange:    #ff7a30;
+      --pink:      #ff4d8b;
+      --purple:    #9b6dff;
+      --text:      #ffffff;
+      --muted:     rgba(255,255,255,.52);
+      --card:      rgba(255,255,255,.04);
+      --border:    rgba(255,255,255,.08);
+      --radius:    18px;
+      --font:      -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    a { color: inherit; text-decoration: none; }
+
+    /* ── Sprite helper ─────────────────────────────────────── */
+    /* Shows the idle frame (col 3, row 3) from a 256×128 atlas */
+    .sprite {
+      display: inline-block;
+      width: 96px;
+      height: 96px;
+      background-repeat: no-repeat;
+      background-size: 768px 384px; /* 3× upscale */
+      background-position: -288px -288px; /* col 3 × 96, row 3 × 96 */
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
+      flex-shrink: 0;
+    }
+    .sprite-sm {
+      width: 64px; height: 64px;
+      background-size: 512px 256px;
+      background-position: -192px -192px;
+    }
+
+    /* ── Nav ───────────────────────────────────────────────── */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 40px;
+      height: 60px;
+      background: rgba(7,7,26,.82);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-logo {
+      display: flex; align-items: center; gap: 10px;
+      font-weight: 700; font-size: 17px;
+    }
+    .nav-logo .sprite { width: 28px; height: 28px; background-size: 224px 112px; background-position: -84px -84px; }
+    .nav-links { display: flex; align-items: center; gap: 24px; }
+    .nav-links a { font-size: 14px; color: var(--muted); transition: color .2s; }
+    .nav-links a:hover { color: var(--text); }
+    .btn-nav {
+      background: var(--orange);
+      color: #fff; font-weight: 600; font-size: 14px;
+      padding: 7px 18px; border-radius: 50px;
+      transition: opacity .2s;
+    }
+    .btn-nav:hover { opacity: .85; }
+
+    /* ── Hero ──────────────────────────────────────────────── */
+    .hero {
+      display: flex; flex-direction: column; align-items: center;
+      text-align: center;
+      padding: 100px 24px 90px;
+      position: relative; overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute; top: -80px; left: 50%; transform: translateX(-50%);
+      width: 600px; height: 600px;
+      background: radial-gradient(circle, rgba(255,122,48,.14) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 7px;
+      background: rgba(255,122,48,.12);
+      border: 1px solid rgba(255,122,48,.25);
+      color: var(--orange);
+      font-size: 12px; font-weight: 600; letter-spacing: .06em;
+      padding: 5px 14px; border-radius: 50px;
+      margin-bottom: 36px;
+    }
+    .hero-badge span { opacity: .55; }
+
+    .hero-cat-wrap {
+      position: relative; margin-bottom: 40px;
+    }
+    .hero-cat-wrap::before {
+      content: '';
+      position: absolute; top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 200px; height: 200px;
+      background: radial-gradient(circle, rgba(255,122,48,.22) 0%, transparent 65%);
+      border-radius: 50%;
+    }
+    .hero-cat {
+      width: 128px; height: 128px;
+      background-size: 1024px 512px;
+      background-position: -384px -384px;
+      position: relative; z-index: 1;
+    }
+
+    .hero h1 {
+      font-size: clamp(36px, 6vw, 62px);
+      font-weight: 800; line-height: 1.1;
+      letter-spacing: -.03em;
+      max-width: 680px;
+      margin-bottom: 20px;
+    }
+    .hero h1 em { font-style: normal; color: var(--orange); }
+
+    .hero-sub {
+      font-size: 18px; color: var(--muted);
+      max-width: 480px; margin-bottom: 44px;
+      line-height: 1.7;
+    }
+
+    .hero-ctas { display: flex; gap: 14px; flex-wrap: wrap; justify-content: center; margin-bottom: 36px; }
+    .btn-primary {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: linear-gradient(135deg, var(--orange), var(--pink));
+      color: #fff; font-weight: 700; font-size: 16px;
+      padding: 14px 32px; border-radius: 50px;
+      transition: transform .2s, box-shadow .2s;
+      box-shadow: 0 4px 24px rgba(255,122,48,.3);
+    }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(255,122,48,.4); }
+    .btn-ghost {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      color: var(--text); font-weight: 600; font-size: 16px;
+      padding: 14px 28px; border-radius: 50px;
+      transition: background .2s, border-color .2s;
+    }
+    .btn-ghost:hover { background: rgba(255,255,255,.08); border-color: rgba(255,255,255,.16); }
+
+    .hero-meta {
+      display: flex; gap: 20px; flex-wrap: wrap; justify-content: center;
+      font-size: 13px; color: var(--muted);
+    }
+    .hero-meta span { display: flex; align-items: center; gap: 5px; }
+    .dot { width: 4px; height: 4px; border-radius: 50%; background: var(--muted); }
+
+    /* ── Section shared ────────────────────────────────────── */
+    section { padding: 90px 24px; max-width: 1080px; margin: 0 auto; }
+    .section-label {
+      display: block; text-align: center;
+      font-size: 11px; font-weight: 700; letter-spacing: .12em;
+      color: var(--orange); text-transform: uppercase; margin-bottom: 14px;
+    }
+    .section-title {
+      text-align: center; font-size: clamp(28px, 4vw, 42px);
+      font-weight: 800; letter-spacing: -.025em; margin-bottom: 12px;
+    }
+    .section-sub {
+      text-align: center; color: var(--muted); font-size: 17px;
+      max-width: 500px; margin: 0 auto 60px;
+    }
+
+    /* ── Features ──────────────────────────────────────────── */
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 16px;
+    }
+    .feat-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      transition: border-color .2s, background .2s;
+    }
+    .feat-card:hover {
+      background: rgba(255,255,255,.065);
+      border-color: rgba(255,255,255,.14);
+    }
+    .feat-icon {
+      font-size: 28px; margin-bottom: 16px; display: block;
+      line-height: 1;
+    }
+    .feat-card h3 { font-size: 17px; font-weight: 700; margin-bottom: 8px; }
+    .feat-card p { font-size: 14px; color: var(--muted); line-height: 1.65; }
+
+    /* ── Skins ─────────────────────────────────────────────── */
+    .skins-section { background: var(--bg2); padding: 90px 24px; }
+    .skins-section > * { max-width: 1080px; margin-left: auto; margin-right: auto; }
+    .skins-row {
+      display: flex; justify-content: center;
+      gap: 20px; flex-wrap: wrap;
+      margin-top: 0;
+    }
+    .skin-card {
+      display: flex; flex-direction: column; align-items: center; gap: 14px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px 32px;
+      cursor: default;
+      transition: border-color .2s, background .2s, transform .2s;
+    }
+    .skin-card:hover {
+      border-color: rgba(255,122,48,.4);
+      background: rgba(255,122,48,.05);
+      transform: translateY(-4px);
+    }
+    .skin-card .sprite-sm { border-radius: 10px; }
+    .skin-card .skin-name {
+      font-size: 13px; font-weight: 600;
+      color: var(--muted); letter-spacing: .04em;
+    }
+    .skin-card.bundled .skin-name::after {
+      content: 'BUNDLED';
+      font-size: 9px; font-weight: 700; letter-spacing: .08em;
+      background: rgba(255,122,48,.15);
+      color: var(--orange);
+      padding: 2px 6px; border-radius: 4px;
+      margin-left: 8px;
+      vertical-align: middle;
+    }
+
+    /* ── Viral quote ───────────────────────────────────────── */
+    .viral-section {
+      background: linear-gradient(135deg, rgba(255,122,48,.08) 0%, rgba(155,109,255,.08) 100%);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      padding: 80px 24px;
+      text-align: center;
+    }
+    .viral-section blockquote {
+      font-size: clamp(24px, 4vw, 40px);
+      font-weight: 800; letter-spacing: -.02em;
+      max-width: 760px; margin: 0 auto 20px;
+      line-height: 1.25;
+    }
+    .viral-section blockquote em { font-style: normal; color: var(--orange); }
+    .viral-section cite {
+      font-size: 14px; color: var(--muted); font-style: normal;
+    }
+
+    /* ── Install ───────────────────────────────────────────── */
+    .install-steps {
+      display: flex; gap: 16px; justify-content: center;
+      flex-wrap: wrap; margin-bottom: 40px;
+    }
+    .install-step {
+      display: flex; flex-direction: column; align-items: center;
+      text-align: center; gap: 12px;
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 28px 24px;
+      flex: 1; min-width: 200px; max-width: 260px;
+    }
+    .step-num {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--orange), var(--pink));
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 800; font-size: 15px; flex-shrink: 0;
+    }
+    .install-step h3 { font-size: 15px; font-weight: 700; }
+    .install-step p { font-size: 13px; color: var(--muted); }
+    .install-cta { text-align: center; }
+    .install-note { font-size: 13px; color: var(--muted); margin-top: 14px; }
+
+    /* ── Footer ────────────────────────────────────────────── */
+    footer {
+      background: var(--bg2);
+      border-top: 1px solid var(--border);
+      padding: 40px 40px;
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 20px;
+    }
+    .footer-left { display: flex; align-items: center; gap: 10px; }
+    .footer-left .sprite { width: 22px; height: 22px; background-size: 176px 88px; background-position: -66px -66px; }
+    .footer-left span { font-size: 14px; font-weight: 700; }
+    .footer-mid { font-size: 13px; color: var(--muted); text-align: center; }
+    .footer-mid a { color: var(--orange); }
+    .footer-right { display: flex; gap: 20px; }
+    .footer-right a { font-size: 13px; color: var(--muted); transition: color .2s; }
+    .footer-right a:hover { color: var(--text); }
+
+    /* ── Responsive ────────────────────────────────────────── */
+    @media (max-width: 640px) {
+      nav { padding: 0 20px; }
+      .nav-links { display: none; }
+      section { padding: 60px 20px; }
+      footer { flex-direction: column; text-align: center; }
+      .footer-right { justify-content: center; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══ Nav ══════════════════════════════════════════════════ -->
+<nav>
+  <div class="nav-logo">
+    <div class="sprite" style="background-image:url('https://raw.githubusercontent.com/hellov3an/OnekoMac/main/Resources/Sprites/oneko-classic.gif')"></div>
+    OnekoMac
+  </div>
+  <div class="nav-links">
+    <a href="#features">Features</a>
+    <a href="#skins">Skins</a>
+    <a href="#install">Install</a>
+    <a href="https://github.com/hellov3an/OnekoMac" target="_blank">GitHub</a>
+    <a class="btn-nav" href="https://github.com/hellov3an/OnekoMac/releases/latest">Download</a>
+  </div>
+</nav>
+
+<!-- ══ Hero ═════════════════════════════════════════════════ -->
+<div class="hero">
+  <div class="hero-badge">
+    <span>✦</span> v3.1.0 — Now with size control &amp; dock-to-menu-bar <span>✦</span>
+  </div>
+
+  <div class="hero-cat-wrap">
+    <div class="sprite hero-cat" style="background-image:url('https://raw.githubusercontent.com/hellov3an/OnekoMac/main/Resources/Sprites/oneko-classic.gif')"></div>
+  </div>
+
+  <h1>The pixel cat that lives in your <em>menu bar.</em></h1>
+
+  <p class="hero-sub">
+    A faithful recreation of the 1989 oneko — rendered with Metal at 120 Hz,
+    chasing your cursor across every screen, forever.
+  </p>
+
+  <div class="hero-ctas">
+    <a class="btn-primary" href="https://github.com/hellov3an/OnekoMac/releases/latest">
+      ↓ &nbsp;Download for macOS
+    </a>
+    <a class="btn-ghost" href="https://github.com/hellov3an/OnekoMac" target="_blank">
+      ★ &nbsp;View on GitHub
+    </a>
+  </div>
+
+  <div class="hero-meta">
+    <span>🍎 macOS 13+</span>
+    <div class="dot"></div>
+    <span>⚡ Metal GPU</span>
+    <div class="dot"></div>
+    <span>🆓 Free &amp; Open Source</span>
+    <div class="dot"></div>
+    <span>🚫 No Electron</span>
+  </div>
+</div>
+
+<!-- ══ Features ═════════════════════════════════════════════ -->
+<section id="features">
+  <span class="section-label">Why OnekoMac</span>
+  <h2 class="section-title">A cat worth keeping</h2>
+  <p class="section-sub">Everything you'd expect from a native macOS app — and a lot you wouldn't.</p>
+
+  <div class="features-grid">
+    <div class="feat-card">
+      <span class="feat-icon">⚡</span>
+      <h3>Metal GPU · 120 Hz</h3>
+      <p>CVDisplayLink + triple-buffered Metal pipeline. Silky smooth on ProMotion and standard displays. Zero CPU at idle.</p>
+    </div>
+    <div class="feat-card">
+      <span class="feat-icon">🐱</span>
+      <h3>Name your pet</h3>
+      <p>Give your cat a name during onboarding. Generate and share a pixel-art identity card. Your cat, your story.</p>
+    </div>
+    <div class="feat-card">
+      <span class="feat-icon">🎨</span>
+      <h3>Skin Marketplace</h3>
+      <p>5 bundled skins + an in-app marketplace that fetches community skins directly from GitHub — no app update needed.</p>
+    </div>
+    <div class="feat-card">
+      <span class="feat-icon">📐</span>
+      <h3>Resize freely</h3>
+      <p>Scale your cat from 0.5× (tiny) to 3× (giant). Pixel-perfect at every size thanks to nearest-neighbor sampling.</p>
+    </div>
+    <div class="feat-card">
+      <span class="feat-icon">😴</span>
+      <h3>Double-click to nap</h3>
+      <p>Double-click the cat and it runs to the menu bar to sleep. Click it again to wake it up. It remembers nothing.</p>
+    </div>
+    <div class="feat-card">
+      <span class="feat-icon">🌍</span>
+      <h3>5 languages</h3>
+      <p>English, French, Japanese, German and Spanish — with a language picker right in the onboarding flow.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ══ Skins ═════════════════════════════════════════════════ -->
+<div class="skins-section" id="skins">
+  <section style="padding:0">
+    <span class="section-label">Skins</span>
+    <h2 class="section-title">5 bundled. Community unlimited.</h2>
+    <p class="section-sub" style="margin-bottom:48px">Switch skins live in settings. Or build your own — it's just a GIF.</p>
+    <div class="skins-row">
+      <div class="skin-card bundled">
+        <div class="sprite sprite-sm" style="background-image:url('https://raw.githubusercontent.com/hellov3an/OnekoMac/main/Resources/Sprites/oneko-classic.gif')"></div>
+        <span class="skin-name">Classic</span>
+      </div>
+      <div class="skin-card bundled">
+        <div class="sprite sprite-sm" style="background-image:url('https://raw.githubusercontent.com/hellov3an/OnekoMac/main/Resources/Sprites/oneko-dog.gif')"></div>
+        <span class="skin-name">Dog</span>
+      </div>
+      <div class="skin-card bundled">
+        <div class="sprite sprite-sm" style="background-image:url('https://raw.githubusercontent.com/hellov3an/OnekoMac/main/Resources/Sprites/oneko-tora.gif')"></div>
+        <span class="skin-name">Tora</span>
+      </div>
+      <div class="skin-card bundled">
+        <div class="sprite sprite-sm" style="background-image:url('https://raw.githubusercontent.com/hellov3an/OnekoMac/main/Resources/Sprites/oneko-maia.gif')"></div>
+        <span class="skin-name">Maia</span>
+      </div>
+      <div class="skin-card bundled">
+        <div class="sprite sprite-sm" style="background-image:url('https://raw.githubusercontent.com/hellov3an/OnekoMac/main/Resources/Sprites/oneko-vaporwave.gif')"></div>
+        <span class="skin-name">Vaporwave</span>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ══ Viral quote ═══════════════════════════════════════════ -->
+<div class="viral-section">
+  <blockquote>
+    "Wait, <em>what's that</em> on your screen?"
+  </blockquote>
+  <cite>— Every coworker. Every Zoom call. Every time.</cite>
+</div>
+
+<!-- ══ Install ═══════════════════════════════════════════════ -->
+<section id="install">
+  <span class="section-label">Get started</span>
+  <h2 class="section-title">Up in 30 seconds</h2>
+  <p class="section-sub" style="margin-bottom:48px">No permissions needed. No account. No tracking.</p>
+
+  <div class="install-steps">
+    <div class="install-step">
+      <div class="step-num">1</div>
+      <h3>Download</h3>
+      <p>Grab the <code>.dmg</code> from the latest GitHub Release.</p>
+    </div>
+    <div class="install-step">
+      <div class="step-num">2</div>
+      <h3>Drag to Applications</h3>
+      <p>Open the DMG and drag OnekoMac into your Applications folder.</p>
+    </div>
+    <div class="install-step">
+      <div class="step-num">3</div>
+      <h3>Launch</h3>
+      <p>Open the app. Your cat appears. It follows your cursor. Forever.</p>
+    </div>
+  </div>
+
+  <div class="install-cta">
+    <a class="btn-primary" href="https://github.com/hellov3an/OnekoMac/releases/latest">
+      ↓ &nbsp;Download OnekoMac
+    </a>
+    <p class="install-note">macOS 13 Ventura or later · Apple Silicon &amp; Intel · Free</p>
+  </div>
+</section>
+
+<!-- ══ Footer ════════════════════════════════════════════════ -->
+<footer>
+  <div class="footer-left">
+    <div class="sprite" style="background-image:url('https://raw.githubusercontent.com/hellov3an/OnekoMac/main/Resources/Sprites/oneko-classic.gif')"></div>
+    <span>OnekoMac</span>
+  </div>
+  <div class="footer-mid">
+    Made with ♥ by <a href="https://github.com/hellov3an" target="_blank">@hellov3an</a> ·
+    Based on <em>oneko</em> by Masayuki Koba, 1989
+  </div>
+  <div class="footer-right">
+    <a href="https://github.com/hellov3an/OnekoMac" target="_blank">GitHub</a>
+    <a href="https://github.com/hellov3an/OnekoMac/releases" target="_blank">Releases</a>
+    <a href="https://github.com/hellov3an/OnekoMac/blob/main/LICENSE" target="_blank">MIT License</a>
+  </div>
+</footer>
+
+</body>
+</html>
