@@ -5,18 +5,24 @@ import os.lock
 /// Thread-safe: addDistance/recordNap/recordScratch may be called from any thread.
 final class CatStats: ObservableObject {
     private enum Key {
-        static let distance     = "cat_stat_distance_pts"
-        static let naps         = "cat_stat_naps"
-        static let scratches    = "cat_stat_scratches"
-        static let firstLaunch  = "cat_stat_first_launch"
-        static let streak       = "cat_streak"
-        static let streakDate   = "cat_streak_last_date"
+        static let distance      = "cat_stat_distance_pts"
+        static let naps          = "cat_stat_naps"
+        static let scratches     = "cat_stat_scratches"
+        static let firstLaunch   = "cat_stat_first_launch"
+        static let streak        = "cat_streak"
+        static let streakDate    = "cat_streak_last_date"
+        static let dockedCount   = "cat_stat_docked_count"
+        static let laserSessions = "cat_stat_laser_sessions"
+        static let skinsUsed     = "cat_stat_skins_used"
     }
 
     @Published private(set) var distancePoints: Double
     @Published private(set) var naps: Int
     @Published private(set) var scratches: Int
     @Published private(set) var streak: Int = 1
+    @Published private(set) var dockedCount: Int = 0
+    @Published private(set) var laserSessions: Int = 0
+    @Published private(set) var usedSkinIDs: Set<String> = []
     let firstLaunchDate: Date
 
     private var pendingDistance: Double = 0
@@ -27,6 +33,9 @@ final class CatStats: ObservableObject {
         distancePoints = defaults.double(forKey: Key.distance)
         naps           = defaults.integer(forKey: Key.naps)
         scratches      = defaults.integer(forKey: Key.scratches)
+        dockedCount    = defaults.integer(forKey: Key.dockedCount)
+        laserSessions  = defaults.integer(forKey: Key.laserSessions)
+        usedSkinIDs    = Set(defaults.stringArray(forKey: Key.skinsUsed) ?? [])
 
         if let t = defaults.object(forKey: Key.firstLaunch) as? Double {
             firstLaunchDate = Date(timeIntervalSince1970: t)
@@ -65,12 +74,38 @@ final class CatStats: ObservableObject {
         }
     }
 
+    func recordDocked() {
+        DispatchQueue.main.async {
+            self.dockedCount += 1
+            self.defaults.set(self.dockedCount, forKey: Key.dockedCount)
+        }
+    }
+
+    func recordLaserSession() {
+        DispatchQueue.main.async {
+            self.laserSessions += 1
+            self.defaults.set(self.laserSessions, forKey: Key.laserSessions)
+        }
+    }
+
+    func recordSkinUsed(_ id: String) {
+        DispatchQueue.main.async {
+            guard !self.usedSkinIDs.contains(id) else { return }
+            self.usedSkinIDs.insert(id)
+            self.defaults.set(Array(self.usedSkinIDs), forKey: Key.skinsUsed)
+        }
+    }
+
     func reset() {
         os_unfair_lock_lock(&_lock); pendingDistance = 0; os_unfair_lock_unlock(&_lock)
-        distancePoints = 0; naps = 0; scratches = 0
+        distancePoints = 0; naps = 0; scratches = 0; dockedCount = 0; laserSessions = 0
+        usedSkinIDs = []
         defaults.removeObject(forKey: Key.distance)
         defaults.removeObject(forKey: Key.naps)
         defaults.removeObject(forKey: Key.scratches)
+        defaults.removeObject(forKey: Key.dockedCount)
+        defaults.removeObject(forKey: Key.laserSessions)
+        defaults.removeObject(forKey: Key.skinsUsed)
     }
 
     // MARK: – Streak

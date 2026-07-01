@@ -9,14 +9,17 @@
 /* Begin PBXBuildFile section */
 		0D695F50246BCBC9AF063BDA /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2B5D5CF9B91ACBC30EE56658 /* Assets.xcassets */; };
 		16CE5D1D6257332B8F261F61 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9981DFE27094E7BA2F23D9E /* OnboardingView.swift */; };
+		2032A49FDC2CBB1DCA9DD1C6 /* AchievementManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5091BBC2626F28C1C766EEDB /* AchievementManager.swift */; };
 		23901793282A4AD82C8883EC /* Updater.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3194057963488DEC257525E7 /* Updater.swift */; };
 		28323440D6FF6DFB5BF16F39 /* MarketplaceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 27DDFFE30E84F2ACAAF59B2A /* MarketplaceView.swift */; };
 		35DF060430ACED74D15DFAA5 /* MenuBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4488C3D373F06F90ED53DC79 /* MenuBarController.swift */; };
+		4B1965A74C6E56C45193EDDB /* AchievementsWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46633A63E635E66B68F3FD62 /* AchievementsWindow.swift */; };
 		52883267724F5E13DD532938 /* MouseTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4DAB10CD2B55CFD42A30689 /* MouseTracker.swift */; };
 		60BBC5513B3EFFFB7F955563 /* MetalRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0F9A515A928932CC0E4336F /* MetalRenderer.swift */; };
 		6C6972D798ED769E660E6AEE /* CatStats.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CADFB944FB661D365ABC00D /* CatStats.swift */; };
 		71B170AE2541063614FCF8FE /* MarketplaceWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6291E521D616BF84F9E72210 /* MarketplaceWindow.swift */; };
 		765A2D8BE2AEF296A5EAEC2D /* SkinManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6DA81A3304E1D396304D6C4 /* SkinManager.swift */; };
+		7815B78BE36E6A83858DD5C2 /* AchievementNotificationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19BF67909D0B69A8F9C24161 /* AchievementNotificationController.swift */; };
 		7CB502EF797BEDD3C4FF8E05 /* Math.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6CA30A79FFBAA296F4B8492 /* Math.swift */; };
 		7D7A70A4608474E3888D3E00 /* WrappedWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74E9A3436C239059DF84CDBA /* WrappedWindow.swift */; };
 		86C58FC806AD5C983FC671BF /* Logging.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDA4DF9FC881CA143F741D29 /* Logging.swift */; };
@@ -24,10 +27,13 @@
 		9393DA9621011263628DDF1D /* Sprites in Resources */ = {isa = PBXBuildFile; fileRef = E3ACC486413860AE3AA7FDB2 /* Sprites */; };
 		93EC4705B43537BBE68AC3DB /* OverlayWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = E518A06A04AFBBF4857FA9C8 /* OverlayWindow.swift */; };
 		A743ACEE9D2E0C1DF17D47D2 /* WrappedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 496C74F3714074E570F55548 /* WrappedView.swift */; };
+		AEDA98124D897AED8B6AF011 /* Achievement.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3007C0225BA8A96F1691195B /* Achievement.swift */; };
 		B6B0D98D06592ED53CEA2E2B /* SettingsWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F1061172FA02617D56856A5 /* SettingsWindow.swift */; };
 		CC189D8ABD61181C52DCC39D /* OnboardingWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB2C7B4B1ED08191325EBB90 /* OnboardingWindow.swift */; };
 		CCE095F2D760A6C245673855 /* Language.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86A3D336EAC8DA514C0D2EEA /* Language.swift */; };
+		D46F298CDA7AA9362A1170EF /* AchievementsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FFB3F6BAC43138DAE8C0640 /* AchievementsView.swift */; };
 		D4D932688504CF3E4E081A3B /* CVDisplayLinkManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 384D36D95EDBA845A8846AFB /* CVDisplayLinkManager.swift */; };
+		D8FBF00AB9B04F6424B014D0 /* LaserMover.swift in Sources */ = {isa = PBXBuildFile; fileRef = 82FEE8FBA68CFAF56C432936 /* LaserMover.swift */; };
 		DC4A045ACCF987D2BA57F4F3 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66132A6ABAD5BCAA7DA83E8C /* SettingsView.swift */; };
 		DD363471E3969A90B2399E21 /* NekoCat.swift in Sources */ = {isa = PBXBuildFile; fileRef = B966ED127313678D1BDFFD1C /* NekoCat.swift */; };
 		EEC8D007F251901DC49C0EE7 /* RenderPipeline.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55B3B81C5011267F6DAF0B3C /* RenderPipeline.swift */; };
@@ -39,20 +45,26 @@
 /* Begin PBXFileReference section */
 		094894EA086E148C24332877 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		1823D932B8D825DAC0CCD969 /* Shader.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = Shader.metal; sourceTree = "<group>"; };
+		19BF67909D0B69A8F9C24161 /* AchievementNotificationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AchievementNotificationController.swift; sourceTree = "<group>"; };
 		27DDFFE30E84F2ACAAF59B2A /* MarketplaceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketplaceView.swift; sourceTree = "<group>"; };
 		2B5D5CF9B91ACBC30EE56658 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		3007C0225BA8A96F1691195B /* Achievement.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Achievement.swift; sourceTree = "<group>"; };
 		3194057963488DEC257525E7 /* Updater.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Updater.swift; sourceTree = "<group>"; };
 		384D36D95EDBA845A8846AFB /* CVDisplayLinkManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CVDisplayLinkManager.swift; sourceTree = "<group>"; };
 		3CADFB944FB661D365ABC00D /* CatStats.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CatStats.swift; sourceTree = "<group>"; };
+		3FFB3F6BAC43138DAE8C0640 /* AchievementsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AchievementsView.swift; sourceTree = "<group>"; };
 		4488C3D373F06F90ED53DC79 /* MenuBarController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarController.swift; sourceTree = "<group>"; };
+		46633A63E635E66B68F3FD62 /* AchievementsWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AchievementsWindow.swift; sourceTree = "<group>"; };
 		496C74F3714074E570F55548 /* WrappedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WrappedView.swift; sourceTree = "<group>"; };
 		4B40224A8720D15FFBCC7AAC /* OnekoMac.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = OnekoMac.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		5091BBC2626F28C1C766EEDB /* AchievementManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AchievementManager.swift; sourceTree = "<group>"; };
 		55B3B81C5011267F6DAF0B3C /* RenderPipeline.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RenderPipeline.swift; sourceTree = "<group>"; };
 		6291E521D616BF84F9E72210 /* MarketplaceWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketplaceWindow.swift; sourceTree = "<group>"; };
 		64E78100FB2CCE4D913C064E /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
 		66132A6ABAD5BCAA7DA83E8C /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		6F1061172FA02617D56856A5 /* SettingsWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsWindow.swift; sourceTree = "<group>"; };
 		74E9A3436C239059DF84CDBA /* WrappedWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WrappedWindow.swift; sourceTree = "<group>"; };
+		82FEE8FBA68CFAF56C432936 /* LaserMover.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaserMover.swift; sourceTree = "<group>"; };
 		86A3D336EAC8DA514C0D2EEA /* Language.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Language.swift; sourceTree = "<group>"; };
 		B4DAB10CD2B55CFD42A30689 /* MouseTracker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MouseTracker.swift; sourceTree = "<group>"; };
 		B6DA81A3304E1D396304D6C4 /* SkinManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SkinManager.swift; sourceTree = "<group>"; };
@@ -125,6 +137,8 @@
 				64E78100FB2CCE4D913C064E /* main.swift */,
 				E518A06A04AFBBF4857FA9C8 /* OverlayWindow.swift */,
 				3194057963488DEC257525E7 /* Updater.swift */,
+				9564C14BDC7382EC53942880 /* Achievements */,
+				CEA063F95DD51BBF3243FF45 /* LaserPointer */,
 				F1EC39C9C8882ADB1DF2AA06 /* Localization */,
 				EADBCF02B1795271AFF5BADE /* Marketplace */,
 				F319C750148C65D2D751E10A /* MenuBar */,
@@ -145,6 +159,18 @@
 				E6FA5A4DF59A7E38250C9E51 /* Timing */,
 			);
 			path = Engine;
+			sourceTree = "<group>";
+		};
+		9564C14BDC7382EC53942880 /* Achievements */ = {
+			isa = PBXGroup;
+			children = (
+				3007C0225BA8A96F1691195B /* Achievement.swift */,
+				5091BBC2626F28C1C766EEDB /* AchievementManager.swift */,
+				19BF67909D0B69A8F9C24161 /* AchievementNotificationController.swift */,
+				3FFB3F6BAC43138DAE8C0640 /* AchievementsView.swift */,
+				46633A63E635E66B68F3FD62 /* AchievementsWindow.swift */,
+			);
+			path = Achievements;
 			sourceTree = "<group>";
 		};
 		9573F1E7BED390227A4780F4 /* Resources */ = {
@@ -172,6 +198,14 @@
 				DB2C7B4B1ED08191325EBB90 /* OnboardingWindow.swift */,
 			);
 			path = Onboarding;
+			sourceTree = "<group>";
+		};
+		CEA063F95DD51BBF3243FF45 /* LaserPointer */ = {
+			isa = PBXGroup;
+			children = (
+				82FEE8FBA68CFAF56C432936 /* LaserMover.swift */,
+			);
+			path = LaserPointer;
 			sourceTree = "<group>";
 		};
 		E059C9103FB4DAAB01D2C0EE = {
@@ -309,10 +343,16 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AEDA98124D897AED8B6AF011 /* Achievement.swift in Sources */,
+				2032A49FDC2CBB1DCA9DD1C6 /* AchievementManager.swift in Sources */,
+				7815B78BE36E6A83858DD5C2 /* AchievementNotificationController.swift in Sources */,
+				D46F298CDA7AA9362A1170EF /* AchievementsView.swift in Sources */,
+				4B1965A74C6E56C45193EDDB /* AchievementsWindow.swift in Sources */,
 				F0EF73B65AB2BFD3F3C67F39 /* AppDelegate.swift in Sources */,
 				D4D932688504CF3E4E081A3B /* CVDisplayLinkManager.swift in Sources */,
 				6C6972D798ED769E660E6AEE /* CatStats.swift in Sources */,
 				CCE095F2D760A6C245673855 /* Language.swift in Sources */,
+				D8FBF00AB9B04F6424B014D0 /* LaserMover.swift in Sources */,
 				86C58FC806AD5C983FC671BF /* Logging.swift in Sources */,
 				28323440D6FF6DFB5BF16F39 /* MarketplaceView.swift in Sources */,
 				71B170AE2541063614FCF8FE /* MarketplaceWindow.swift in Sources */,

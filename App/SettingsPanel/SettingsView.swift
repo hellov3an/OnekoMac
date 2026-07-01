@@ -186,6 +186,7 @@ struct SettingsView: View {
     @EnvironmentObject var lang: LanguageManager
     let onShowWrapped: () -> Void
     let onShowMarketplace: () -> Void
+    let onShowAchievements: () -> Void
 
     @AppStorage("pet_name") private var petName: String = "Neko"
     @State private var eggTaps = 0
@@ -268,7 +269,11 @@ struct SettingsView: View {
 
     private func handleEggTap() {
         eggTaps += 1
-        if eggTaps >= 5 { eggTaps = 0; showEgg = true }
+        if eggTaps >= 5 {
+            eggTaps = 0
+            showEgg = true
+            renderer.achievementManager.triggerEasterEgg()
+        }
     }
 
     private var eggPopover: some View {
@@ -392,7 +397,7 @@ struct SettingsView: View {
 
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 6) {
-                    ForEach(allAchievements) { a in
+                    ForEach(allAchievements.prefix(8)) { a in
                         AchievementPill(
                             achievement: a,
                             unlocked: manager.unlockedIDs.contains(a.id)
@@ -404,6 +409,23 @@ struct SettingsView: View {
                 }
                 .padding(.vertical, 2)
             }
+
+            Button { onShowAchievements() } label: {
+                HStack {
+                    Text("View All Achievements")
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(Color.orange)
+                    Spacer()
+                    Image(systemName: "chevron.right")
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(Color.orange.opacity(0.7))
+                }
+                .padding(.horizontal, 12)
+                .padding(.vertical, 8)
+                .background(Color.orange.opacity(0.08), in: RoundedRectangle(cornerRadius: 8))
+                .overlay(RoundedRectangle(cornerRadius: 8).strokeBorder(Color.orange.opacity(0.18), lineWidth: 1))
+            }
+            .buttonStyle(.plain)
         }
     }
 

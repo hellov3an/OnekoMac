@@ -59,6 +59,7 @@ final class MetalRenderer: ObservableObject {
     // Achievements
     let achievementManager = AchievementManager()
     private var achievementCheckAccum: Double = 0
+    private var dockedSince: Date?
 
     private var lastClickTime: TimeInterval = 0
     private var clickMonitor: Any?
@@ -151,17 +152,21 @@ final class MetalRenderer: ObservableObject {
         laserActive = active
         if active {
             laserMover.place(x: neko.posX, y: neko.posY)
+            catStats.recordLaserSession()
         }
         checkAchievements()
     }
 
     func checkAchievements() {
-        achievementManager.check(
+        let ctx = AchievementContext(
             stats: catStats,
             laserActive: laserActive,
             scale: catScale,
-            speedMultiplier: speedMultiplier
+            speedMultiplier: speedMultiplier,
+            dockedLongEnough: dockedSince.map { Date().timeIntervalSince($0) >= 3600 } ?? false,
+            hourOfDay: Calendar.current.component(.hour, from: Date())
         )
+        achievementManager.check(context: ctx)
     }
 
     // MARK: – Double-click to dock / single-click to wake
@@ -184,6 +189,7 @@ final class MetalRenderer: ObservableObject {
 
         if neko.isDockedToMenuBar {
             neko.wake()
+            dockedSince = nil
         } else {
             let now = CACurrentMediaTime()
             let isDoubleClick = now - lastClickTime < 0.4
@@ -192,6 +198,8 @@ final class MetalRenderer: ObservableObject {
 
             let menuBarBottom = Float(NSStatusBar.system.thickness)
             neko.dockToMenuBar(targetY: menuBarBottom)
+            catStats.recordDocked()
+            dockedSince = Date()
         }
     }
 
@@ -203,6 +211,7 @@ final class MetalRenderer: ObservableObject {
 
     func setSkin(_ id: String) {
         currentSkinID = id
+        catStats.recordSkinUsed(id)
     }
 
     var availableSkins: [String] { skinManager.availableIDs }
@@ -360,17 +369,21 @@ final class MetalRenderer: ObservableObject {
 
         if achievementCheckAccum >= 15 {
             achievementCheckAccum = 0
-            let laser = laserActive
-            let scale = catScale
-            let speed = speedMultiplier
+            let laser  = laserActive
+            let scale  = catScale
+            let speed  = speedMultiplier
+            let since  = dockedSince
             DispatchQueue.main.async { [weak self] in
                 guard let self else { return }
-                self.achievementManager.check(
+                let ctx = AchievementContext(
                     stats: self.catStats,
                     laserActive: laser,
                     scale: scale,
-                    speedMultiplier: speed
+                    speedMultiplier: speed,
+                    dockedLongEnough: since.map { Date().timeIntervalSince($0) >= 3600 } ?? false,
+                    hourOfDay: Calendar.current.component(.hour, from: Date())
                 )
+                self.achievementManager.check(context: ctx)
             }
         }
     }
