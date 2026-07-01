@@ -182,6 +182,24 @@ struct SettingsView: View {
             }
             .buttonStyle(.plain)
 
+            HStack(spacing: 8) {
+                Image(systemName: "arrow.up.left.and.arrow.down.right")
+                    .foregroundStyle(.orange)
+                    .font(.caption)
+                Text(lang["settings.size"])
+                    .font(.callout)
+                Slider(
+                    value: Binding(
+                        get: { Double(renderer.catScale) },
+                        set: { renderer.setCatScale(Float($0)) }
+                    ),
+                    in: 0.5...3.0, step: 0.25
+                )
+                Text(String(format: "%.2g×", renderer.catScale))
+                    .font(.caption.monospacedDigit())
+                    .foregroundStyle(.secondary)
+                    .frame(width: 30, alignment: .trailing)
+            }
         }
     }
 

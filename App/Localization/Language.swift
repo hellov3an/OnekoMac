@@ -702,5 +702,12 @@ enum Strings {
             .german:   "Bei Anmeldung starten",
             .spanish:  "Iniciar al arranque",
         ],
+        "settings.size": [
+            .english:  "Size",
+            .french:   "Taille",
+            .japanese: "サイズ",
+            .german:   "Größe",
+            .spanish:  "Tamaño",
+        ],
     ]
 }

@@ -66,12 +66,58 @@ final class NekoCat {
     // Speed in points per 100ms tick — original JS was 10, bumped to 16.
     private let nekoSpeed: Float = 16
 
+    // MARK: – Docked (menu-bar sleep) state
+    // Written from main thread, read from CVLink thread — Bool writes are atomic in practice.
+    var isDockedToMenuBar = false
+    private var dockedTargetY: Float = 0
+    private var dockedAnimFrame = 0
+
+    func dockToMenuBar(targetY: Float) {
+        dockedTargetY  = targetY
+        dockedAnimFrame = 0
+        idleAnimation  = nil
+        idleAnimFrame  = 0
+        idleTime       = 0
+        isDockedToMenuBar = true
+    }
+
+    func wake() {
+        isDockedToMenuBar = false
+        dockedAnimFrame   = 0
+        idleAnimation     = nil
+        idleAnimFrame     = 0
+        idleTime          = 0
+        currentUV = spriteUV(.alert, frame: 0)
+    }
+
     func update(dt: Float, mouseX: Float, mouseY: Float) {
         logicAccum += dt
         if logicAccum >= tickInterval {
             logicAccum -= tickInterval
-            // Target is the cursor; place cat slightly below cursor tip (+20 pts Y).
-            logicTick(mouseX: mouseX, mouseY: mouseY + 20)
+            if isDockedToMenuBar {
+                dockedTick()
+            } else {
+                // Target is the cursor; place cat slightly below cursor tip (+20 pts Y).
+                logicTick(mouseX: mouseX, mouseY: mouseY + 20)
+            }
+        }
+    }
+
+    // MARK: – Docked tick: move north to targetY then sleep
+
+    private func dockedTick() {
+        dockedAnimFrame += 1
+        let diff = posY - dockedTargetY
+        if diff > nekoSpeed {
+            posY -= nekoSpeed
+            currentUV = spriteUV(.N, frame: dockedAnimFrame)
+        } else {
+            posY = dockedTargetY
+            if dockedAnimFrame < 8 {
+                currentUV = spriteUV(.tired, frame: 0)
+            } else {
+                currentUV = spriteUV(.sleeping, frame: dockedAnimFrame / 4)
+            }
         }
     }
 

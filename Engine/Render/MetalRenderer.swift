@@ -47,6 +47,10 @@ final class MetalRenderer: ObservableObject {
     @Published private(set) var stats = DebugStats()
     @Published private(set) var currentSkinID = "classic"
     @Published private(set) var allSkinIDs: [String] = SkinManager.skinIDs
+    @Published var catScale: Float = 1.0
+
+    private var lastClickTime: TimeInterval = 0
+    private var clickMonitor: Any?
 
     init() throws {
         guard let dev = MTLCreateSystemDefaultDevice() else {
@@ -105,7 +109,50 @@ final class MetalRenderer: ObservableObject {
         // Also load any previously downloaded custom skins.
         skinManager.loadCustomSprites()
 
+        let saved = UserDefaults.standard.double(forKey: "cat_scale")
+        if saved > 0 { catScale = Float(max(0.5, min(3.0, saved))) }
+
         startLoop()
+    }
+
+    func setCatScale(_ scale: Float) {
+        catScale = scale
+        UserDefaults.standard.set(Double(scale), forKey: "cat_scale")
+    }
+
+    // MARK: – Double-click to dock / single-click to wake
+
+    private func startClickMonitor() {
+        clickMonitor = NSEvent.addGlobalMonitorForEvents(matching: .leftMouseDown) { [weak self] _ in
+            self?.handleClick()
+        }
+    }
+
+    private func handleClick() {
+        let screenPoint = NSEvent.mouseLocation
+        let union = NSScreen.screens.reduce(NSRect.null) { $0.union($1.frame) }
+        let simX = Float(screenPoint.x - union.minX)
+        let simY = Float(union.maxY - screenPoint.y)
+
+        let hitRadius = 32 * catScale
+        guard abs(simX - neko.posX) < hitRadius,
+              abs(simY - neko.posY) < hitRadius else { return }
+
+        if neko.isDockedToMenuBar {
+            neko.wake()
+        } else {
+            let now = CACurrentMediaTime()
+            let isDoubleClick = now - lastClickTime < 0.4
+            lastClickTime = now
+            guard isDoubleClick else { return }
+
+            let menuBarBottom = Float(NSStatusBar.system.thickness)
+            neko.dockToMenuBar(targetY: menuBarBottom)
+        }
+    }
+
+    deinit {
+        clickMonitor.map { NSEvent.removeMonitor($0) }
     }
 
     // MARK: – Skin switching
@@ -125,6 +172,7 @@ final class MetalRenderer: ObservableObject {
 
     private func startLoop() {
         displayLink.start { [weak self] dt in self?.tick(dt: dt) }
+        startClickMonitor()
     }
 
     private func tick(dt: Double) {
@@ -157,9 +205,10 @@ final class MetalRenderer: ObservableObject {
         let buf = instanceBuffers[bufferIndex]
         bufferIndex = (bufferIndex + 1) % 3
         let ptr = buf.contents().bindMemory(to: SpriteInstanceGPU.self, capacity: 1)
+        let spriteSize = 64 * catScale
         ptr[0] = SpriteInstanceGPU(
             position: SIMD2<Float>(neko.posX, neko.posY),
-            size:     SIMD2<Float>(64, 64),  // 2x pixel art upscale (same as browser on Retina)
+            size:     SIMD2<Float>(spriteSize, spriteSize),
             uvRect:   neko.currentUV
         )
 
