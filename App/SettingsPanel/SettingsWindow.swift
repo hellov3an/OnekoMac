@@ -5,7 +5,7 @@ import SwiftUI
 final class SettingsWindow: NSPanel {
     init() {
         super.init(
-            contentRect: NSRect(x: 0, y: 0, width: 340, height: 380),
+            contentRect: NSRect(x: 0, y: 0, width: 340, height: 470),
             styleMask:   [.titled, .closable, .fullSizeContentView, .nonactivatingPanel],
             backing:     .buffered,
             defer:       false
@@ -16,7 +16,7 @@ final class SettingsWindow: NSPanel {
         level                          = .floating
         isReleasedWhenClosed           = false
         collectionBehavior             = [.canJoinAllSpaces, .fullScreenAuxiliary]
-        backgroundColor                = NSColor.windowBackgroundColor
+        backgroundColor                = NSColor(red: 0.055, green: 0.055, blue: 0.11, alpha: 1)
     }
 
     override var canBecomeKey: Bool { true }

@@ -709,5 +709,19 @@ enum Strings {
             .german:   "Größe",
             .spanish:  "Tamaño",
         ],
+        "settings.speed": [
+            .english:  "Speed",
+            .french:   "Vitesse",
+            .japanese: "スピード",
+            .german:   "Geschwindigkeit",
+            .spanish:  "Velocidad",
+        ],
+        "settings.your_pet": [
+            .english:  "Your pet",
+            .french:   "Votre pet",
+            .japanese: "あなたのペット",
+            .german:   "Dein Haustier",
+            .spanish:  "Tu mascota",
+        ],
     ]
 }

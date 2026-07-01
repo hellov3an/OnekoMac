@@ -48,6 +48,7 @@ final class MetalRenderer: ObservableObject {
     @Published private(set) var currentSkinID = "classic"
     @Published private(set) var allSkinIDs: [String] = SkinManager.skinIDs
     @Published var catScale: Float = 1.0
+    @Published var speedMultiplier: Float = 1.0
 
     private var lastClickTime: TimeInterval = 0
     private var clickMonitor: Any?
@@ -112,12 +113,24 @@ final class MetalRenderer: ObservableObject {
         let saved = UserDefaults.standard.double(forKey: "cat_scale")
         if saved > 0 { catScale = Float(max(0.5, min(3.0, saved))) }
 
+        let savedSpeed = UserDefaults.standard.double(forKey: "cat_speed")
+        if savedSpeed > 0 {
+            speedMultiplier = Float(savedSpeed)
+            neko.speedMultiplier = Float(savedSpeed)
+        }
+
         startLoop()
     }
 
     func setCatScale(_ scale: Float) {
         catScale = scale
         UserDefaults.standard.set(Double(scale), forKey: "cat_scale")
+    }
+
+    func setSpeedMultiplier(_ v: Float) {
+        speedMultiplier = v
+        neko.speedMultiplier = v
+        UserDefaults.standard.set(Double(v), forKey: "cat_speed")
     }
 
     // MARK: – Double-click to dock / single-click to wake

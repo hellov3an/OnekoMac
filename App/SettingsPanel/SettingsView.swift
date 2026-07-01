@@ -2,8 +2,108 @@ import SwiftUI
 import AppKit
 import ServiceManagement
 
+// MARK: – Design tokens
 
-// MARK: – Skin preview image (idle frame cropped from the GIF atlas)
+private extension Color {
+    static let nekoNavy   = Color(red: 0.055, green: 0.055, blue: 0.11)
+    static let nekoCard   = Color.white.opacity(0.06)
+    static let nekoBorder = Color.white.opacity(0.09)
+    static let nekoMuted  = Color.white.opacity(0.45)
+}
+
+// MARK: – Section label
+
+private struct SectionLabel: View {
+    let text: String
+    var body: some View {
+        Text(text.uppercased())
+            .font(.system(size: 10, weight: .semibold))
+            .tracking(1.2)
+            .foregroundStyle(Color.orange.opacity(0.75))
+    }
+}
+
+// MARK: – Speed segmented control
+
+private struct SpeedControl: View {
+    @Binding var value: Float
+    private let opts: [(String, Float)] = [("🐢", 0.4), ("🐱", 1.0), ("⚡", 2.5)]
+
+    var body: some View {
+        HStack(spacing: 2) {
+            ForEach(opts, id: \.1) { emoji, v in
+                Button {
+                    withAnimation(.easeInOut(duration: 0.15)) { value = v }
+                } label: {
+                    Text(emoji)
+                        .font(.system(size: 15))
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 5)
+                        .background(
+                            RoundedRectangle(cornerRadius: 7)
+                                .fill(abs(value - v) < 0.01
+                                      ? Color.orange.opacity(0.25)
+                                      : Color.clear)
+                        )
+                }
+                .buttonStyle(.plain)
+            }
+        }
+        .padding(3)
+        .background(Color.nekoCard, in: RoundedRectangle(cornerRadius: 10))
+        .overlay(RoundedRectangle(cornerRadius: 10).strokeBorder(Color.nekoBorder, lineWidth: 1))
+    }
+}
+
+// MARK: – XP bar
+
+private struct XPBar: View {
+    let progress: Double
+
+    var body: some View {
+        GeometryReader { g in
+            ZStack(alignment: .leading) {
+                Capsule().fill(Color.white.opacity(0.08))
+                Capsule()
+                    .fill(LinearGradient(
+                        colors: [.orange, Color(red: 1, green: 0.4, blue: 0.6)],
+                        startPoint: .leading, endPoint: .trailing
+                    ))
+                    .frame(width: max(6, g.size.width * CGFloat(progress)))
+                    .animation(.easeInOut(duration: 0.4), value: progress)
+            }
+        }
+        .frame(height: 6)
+    }
+}
+
+// MARK: – Stat card
+
+private struct StatCard: View {
+    let icon: String
+    let value: String
+    let label: String
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            HStack(alignment: .firstTextBaseline, spacing: 5) {
+                Text(icon)
+                Text(value)
+                    .font(.title3.bold())
+                    .foregroundStyle(.white)
+            }
+            Text(label)
+                .font(.caption)
+                .foregroundStyle(Color.nekoMuted)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(12)
+        .background(Color.nekoCard, in: RoundedRectangle(cornerRadius: 12))
+        .overlay(RoundedRectangle(cornerRadius: 12).strokeBorder(Color.nekoBorder, lineWidth: 1))
+    }
+}
+
+// MARK: – Skin preview
 
 struct SkinPreview: View {
     let skinID: String
@@ -13,12 +113,11 @@ struct SkinPreview: View {
         VStack(spacing: 4) {
             ZStack {
                 RoundedRectangle(cornerRadius: 10)
-                    .fill(isSelected
-                          ? Color.accentColor.opacity(0.18)
-                          : Color.secondary.opacity(0.08))
+                    .fill(isSelected ? Color.orange.opacity(0.18) : Color.white.opacity(0.06))
                     .overlay(
                         RoundedRectangle(cornerRadius: 10)
-                            .strokeBorder(isSelected ? Color.accentColor : Color.clear, lineWidth: 2)
+                            .strokeBorder(isSelected ? Color.orange : Color.white.opacity(0.1),
+                                          lineWidth: isSelected ? 2 : 1)
                     )
                     .frame(width: 56, height: 56)
 
@@ -30,7 +129,7 @@ struct SkinPreview: View {
             }
             Text(skinID.capitalized)
                 .font(.caption2)
-                .foregroundStyle(isSelected ? .primary : .secondary)
+                .foregroundStyle(isSelected ? .white : Color.nekoMuted)
         }
     }
 
@@ -39,7 +138,6 @@ struct SkinPreview: View {
               let data = try? Data(contentsOf: url),
               let src  = CGImageSourceCreateWithData(data as CFData, nil),
               let full = CGImageSourceCreateImageAtIndex(src, 0, nil) else { return nil }
-
         let rect = CGRect(x: 3 * 32, y: 3 * 32, width: 32, height: 32)
         guard let cropped = full.cropping(to: rect) else { return nil }
         let img = NSImage(cgImage: cropped, size: NSSize(width: 48, height: 48))
@@ -58,89 +156,94 @@ struct SettingsView: View {
     let onShowMarketplace: () -> Void
 
     @AppStorage("pet_name") private var petName: String = "Neko"
-
     @State private var eggTaps = 0
     @State private var showEgg = false
     @State private var launchAtLogin: Bool = (SMAppService.mainApp.status == .enabled)
+
+    private var catStats: CatStats { renderer.catStats }
+
     var body: some View {
         VStack(spacing: 0) {
-            titleBar
-            Divider()
-            ScrollView {
-                VStack(alignment: .leading, spacing: 20) {
-                    skinSection
-                    Divider()
+            headerBar
+            ScrollView(showsIndicators: false) {
+                VStack(alignment: .leading, spacing: 18) {
+                    petSection
+                    statsSection
                     wrappedButton
-                    Divider()
                     personalizeSection
-                    Divider()
                     updatesSection
-                    Divider()
-                    debugSection
                 }
-                .padding(20)
+                .padding(16)
             }
-            Divider()
             bottomBar
         }
         .frame(width: 340)
+        .background(Color.nekoNavy)
+        .colorScheme(.dark)
     }
 
-    // MARK: – Title bar
+    // MARK: – Header
 
-    var titleBar: some View {
+    private var headerBar: some View {
         HStack(spacing: 10) {
             Image(systemName: "pawprint.fill")
                 .font(.title2)
                 .foregroundStyle(.orange)
                 .onTapGesture { handleEggTap() }
-                .popover(isPresented: $showEgg, arrowEdge: .trailing) {
-                    eggPopover
-                }
+                .popover(isPresented: $showEgg, arrowEdge: .trailing) { eggPopover }
 
             VStack(alignment: .leading, spacing: 1) {
                 TextField("Neko", text: $petName)
                     .textFieldStyle(.plain)
-                    .font(.headline)
+                    .font(.system(size: 15, weight: .bold))
+                    .foregroundStyle(.white)
                 Text("v\(updater.currentVersion)")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .font(.caption2)
+                    .foregroundStyle(Color.nekoMuted)
             }
 
             Spacer()
 
+            HStack(spacing: 4) {
+                Text("⭐")
+                    .font(.caption)
+                Text("Lv.\(catStats.level)")
+                    .font(.caption.bold())
+                    .foregroundStyle(.white)
+            }
+            .padding(.horizontal, 8)
+            .padding(.vertical, 4)
+            .background(Color.orange.opacity(0.18), in: Capsule())
+            .overlay(Capsule().strokeBorder(Color.orange.opacity(0.35), lineWidth: 1))
+
             Text(String(format: "%.0f fps", renderer.stats.fps))
                 .font(.caption.monospacedDigit())
+                .foregroundStyle(Color.nekoMuted)
                 .padding(.horizontal, 7)
-                .padding(.vertical, 3)
-                .background(.quaternary, in: Capsule())
+                .padding(.vertical, 4)
+                .background(Color.white.opacity(0.07), in: Capsule())
         }
-        .padding(.horizontal, 20)
-        .padding(.top, 16)
+        .padding(.horizontal, 16)
+        .padding(.top, 14)
         .padding(.bottom, 12)
+        .overlay(alignment: .bottom) {
+            Rectangle()
+                .fill(Color.white.opacity(0.08))
+                .frame(height: 1)
+        }
     }
-
-    // MARK: – Easter egg
 
     private func handleEggTap() {
         eggTaps += 1
-        if eggTaps >= 5 {
-            eggTaps = 0
-            showEgg = true
-        }
+        if eggTaps >= 5 { eggTaps = 0; showEgg = true }
     }
 
     private var eggPopover: some View {
         VStack(spacing: 10) {
-            Image(systemName: "pawprint.fill")
-                .font(.title)
-                .foregroundStyle(.orange)
-            Text("OnekoMac")
-                .font(.headline)
+            Image(systemName: "pawprint.fill").font(.title).foregroundStyle(.orange)
+            Text("OnekoMac").font(.headline)
             Divider()
-            Text("Made with ❤️ by")
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
+            Text("Made with ❤️ by").font(.subheadline).foregroundStyle(.secondary)
             Link("@hellov3an", destination: URL(string: "https://github.com/hellov3an")!)
                 .font(.subheadline.weight(.semibold))
         }
@@ -148,12 +251,11 @@ struct SettingsView: View {
         .frame(minWidth: 180)
     }
 
-    // MARK: – Skin section
+    // MARK: – Pet section (skin + size + speed)
 
-    var skinSection: some View {
+    private var petSection: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Label(lang["settings.skin"], systemImage: "paintbrush.fill")
-                .font(.subheadline).bold()
+            SectionLabel(text: lang["settings.your_pet"])
 
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 8) {
@@ -163,31 +265,23 @@ struct SettingsView: View {
                             .animation(.easeInOut(duration: 0.15), value: renderer.currentSkinID)
                     }
                 }
+                .padding(.vertical, 2)
             }
 
-            Button {
-                onShowMarketplace()
-            } label: {
+            Button { onShowMarketplace() } label: {
                 HStack(spacing: 6) {
-                    Image(systemName: "square.grid.2x2.fill")
-                        .font(.caption)
-                        .foregroundStyle(.orange)
-                    Text(lang["settings.marketplace"])
-                        .font(.caption.weight(.medium))
-                        .foregroundStyle(.primary)
+                    Image(systemName: "square.grid.2x2.fill").font(.caption).foregroundStyle(.orange)
+                    Text(lang["settings.marketplace"]).font(.caption.weight(.medium))
                 }
-                .padding(.horizontal, 12)
-                .padding(.vertical, 6)
-                .background(.quaternary, in: Capsule())
+                .padding(.horizontal, 12).padding(.vertical, 6)
+                .background(Color.white.opacity(0.07), in: Capsule())
+                .overlay(Capsule().strokeBorder(Color.white.opacity(0.1), lineWidth: 1))
             }
             .buttonStyle(.plain)
 
             HStack(spacing: 8) {
-                Image(systemName: "arrow.up.left.and.arrow.down.right")
-                    .foregroundStyle(.orange)
-                    .font(.caption)
-                Text(lang["settings.size"])
-                    .font(.callout)
+                Text("📐").font(.caption)
+                Text(lang["settings.size"]).font(.callout).foregroundStyle(.white)
                 Slider(
                     value: Binding(
                         get: { Double(renderer.catScale) },
@@ -197,20 +291,88 @@ struct SettingsView: View {
                 )
                 Text(String(format: "%.2g×", renderer.catScale))
                     .font(.caption.monospacedDigit())
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(Color.nekoMuted)
                     .frame(width: 30, alignment: .trailing)
+            }
+
+            HStack(spacing: 8) {
+                Text(lang["settings.speed"]).font(.callout).foregroundStyle(.white)
+                Spacer()
+                SpeedControl(value: Binding(
+                    get: { renderer.speedMultiplier },
+                    set: { renderer.setSpeedMultiplier($0) }
+                ))
+                .frame(width: 116)
             }
         }
     }
 
-    // MARK: – Personalize section (launch at login + share card)
+    // MARK: – Stats section
 
-    var personalizeSection: some View {
+    private var statsSection: some View {
         VStack(alignment: .leading, spacing: 10) {
+            SectionLabel(text: lang["settings.stats"])
+
+            HStack(spacing: 10) {
+                StatCard(
+                    icon: "🔥",
+                    value: "\(catStats.streak)",
+                    label: catStats.streak == 1 ? "day streak" : "day streak"
+                )
+                StatCard(
+                    icon: "⭐",
+                    value: "Lv.\(catStats.level)",
+                    label: catStats.xpLabel
+                )
+            }
+
+            VStack(spacing: 5) {
+                XPBar(progress: catStats.xpProgress)
+                HStack {
+                    Text("\(Int(catStats.distanceMeters))m \(lang["stats.walked"])")
+                        .font(.caption2)
+                        .foregroundStyle(Color.nekoMuted)
+                    Spacer()
+                    Text(String(format: "%.0fm to Lv.%d", catStats.metersToNextLevel, catStats.level + 1))
+                        .font(.caption2)
+                        .foregroundStyle(Color.nekoMuted)
+                }
+            }
+        }
+    }
+
+    // MARK: – Wrapped CTA
+
+    private var wrappedButton: some View {
+        Button { onShowWrapped() } label: {
+            HStack(spacing: 10) {
+                Image(systemName: "sparkles")
+                Text(lang["wrapped.btn"])
+                Spacer()
+                Image(systemName: "chevron.right").font(.caption.weight(.semibold))
+            }
+            .font(.callout.weight(.semibold))
+            .foregroundStyle(.white)
+            .padding(.horizontal, 14).padding(.vertical, 11)
+            .background(
+                LinearGradient(colors: [.orange, Color(red: 1, green: 0.35, blue: 0.6)],
+                               startPoint: .leading, endPoint: .trailing),
+                in: RoundedRectangle(cornerRadius: 12)
+            )
+        }
+        .buttonStyle(.plain)
+    }
+
+    // MARK: – Personalize section
+
+    private var personalizeSection: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            SectionLabel(text: "PERSONALIZE")
+
             Toggle(lang["settings.launch_login"], isOn: $launchAtLogin)
                 .toggleStyle(.switch)
                 .controlSize(.small)
-                .font(.subheadline)
+                .font(.callout)
                 .onChange(of: launchAtLogin) { newVal in
                     do {
                         if newVal { try SMAppService.mainApp.register() }
@@ -221,11 +383,11 @@ struct SettingsView: View {
             Button { shareCardFromSettings() } label: {
                 HStack(spacing: 6) {
                     Image(systemName: "square.and.arrow.up").font(.caption)
-                    Text(lang["ob.card.share"]).font(.caption.weight(.medium)).foregroundStyle(.primary)
+                    Text(lang["ob.card.share"]).font(.caption.weight(.medium))
                 }
-                .padding(.horizontal, 12)
-                .padding(.vertical, 6)
-                .background(.quaternary, in: Capsule())
+                .padding(.horizontal, 12).padding(.vertical, 6)
+                .background(Color.white.opacity(0.07), in: Capsule())
+                .overlay(Capsule().strokeBorder(Color.white.opacity(0.1), lineWidth: 1))
             }
             .buttonStyle(.plain)
         }
@@ -255,35 +417,11 @@ struct SettingsView: View {
         showSharePicker(for: image)
     }
 
-    // MARK: – Wrapped CTA
-
-    var wrappedButton: some View {
-        Button { onShowWrapped() } label: {
-            HStack(spacing: 10) {
-                Image(systemName: "sparkles")
-                Text(lang["wrapped.btn"])
-                Spacer()
-                Image(systemName: "chevron.right").font(.caption.weight(.semibold))
-            }
-            .font(.callout.weight(.semibold))
-            .foregroundStyle(.white)
-            .padding(.horizontal, 14)
-            .padding(.vertical, 11)
-            .background(
-                LinearGradient(colors: [.orange, .pink],
-                               startPoint: .leading, endPoint: .trailing),
-                in: RoundedRectangle(cornerRadius: 12)
-            )
-        }
-        .buttonStyle(.plain)
-    }
-
     // MARK: – Updates section
 
-    var updatesSection: some View {
+    private var updatesSection: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Label(lang["settings.updates"], systemImage: "arrow.down.circle.fill")
-                .font(.subheadline).bold()
+            SectionLabel(text: lang["settings.updates"])
 
             HStack(spacing: 10) {
                 updateStatusView
@@ -304,8 +442,7 @@ struct SettingsView: View {
             if case .available(let version, let url) = updater.state {
                 HStack(spacing: 6) {
                     Image(systemName: "arrow.down.circle.fill").foregroundStyle(.green)
-                    Text("v\(version) \(lang["update.available"])")
-                        .fontWeight(.medium)
+                    Text("v\(version) \(lang["update.available"])").fontWeight(.medium)
                     Spacer()
                     Button(lang["update.install_btn"]) {
                         Task { await updater.downloadAndInstall(zipURL: url) }
@@ -321,7 +458,7 @@ struct SettingsView: View {
     }
 
     @ViewBuilder
-    var updateStatusView: some View {
+    private var updateStatusView: some View {
         switch updater.state {
         case .idle:
             Text(lang["update.never"]).foregroundStyle(.secondary)
@@ -349,34 +486,13 @@ struct SettingsView: View {
         }
     }
 
-    // MARK: – Debug section
-
-    var debugSection: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            Label(lang["settings.debug"], systemImage: "chart.bar.fill")
-                .font(.subheadline).bold()
-            HStack {
-                debugStat("FPS",    String(format: "%.0f", renderer.stats.fps))
-                Spacer()
-                debugStat("GPU ms", String(format: "%.2f", renderer.stats.gpuMs))
-            }
-        }
-    }
-
-    func debugStat(_ label: String, _ value: String) -> some View {
-        VStack(alignment: .leading, spacing: 2) {
-            Text(label).font(.caption).foregroundStyle(.secondary)
-            Text(value).font(.system(.callout, design: .monospaced)).fontWeight(.semibold)
-        }
-    }
-
     // MARK: – Bottom bar
 
-    var bottomBar: some View {
+    private var bottomBar: some View {
         HStack {
             Link("GitHub", destination: URL(string: "https://github.com/hellov3an/OnekoMac")!)
                 .font(.caption)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(Color.nekoMuted)
             Spacer()
             languagePicker
             Spacer()
@@ -385,8 +501,13 @@ struct SettingsView: View {
                 .controlSize(.small)
                 .tint(.red)
         }
-        .padding(.horizontal, 20)
+        .padding(.horizontal, 16)
         .padding(.vertical, 10)
+        .overlay(alignment: .top) {
+            Rectangle()
+                .fill(Color.white.opacity(0.08))
+                .frame(height: 1)
+        }
     }
 
     private var languagePicker: some View {
@@ -403,5 +524,4 @@ struct SettingsView: View {
         .frame(width: 118)
         .controlSize(.small)
     }
-
 }

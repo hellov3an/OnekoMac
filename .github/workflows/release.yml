@@ -38,7 +38,7 @@ jobs:
         id: check
         run: |
           TAG="${{ steps.ver.outputs.tag }}"
-          if gh release view "$TAG" &>/dev/null 2>&1; then
+          if gh release view "$TAG" > /dev/null 2>&1; then
             echo "Version $TAG already released — skipping."
             echo "skip=true" >> $GITHUB_OUTPUT
           else
@@ -80,10 +80,11 @@ jobs:
           APP_DIR="$RUNNER_TEMP/OnekoMac.xcarchive/Products/Applications"
           TAG="${{ steps.ver.outputs.tag }}"
           ICNS="$APP_DIR/OnekoMac.app/Contents/Resources/AppIcon.icns"
-
-          # ── DMG ──────────────────────────────────────────────────────────────
           DMG="$RUNNER_TEMP/OnekoMac-${TAG}.dmg"
+          ZIP="$RUNNER_TEMP/OnekoMac-${TAG}.zip"
 
+          # Try with background image; if it fails (missing asset), retry without.
+          rm -f "$DMG"
           create-dmg \
             --volname "OnekoMac" \
             --volicon "$ICNS" \
@@ -94,25 +95,23 @@ jobs:
             --app-drop-link 405 170 \
             --hide-extension "OnekoMac.app" \
             --no-internet-enable \
-            "$DMG" \
-            "$APP_DIR" \
-          || \
-          create-dmg \
-            --volname "OnekoMac" \
-            --volicon "$ICNS" \
-            --window-size 540 360 \
-            --icon-size 128 \
-            --icon "OnekoMac.app" 135 170 \
-            --app-drop-link 405 170 \
-            --hide-extension "OnekoMac.app" \
-            --no-internet-enable \
-            "$DMG" \
-            "$APP_DIR"
+            "$DMG" "$APP_DIR" \
+          || {
+            rm -f "$DMG"
+            create-dmg \
+              --volname "OnekoMac" \
+              --volicon "$ICNS" \
+              --window-size 540 360 \
+              --icon-size 128 \
+              --icon "OnekoMac.app" 135 170 \
+              --app-drop-link 405 170 \
+              --hide-extension "OnekoMac.app" \
+              --no-internet-enable \
+              "$DMG" "$APP_DIR"
+          }
 
-          # ── ZIP (.app) ───────────────────────────────────────────────────────
-          ZIP="$RUNNER_TEMP/OnekoMac-${TAG}.zip"
-          cd "$APP_DIR"
-          zip -r --symlinks "$ZIP" OnekoMac.app
+          # ZIP of the .app
+          ( cd "$APP_DIR" && zip -r --symlinks "$ZIP" OnekoMac.app )
 
           echo "DMG=$DMG" >> $GITHUB_ENV
           echo "ZIP=$ZIP" >> $GITHUB_ENV
@@ -145,7 +144,8 @@ jobs:
 
   update-tap:
     needs: release
-    if: needs.release.outputs.skip == 'false'
+    # Only run when: the release job actually succeeded AND a new version was built.
+    if: needs.release.result == 'success' && needs.release.outputs.skip == 'false'
     runs-on: ubuntu-latest
 
     steps:
@@ -160,10 +160,23 @@ jobs:
         run: |
           VERSION="${{ needs.release.outputs.version }}"
           URL="https://github.com/hellov3an/OnekoMac/releases/download/v${VERSION}/OnekoMac-v${VERSION}.dmg"
-          echo "Downloading $URL …"
-          SHA=$(curl -sL "$URL" | shasum -a 256 | awk '{print $1}')
-          echo "sha256=$SHA" >> $GITHUB_OUTPUT
-          echo "SHA256: $SHA"
+          echo "Target: $URL"
+
+          # Retry up to 6 times (GitHub CDN can take ~30s to propagate a new asset).
+          for i in 1 2 3 4 5 6; do
+            HTTP=$(curl -sL --write-out "%{http_code}" -o /tmp/release.dmg "$URL")
+            if [ "$HTTP" = "200" ]; then
+              SHA=$(shasum -a 256 /tmp/release.dmg | awk '{print $1}')
+              echo "sha256=$SHA" >> $GITHUB_OUTPUT
+              echo "SHA256: $SHA"
+              exit 0
+            fi
+            echo "Attempt $i: HTTP $HTTP — waiting 15s before retry…"
+            sleep 15
+          done
+
+          echo "ERROR: DMG not available after 6 attempts"
+          exit 1
 
       - name: Update cask version and sha256
         run: |

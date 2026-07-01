@@ -64,7 +64,8 @@ final class NekoCat {
     private let tickInterval: Float = 0.1
 
     // Speed in points per 100ms tick — original JS was 10, bumped to 16.
-    private let nekoSpeed: Float = 16
+    var speedMultiplier: Float = 1.0
+    private var nekoSpeed: Float { 16 * speedMultiplier }
 
     // MARK: – Docked (menu-bar sleep) state
     // Written from main thread, read from CVLink thread — Bool writes are atomic in practice.
