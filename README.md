@@ -60,10 +60,10 @@ Switch between skins at any time from the settings panel.
 
 > The app will ask for no permissions. If your cursor is moving, the cat follows it.
 
-### Homebrew *(coming soon)*
+### Homebrew
 
 ```sh
-brew install --cask onekomac
+brew install --cask hellov3an/tap/onekomac
 ```
 
 ### Build from source
