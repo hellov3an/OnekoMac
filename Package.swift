@@ -11,10 +11,13 @@ let package = Package(
         .executableTarget(
             name: "OnekoMac",
             path: ".",
+            exclude: [
+                "Engine/Render/Shader.metal",
+                "Resources/DefaultCat/generate_atlas.swift"
+            ],
             sources: [
                 "App",
                 "Engine",
-                "Pets",
                 "Skins",
                 "Utils"
             ],

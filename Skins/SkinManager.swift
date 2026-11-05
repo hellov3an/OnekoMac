@@ -8,7 +8,7 @@ final class SkinManager {
     private let lock = NSLock()
     private var device: MTLDevice?
 
-    static let skinIDs = ["classic", "dog", "tora", "maia", "vaporwave"]
+    static let skinIDs = ["classic", "dog", "tora", "maia", "vaporwave", "ginger", "midnight", "tabby-goldtail"]
 
     // MARK: – Custom sprites directory (Application Support)
 
