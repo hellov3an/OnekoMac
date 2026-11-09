@@ -27,7 +27,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         NSApp.setActivationPolicy(.accessory)
 
         do { renderer = try MetalRenderer() }
-        catch { fatalError("Metal init failed: \(error)") }
+        catch { fatalError("Metal init failed (make a issues on GitHub): \(error)") }
 
         overlayWindow = OverlayWindow()
         let union = OverlayWindow.unionFrame()
