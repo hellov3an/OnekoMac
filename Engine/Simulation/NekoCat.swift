@@ -68,17 +68,18 @@ final class NekoCat {
     private var nekoSpeed: Float { 16 * speedMultiplier }
 
     // MARK: – Docked (menu-bar sleep) state
-    // Written from main thread, read from CVLink thread — Bool writes are atomic in practice.
     var isDockedToMenuBar = false
+    private var dockedTargetX: Float = 0
     private var dockedTargetY: Float = 0
     private var dockedAnimFrame = 0
 
     func dockToMenuBar(targetY: Float) {
-        dockedTargetY  = targetY
+        dockedTargetY   = targetY
+        dockedTargetX   = SwarmCoordinator.shared.randomSleepingX(screenWidth: screenWidth)
         dockedAnimFrame = 0
-        idleAnimation  = nil
-        idleAnimFrame  = 0
-        idleTime       = 0
+        idleAnimation   = nil
+        idleAnimFrame   = 0
+        idleTime        = 0
         isDockedToMenuBar = true
     }
 
@@ -98,21 +99,36 @@ final class NekoCat {
             if isDockedToMenuBar {
                 dockedTick()
             } else {
-                // Target is the cursor; place cat slightly below cursor tip (+20 pts Y).
-                logicTick(mouseX: mouseX, mouseY: mouseY + 20)
+                let (offX, offY) = SwarmCoordinator.shared.targetOffset()
+                logicTick(mouseX: mouseX + offX, mouseY: mouseY + offY)
             }
         }
     }
 
-    // MARK: – Docked tick: move north to targetY then sleep
+    // MARK: – Docked tick: move naturally towards (dockedTargetX, dockedTargetY) then sleep
 
     private func dockedTick() {
         dockedAnimFrame += 1
-        let diff = posY - dockedTargetY
-        if diff > nekoSpeed {
-            posY -= nekoSpeed
-            currentUV = spriteUV(.N, frame: dockedAnimFrame)
+        let diffX = posX - dockedTargetX
+        let diffY = posY - dockedTargetY
+        let distance = (diffX * diffX + diffY * diffY).squareRoot()
+
+        if distance > nekoSpeed {
+            var dir = ""
+            if diffY / distance >  0.5 { dir += "N" }
+            if diffY / distance < -0.5 { dir += "S" }
+            if diffX / distance >  0.5 { dir += "W" }
+            if diffX / distance < -0.5 { dir += "E" }
+
+            let anim = Anim(rawValue: dir.isEmpty ? "N" : dir) ?? .N
+            currentUV = spriteUV(anim, frame: dockedAnimFrame)
+
+            posX -= (diffX / distance) * nekoSpeed
+            posY -= (diffY / distance) * nekoSpeed
+            posX = min(max(32, posX), screenWidth  - 32)
+            posY = min(max(32, posY), screenHeight - 32)
         } else {
+            posX = dockedTargetX
             posY = dockedTargetY
             if dockedAnimFrame < 8 {
                 currentUV = spriteUV(.tired, frame: 0)
@@ -120,6 +136,7 @@ final class NekoCat {
                 currentUV = spriteUV(.sleeping, frame: dockedAnimFrame / 4)
             }
         }
+        _ = SwarmCoordinator.shared.updatePosition(x: posX, y: posY)
     }
 
     // MARK: – JS frame() port
@@ -157,6 +174,9 @@ final class NekoCat {
 
         posX -= (diffX / distance) * nekoSpeed
         posY -= (diffY / distance) * nekoSpeed
+        let (pushX, pushY) = SwarmCoordinator.shared.updatePosition(x: posX, y: posY)
+        posX += pushX
+        posY += pushY
         posX = min(max(32, posX), screenWidth  - 32)
         posY = min(max(32, posY), screenHeight - 32)
         onStep?(nekoSpeed)
@@ -166,6 +186,11 @@ final class NekoCat {
 
     private func idleLogic() {
         idleTime += 1
+        let (pushX, pushY) = SwarmCoordinator.shared.updatePosition(x: posX, y: posY)
+        if pushX != 0 || pushY != 0 {
+            posX = min(max(32, posX + pushX), screenWidth  - 32)
+            posY = min(max(32, posY + pushY), screenHeight - 32)
+        }
 
         if idleTime > 10, idleAnimation == nil, Int.random(in: 0..<200) == 0 {
             var pool: [Anim] = [.sleeping, .scratchSelf]

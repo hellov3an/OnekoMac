@@ -10,12 +10,16 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var achievementNotifications: AchievementNotificationController?
 
     func applicationWillFinishLaunching(_ notification: Notification) {
-        let running = NSRunningApplication.runningApplications(
-            withBundleIdentifier: Bundle.main.bundleIdentifier ?? ""
-        )
-        if running.count > 1 {
-            running.first(where: { $0 != NSRunningApplication.current })?.activate(options: .activateIgnoringOtherApps)
-            NSApp.terminate(nil)
+        let isSwarmAllowed = UserDefaults.standard.bool(forKey: "allow_swarm") ||
+                             CommandLine.arguments.contains("--swarm")
+        if !isSwarmAllowed {
+            let running = NSRunningApplication.runningApplications(
+                withBundleIdentifier: Bundle.main.bundleIdentifier ?? ""
+            )
+            if running.count > 1 {
+                running.first(where: { $0 != NSRunningApplication.current })?.activate(options: .activateIgnoringOtherApps)
+                NSApp.terminate(nil)
+            }
         }
     }
 
